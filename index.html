@@ -4,113 +4,836 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoTraverse - Land & Property Solutions</title>
+    
+    <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            background-color: white;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #0f74ba 0%, #1e3a5f 100%);
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .service-modal, .image-modal {
+            animation: modalFade 0.3s ease-out;
+        }
+        
+        @keyframes modalFade {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .floating-wp {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 100;
+            animation: pulse 2s infinite;
+        }
+        
+        .floating-call {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            animation: pulse 2s infinite;
+            animation-delay: 0.5s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: #0f172a;
+        }
+        
+        body.dark-mode .bg-white {
+            background-color: #1e293b;
+        }
+        
+        body.dark-mode .text-gray-800,
+        body.dark-mode .text-gray-700 {
+            color: #f1f5f9;
+        }
+        
+        body.dark-mode .text-gray-500,
+        body.dark-mode .text-gray-400 {
+            color: #94a3b8;
+        }
+        
+        body.dark-mode .bg-gray-50 {
+            background-color: #0f172a;
+        }
+        
+        body.dark-mode .border-gray-100 {
+            border-color: #334155;
+        }
+        
+        body.dark-mode .bg-gray-100 {
+            background-color: #1e293b;
+        }
+        
+        .gallery-img {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-img:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .video-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        /* Video Modal */
+        .video-modal {
+            animation: modalFade 0.3s ease-out;
+        }
+        
+        /* Navbar - Bold color */
+        .navbar {
+            background-color: #0f74ba !important;
+        }
+        
+        .navbar a, .navbar span, .navbar i {
+            color: white !important;
+        }
+        
+        .navbar .text-gray-600 {
+            color: white !important;
+        }
+        
+        .navbar .hover\\:text-blue-600:hover {
+            color: #bfdbfe !important;
+        }
+        
+        .dark-mode-toggle {
+            color: white !important;
+        }
+        
+        .mobile-menu-btn {
+            color: white !important;
+        }
+        
+        /* Search highlight */
+        .search-highlight {
+            background-color: #fef3c7;
+            color: #d97706;
+            padding: 0 2px;
+            border-radius: 4px;
+        }
+        
+        .search-hidden {
+            display: none !important;
+        }
+        
+        .search-visible {
+            display: block !important;
+        }
+        
+        .product-search-hidden {
+            display: none !important;
+        }
+        
+        .gallery-search-hidden {
+            display: none !important;
+        }
+        
+        .video-search-hidden {
+            display: none !important;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-white">
 
-    <!-- Navigation - Public (No Login) -->
-    <nav class="bg-blue-900 text-white p-4 sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" class="h-10">
-                <span class="text-xl font-bold">GeoTraverse</span>
+    <!-- ==================== FLOATING WHATSAPP & CALL BUTTONS ==================== -->
+    <a href="https://wa.me/255763782274" target="_blank" class="floating-wp bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition z-50">
+        <i class="fab fa-whatsapp text-2xl"></i>
+    </a>
+    
+    <a href="tel:+255719336667" class="floating-call bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition z-50">
+        <i class="fas fa-phone-alt text-2xl"></i>
+    </a>
+
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="navbar shadow-lg sticky top-0 z-50 transition-colors" style="background-color: #0f74ba;">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center flex-wrap gap-3">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="GeoTraverse Logo" class="w-10 h-10 rounded-lg object-cover">
+                    <span class="text-2xl font-bold text-white">GeoTraverse</span>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-md mx-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <input type="text" id="searchInput" placeholder="Search services, products, gallery, videos..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm bg-white text-gray-800">
+                    </div>
+                    <div id="searchResults" class="absolute bg-white shadow-lg rounded-lg mt-1 w-full max-w-md z-50 hidden max-h-96 overflow-y-auto"></div>
+                </div>
+                
+                <!-- Navigation Links & Dark Mode -->
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex space-x-6">
+                        <a href="#home" class="text-white hover:text-blue-200 transition font-medium">Home</a>
+                        <a href="#services" class="text-white hover:text-blue-200 transition font-medium">Services</a>
+                        <a href="#products" class="text-white hover:text-blue-200 transition font-medium">Products</a>
+                        <a href="#gallery" class="text-white hover:text-blue-200 transition font-medium">Gallery</a>
+                        <a href="#videos" class="text-white hover:text-blue-200 transition font-medium">Videos</a>
+                        <a href="#about" class="text-white hover:text-blue-200 transition font-medium">About</a>
+                        <a href="#contact" class="text-white hover:text-blue-200 transition font-medium">Contact</a>
+                    </div>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <button id="darkModeToggle" class="dark-mode-toggle text-white hover:text-blue-200 transition">
+                        <i id="darkModeIcon" class="fas fa-moon text-xl"></i>
+                    </button>
+                    
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" class="mobile-menu-btn md:hidden text-white hover:text-blue-200">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
             </div>
-            <div class="space-x-6">
-                <a href="/" class="hover:text-blue-300">Home</a>
-                <a href="/about.html" class="hover:text-blue-300">About</a>
-                <a href="/services.html" class="hover:text-blue-300">Services</a>
-                <a href="#departments" class="hover:text-blue-300">Departments</a>
-                <a href="/contact.html" class="hover:text-blue-300">Contact</a>
+            
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden md:hidden mt-4 pb-4 space-y-3">
+                <a href="#home" class="block text-white hover:text-blue-200 transition">Home</a>
+                <a href="#services" class="block text-white hover:text-blue-200 transition">Services</a>
+                <a href="#products" class="block text-white hover:text-blue-200 transition">Products</a>
+                <a href="#gallery" class="block text-white hover:text-blue-200 transition">Gallery</a>
+                <a href="#videos" class="block text-white hover:text-blue-200 transition">Videos</a>
+                <a href="#about" class="block text-white hover:text-blue-200 transition">About</a>
+                <a href="#contact" class="block text-white hover:text-blue-200 transition">Contact</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
-        <div class="container mx-auto text-center">
-            <h1 class="text-5xl font-bold mb-4">Welcome to GeoTraverse</h1>
-            <p class="text-xl mb-8">Your trusted partner in land survey, property development, and real estate</p>
-            <a href="#departments" class="bg-white text-blue-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-                Access Department Portal →
-            </a>
+    <!-- ==================== HERO SECTION ==================== -->
+    <section id="home" class="hero-section text-white py-20">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Your Trusted Partner in <span class="text-blue-300">Land & Property</span> Solutions</h1>
+                    <p class="text-lg mb-8 text-blue-100">Professional land survey, property development, construction, and building materials supply across Tanzania.</p>
+                    <div class="flex space-x-4">
+                        <a href="#services" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg">Explore Services →</a>
+                        <a href="#contact" class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition">Contact Us</a>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <img src="https://picsum.photos/id/104/500/400" alt="Property" class="rounded-2xl shadow-2xl">
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Departments Section - Each with Login Button -->
-    <section id="departments" class="container mx-auto py-16">
-        <h2 class="text-3xl font-bold text-center mb-12">Our Departments</h2>
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- ==================== SERVICES SECTION ==================== -->
+    <section id="services" class="py-20 bg-white dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-3">Our Services</h2>
+                <p class="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">Professional land and property services tailored to your needs</p>
+            </div>
             
-            <!-- Managers Department -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
-                <div class="bg-purple-600 p-4 text-center">
-                    <i class="fas fa-user-tie text-white text-4xl"></i>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="servicesGrid">
+                <!-- Service 1 -->
+                <div class="service-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-100 dark:border-gray-700" data-name="Ununuzi na Uuzaji wa Viwanja" data-category="service" onclick="openServiceModal('buySell')">
+                    <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-handshake text-blue-600 dark:text-blue-400 text-2xl"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Ununuzi na Uuzaji wa Viwanja</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Tunasaidia wateja kupata na kuuza viwanja kwa urahisi na uhakika.</p>
+                    <div class="mt-3 text-blue-600 dark:text-blue-400 text-sm font-medium">Click to learn more →</div>
                 </div>
-                <div class="p-6 text-center">
-                    <h3 class="font-bold text-xl mb-2">Managers Department</h3>
-                    <p class="text-gray-600 text-sm mb-4">Housing projects & land survey management</p>
-                    <a href="/departments/management/login.html" 
-                       class="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition w-full">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Department Login
-                    </a>
+                
+                <!-- Service 2 -->
+                <div class="service-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-100 dark:border-gray-700" data-name="Uchoraji wa Ramani za Nyumba" data-category="service" onclick="openServiceModal('architectural')">
+                    <div class="w-14 h-14 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-drafting-compass text-green-600 dark:text-green-400 text-2xl"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Uchoraji wa Ramani za Nyumba</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Tunachora ramani za kisasa kulingana na mahitaji ya mteja.</p>
+                    <div class="mt-3 text-green-600 dark:text-green-400 text-sm font-medium">Click to learn more →</div>
                 </div>
-            </div>
-
-            <!-- Finance Department -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
-                <div class="bg-green-600 p-4 text-center">
-                    <i class="fas fa-calculator text-white text-4xl"></i>
+                
+                <!-- Service 3 -->
+                <div class="service-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-100 dark:border-gray-700" data-name="Upimaji na Upangaji wa Ardhi" data-category="service" onclick="openServiceModal('survey')">
+                    <div class="w-14 h-14 bg-orange-100 dark:bg-orange-900 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-map-marked-alt text-orange-600 dark:text-orange-400 text-2xl"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Upimaji na Upangaji wa Ardhi</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Tunapima na kupanga ardhi kwa kufuata taratibu na viwango rasmi.</p>
+                    <div class="mt-3 text-orange-600 dark:text-orange-400 text-sm font-medium">Click to learn more →</div>
                 </div>
-                <div class="p-6 text-center">
-                    <h3 class="font-bold text-xl mb-2">Finance & Accounting</h3>
-                    <p class="text-gray-600 text-sm mb-4">Financial management, invoices & reports</p>
-                    <a href="/departments/finance/login.html" 
-                       class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition w-full">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Department Login
-                    </a>
+                
+                <!-- Service 4 -->
+                <div class="service-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-100 dark:border-gray-700" data-name="Ujenzi wa Nyumba" data-category="service" onclick="openServiceModal('construction')">
+                    <div class="w-14 h-14 bg-red-100 dark:bg-red-900 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-home text-red-600 dark:text-red-400 text-2xl"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Ujenzi wa Nyumba</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Tunafanya ujenzi wa majengo ya kisasa kwa ubora wa hali ya juu.</p>
+                    <div class="mt-3 text-red-600 dark:text-red-400 text-sm font-medium">Click to learn more →</div>
                 </div>
-            </div>
-
-            <!-- Sales & Marketing Department -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
-                <div class="bg-orange-600 p-4 text-center">
-                    <i class="fas fa-chart-line text-white text-4xl"></i>
-                </div>
-                <div class="p-6 text-center">
-                    <h3 class="font-bold text-xl mb-2">Sales & Marketing</h3>
-                    <p class="text-gray-600 text-sm mb-4">Property sales, orders & promotions</p>
-                    <a href="/departments/sales/login.html" 
-                       class="inline-block bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition w-full">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Department Login
-                    </a>
-                </div>
-            </div>
-
-            <!-- Secretary Department -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
-                <div class="bg-red-600 p-4 text-center">
-                    <i class="fas fa-envelope text-white text-4xl"></i>
-                </div>
-                <div class="p-6 text-center">
-                    <h3 class="font-bold text-xl mb-2">Secretary Department</h3>
-                    <p class="text-gray-600 text-sm mb-4">Administration, messages & appointments</p>
-                    <a href="/departments/secretary/login.html" 
-                       class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition w-full">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Department Login
-                    </a>
+                
+                <!-- Service 5 -->
+                <div class="service-card bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-100 dark:border-gray-700" data-name="Ufuatiliaji wa Hati Miliki" data-category="service" onclick="openServiceModal('landDocs')">
+                    <div class="w-14 h-14 bg-purple-100 dark:bg-purple-900 rounded-xl flex items-center justify-center mb-4"><i class="fas fa-file-signature text-purple-600 dark:text-purple-400 text-2xl"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Ufuatiliaji wa Hati Miliki</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Tunasaidia kupata na kufuatilia hati miliki za ardhi kwa usahihi.</p>
+                    <div class="mt-3 text-purple-600 dark:text-purple-400 text-sm font-medium">Click to learn more →</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-6 mt-12">
-        <div class="container mx-auto text-center text-sm">
-            <p>&copy; 2024 GeoTraverse. All rights reserved.</p>
-            <p class="text-gray-400 mt-2">Your trusted partner in land & property solutions</p>
+    <!-- ==================== PRODUCTS SECTION (Mbao na Matofali) ==================== -->
+    <section id="products" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-3">🧱 Vifaa vya Ujenzi</h2>
+                <p class="text-gray-500 dark:text-gray-400">Bei za Mbao na Matofali - Ubora wa hali ya juu</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8" id="productsGrid">
+                <!-- Matofali Section -->
+                <div class="product-card bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden" data-name="Matofali Tofali" data-category="product">
+                    <div class="bg-gradient-to-r from-orange-600 to-red-600 p-4 text-white">
+                        <h3 class="text-xl font-bold"><i class="fas fa-cubes mr-2"></i> Matofali (Bricks)</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <span class="font-semibold text-gray-700 dark:text-gray-200">Tofali na usafiri</span>
+                                <span class="text-2xl font-bold text-orange-600 dark:text-orange-400">1,100 Tsh</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <span class="font-semibold text-gray-700 dark:text-gray-200">Tofali bila usafiri</span>
+                                <span class="text-2xl font-bold text-orange-600 dark:text-orange-400">950 Tsh</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                            <p class="text-sm text-blue-600 dark:text-blue-300"><i class="fas fa-truck mr-2"></i> Usafiri unapatikana kwa maeneo yote Dar es Salaam na Dodoma</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mbao Section -->
+                <div class="product-card bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden" data-name="Mbao Timber" data-category="product">
+                    <div class="bg-gradient-to-r from-green-600 to-teal-600 p-4 text-white">
+                        <h3 class="text-xl font-bold"><i class="fas fa-tree mr-2"></i> Mbao (Timber)</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <span class="font-semibold text-gray-700 dark:text-gray-200">Mbao 1×4</span>
+                                <span class="text-2xl font-bold text-green-600 dark:text-green-400">2,500 Tsh</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <span class="font-semibold text-gray-700 dark:text-gray-200">Mbao 1×6</span>
+                                <span class="text-2xl font-bold text-green-600 dark:text-green-400">5,000 Tsh</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <span class="font-semibold text-gray-700 dark:text-gray-200">Mbao 2×3</span>
+                                <span class="text-2xl font-bold text-green-600 dark:text-green-400">2,500 Tsh</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <span class="font-semibold text-gray-700 dark:text-gray-200">Mbao 2×4</span>
+                                <span class="text-2xl font-bold text-green-600 dark:text-green-400">4,500 Tsh</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <span class="font-semibold text-gray-700 dark:text-gray-200">Mbao 1×8</span>
+                                <span class="text-2xl font-bold text-green-600 dark:text-green-400">10,000 Tsh</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="#contact" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    <i class="fas fa-shopping-cart mr-2"></i> Order Now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== GALLERY SECTION ==================== -->
+    <section id="gallery" class="py-20 bg-white dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-3">📸 Project Gallery</h2>
+                <p class="text-gray-500 dark:text-gray-400">View our completed projects - Click on any image to enlarge</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="galleryGrid"></div>
+            <div id="noGalleryResults" class="text-center py-8 text-gray-500 hidden">No gallery images found matching your search</div>
+        </div>
+    </section>
+
+    <!-- ==================== VIDEOS SECTION ==================== -->
+    <section id="videos" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-3">🎬 Promotional Videos</h2>
+                <p class="text-gray-500 dark:text-gray-400">Watch our latest property tours and promotions</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="videosGrid"></div>
+            <div id="noVideoResults" class="text-center py-8 text-gray-500 hidden">No videos found matching your search</div>
+        </div>
+    </section>
+
+    <!-- ==================== ABOUT SECTION ==================== -->
+    <section id="about" class="py-20 bg-white dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div><img src="https://picsum.photos/id/106/500/400" alt="About Us" class="rounded-2xl shadow-xl"></div>
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">About GeoTraverse</h2>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">GeoTraverse ni kampuni inayoongoza katika utoaji wa huduma za ardhi na mali nchini Tanzania, tukijitolea kutoa ubora katika kila mradi tunaofanya.</p>
+                    <p class="text-gray-600 dark:text-gray-300 mb-6">Kwa zaidi ya miaka 10 ya uzoefu, tumefanikiwa kukamilisha zaidi ya miradi 150, kuwasaidia wateja kufikia malengo yao ya maendeleo ya ardhi na mali.</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-green-500"></i><span class="text-gray-700 dark:text-gray-300">Wataalamu wenye leseni na vyeti</span></div>
+                        <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-green-500"></i><span class="text-gray-700 dark:text-gray-300">Vifaa vya kisasa na teknolojia</span></div>
+                        <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-green-500"></i><span class="text-gray-700 dark:text-gray-300">Uwasilishaji wa miradi kwa wakati</span></div>
+                        <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-green-500"></i><span class="text-gray-700 dark:text-gray-300">Huduma bora kwa wateja</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CONTACT SECTION ==================== -->
+    <section id="contact" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-3">Get In Touch</h2>
+                <p class="text-gray-500 dark:text-gray-400">Send us a message and our secretary will respond promptly</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <div class="space-y-6">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center"><i class="fas fa-map-marker-alt text-blue-600 dark:text-blue-400 text-xl"></i></div>
+                            <div><h3 class="font-semibold text-gray-800 dark:text-white">Our Office</h3><p class="text-gray-500 dark:text-gray-400">Bara bara ya 9, Dodoma, Tanzania</p></div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center"><i class="fas fa-phone text-blue-600 dark:text-blue-400 text-xl"></i></div>
+                            <div><h3 class="font-semibold text-gray-800 dark:text-white">Phone</h3><a href="tel:+255719336667" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 transition block">0719 336 667</a></div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center"><i class="fab fa-whatsapp text-green-600 dark:text-green-400 text-xl"></i></div>
+                            <div><h3 class="font-semibold text-gray-800 dark:text-white">WhatsApp</h3><a href="https://wa.me/255763782274" target="_blank" class="text-gray-500 dark:text-gray-400 hover:text-green-600 transition block">0763 782 274</a></div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center"><i class="fas fa-envelope text-blue-600 dark:text-blue-400 text-xl"></i></div>
+                            <div><h3 class="font-semibold text-gray-800 dark:text-white">Email</h3><p class="text-gray-500 dark:text-gray-400">info@geotraverse.com</p></div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center"><i class="fas fa-clock text-blue-600 dark:text-blue-400 text-xl"></i></div>
+                            <div><h3 class="font-semibold text-gray-800 dark:text-white">Working Hours</h3><p class="text-gray-500 dark:text-gray-400">Monday - Friday: 8:00 AM - 5:00 PM</p></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md">
+                        <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                            <p class="text-sm text-blue-600 dark:text-blue-300"><i class="fas fa-info-circle mr-2"></i>Messages go directly to Secretary Department</p>
+                        </div>
+                        <form id="contactForm">
+                            <div class="mb-4"><input type="text" id="contactName" placeholder="Your Name" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required></div>
+                            <div class="mb-4"><input type="email" id="contactEmail" placeholder="Your Email" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required></div>
+                            <div class="mb-4"><input type="tel" id="contactPhone" placeholder="Your Phone" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></div>
+                            <div class="mb-4"><textarea id="contactMessage" rows="4" placeholder="Your Message" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" required></textarea></div>
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"><i class="fas fa-paper-plane mr-2"></i> Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="bg-gray-900 text-white py-10">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4"><img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="Logo" class="w-8 h-8 rounded-lg object-cover"><span class="text-xl font-bold">GeoTraverse</span></div>
+                    <p class="text-gray-400 text-sm">Your trusted partner in land and property solutions across Tanzania.</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="https://wa.me/255763782274" target="_blank" class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center hover:bg-green-700 transition"><i class="fab fa-whatsapp text-white"></i></a>
+                        <a href="tel:+255719336667" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition"><i class="fas fa-phone-alt text-white"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition"><i class="fab fa-facebook-f text-white"></i></a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-gray-600 transition"><i class="fab fa-instagram text-white"></i></a>
+                    </div>
+                </div>
+                
+                <div><h4 class="font-semibold mb-4">Quick Links</h4><ul class="space-y-2 text-gray-400 text-sm"><li><a href="#home" class="hover:text-white transition">Home</a></li><li><a href="#services" class="hover:text-white transition">Services</a></li><li><a href="#products" class="hover:text-white transition">Products</a></li><li><a href="#gallery" class="hover:text-white transition">Gallery</a></li><li><a href="#videos" class="hover:text-white transition">Videos</a></li><li><a href="#about" class="hover:text-white transition">About</a></li><li><a href="#contact" class="hover:text-white transition">Contact</a></li></ul></div>
+                
+                <div><h4 class="font-semibold mb-4">Staff Access</h4><ul class="space-y-2 text-gray-400 text-sm"><li><a href="/managers/login.html" class="hover:text-white transition">Managers</a></li><li><a href="/finance/login.html" class="hover:text-white transition">Finance</a></li><li><a href="/sales/login.html" class="hover:text-white transition">Sales</a></li><li><a href="/secretary/login.html" class="hover:text-white transition">Secretary</a></li><li><a href="/admin/login.html" class="hover:text-white transition">Admin</a></li></ul></div>
+                
+                <div><h4 class="font-semibold mb-4">Contact Info</h4><ul class="space-y-2 text-gray-400 text-sm"><li><i class="fas fa-map-marker-alt mr-2 text-blue-400"></i> Bara bara ya 9, Dodoma</li><li><i class="fas fa-phone mr-2 text-blue-400"></i> 0719 336 667</li><li><i class="fab fa-whatsapp mr-2 text-green-400"></i> 0763 782 274</li><li><i class="fas fa-envelope mr-2 text-blue-400"></i> info@geotraverse.com</li></ul></div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2024 GeoTraverse. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
+    <!-- ==================== MODALS ==================== -->
+    <!-- Service Modal -->
+    <div id="serviceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full mx-4 service-modal overflow-hidden">
+            <div class="relative">
+                <img id="modalImage" src="" alt="Service" class="w-full h-64 object-cover">
+                <button onclick="closeServiceModal()" class="absolute top-4 right-4 bg-white dark:bg-gray-700 rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-600"><i class="fas fa-times text-gray-600 dark:text-gray-300"></i></button>
+            </div>
+            <div class="p-6">
+                <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 dark:text-white mb-3"></h3>
+                <p id="modalDescription" class="text-gray-600 dark:text-gray-300 mb-4"></p>
+                <div id="modalFeatures" class="mb-6"></div>
+                <a href="#contact" onclick="closeServiceModal()" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">Request This Service →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-50">
+        <div class="relative max-w-4xl w-full mx-4">
+            <button onclick="closeImageModal()" class="absolute -top-12 right-0 text-white text-3xl hover:text-gray-300">&times;</button>
+            <img id="modalImageFull" src="" alt="Full size" class="w-full rounded-lg">
+        </div>
+    </div>
+
+    <!-- Video Play Modal -->
+    <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-50">
+        <div class="relative w-full max-w-4xl mx-4">
+            <button onclick="closeVideoModal()" class="absolute -top-12 right-0 text-white text-3xl hover:text-gray-300">&times;</button>
+            <div class="relative pb-[56.25%] h-0">
+                <iframe id="videoFrame" class="absolute top-0 left-0 w-full h-full rounded-lg" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Service data
+        const servicesData = {
+            buySell: {
+                title: "Ununuzi na Uuzaji wa Viwanja", image: "https://picsum.photos/id/101/800/400",
+                description: "Tunasaidia wateja kupata na kuuza viwanja kwa urahisi na uhakika. Tunahakikisha mchakato wote ni wa kisheria na salama.",
+                features: ["Kukusaidia kupata viwanja vya bei nafuu", "Kukuuzia viwanja vyako kwa bei nzuri", "Ushauri wa kisheria kwa ununuzi na uuzaji", "Uhakiki wa hati na umiliki", "Upatikanaji wa mikopo ya ununuzi wa viwanja"]
+            },
+            architectural: {
+                title: "Uchoraji wa Ramani za Nyumba", image: "https://picsum.photos/id/107/800/400",
+                description: "Tunachora ramani za kisasa kulingana na mahitaji ya mteja. Timu yetu ya wasanifu majengo ina uzoefu wa miaka mingi.",
+                features: ["Ramani za nyumba za kisasa", "Miundo ya kipekee kulingana na mahitaji yako", "3D visualization na rendering", "Ushauri wa kisasa wa usanifu", "Kubadilisha muundo wa nyumba zilizopo"]
+            },
+            survey: {
+                title: "Upimaji na Upangaji wa Ardhi", image: "https://picsum.photos/id/102/800/400",
+                description: "Tunapima na kupanga ardhi kwa kufuata taratibu na viwango rasmi. Tunatoa huduma za upimaji kwa viwanja vya aina zote.",
+                features: ["Upimaji wa mipaka ya viwanja", "Upangaji wa viwanja kwa ajili ya maendeleo", "Ushauri wa upimaji kabla ya ununuzi", "Ripoti za kina za upimaji", "Uthibitishaji wa ukubwa wa ardhi"]
+            },
+            construction: {
+                title: "Ujenzi wa Nyumba", image: "https://picsum.photos/id/106/800/400",
+                description: "Tunafanya ujenzi wa majengo ya kisasa kwa ubora wa hali ya juu. Kutoka msingi hadi kukamilika, tunahakikisha ubora.",
+                features: ["Ujenzi wa nyumba za kisasa", "Ujenzi wa majengo ya biashara", "Ubora wa vifaa vya ujenzi", "Usimamizi wa wakati na bajeti", "Udhamini wa miaka 5 kwa ujenzi wetu"]
+            },
+            landDocs: {
+                title: "Ufuatiliaji wa Hati Miliki", image: "https://picsum.photos/id/103/800/400",
+                description: "Tunasaidia kupata na kufuatilia hati miliki za ardhi kwa usahihi. Tunahakikisha hati zako ni halali na salama.",
+                features: ["Usajili wa hati miliki", "Ufuatiliaji wa maombi ya hati", "Ushauri wa kisheria kuhusu ardhi", "Kutatua migogoro ya ardhi", "Upataji wa vibali vya ujenzi"]
+            }
+        };
+        
+        // Gallery images
+        let galleryImages = [
+            { name: "Modern Villa Construction", url: "https://picsum.photos/id/104/400/300" },
+            { name: "Luxury House Exterior", url: "https://picsum.photos/id/106/400/300" },
+            { name: "Contemporary Home", url: "https://picsum.photos/id/107/400/300" },
+            { name: "Smart Home Design", url: "https://picsum.photos/id/108/400/300" },
+            { name: "Eco-Friendly House", url: "https://picsum.photos/id/109/400/300" },
+            { name: "Beachfront Property", url: "https://picsum.photos/id/110/400/300" },
+            { name: "Commercial Building", url: "https://picsum.photos/id/111/400/300" },
+            { name: "Land Survey Work", url: "https://picsum.photos/id/112/400/300" }
+        ];
+        
+        // Videos
+        let videos = [
+            { title: "Modern Villa Tour", videoId: "dQw4w9WgXcQ", thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg" },
+            { title: "Land Survey Process", videoId: "dQw4w9WgXcQ", thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg" },
+            { title: "Property Development Tips", videoId: "dQw4w9WgXcQ", thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg" }
+        ];
+        
+        // Render gallery
+        function renderGallery() {
+            const galleryGrid = document.getElementById('galleryGrid');
+            if(galleryGrid) {
+                galleryGrid.innerHTML = galleryImages.map((img, index) => `
+                    <div class="gallery-img overflow-hidden rounded-xl shadow-md" data-name="${img.name.toLowerCase()}" data-category="gallery" data-index="${index}">
+                        <img src="${img.url}" class="w-full h-48 object-cover" onclick="openImageModal('${img.url}')">
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // Render videos
+        function renderVideos() {
+            const videosGrid = document.getElementById('videosGrid');
+            if(videosGrid) {
+                videosGrid.innerHTML = videos.map((video, index) => `
+                    <div class="video-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden cursor-pointer" data-name="${video.title.toLowerCase()}" data-category="video" data-index="${index}" onclick="openVideoModal('${video.videoId}')">
+                        <img src="${video.thumbnail}" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold text-gray-800 dark:text-white">${video.title}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Click to play video</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // Search functionality
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            // Search Services
+            const serviceCards = document.querySelectorAll('#servicesGrid .service-card');
+            let serviceFound = false;
+            serviceCards.forEach(card => {
+                const name = card.getAttribute('data-name')?.toLowerCase() || '';
+                if (searchTerm === '' || name.includes(searchTerm)) {
+                    card.style.display = '';
+                    serviceFound = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Search Products
+            const productCards = document.querySelectorAll('#productsGrid .product-card');
+            let productFound = false;
+            productCards.forEach(card => {
+                const name = card.getAttribute('data-name')?.toLowerCase() || '';
+                if (searchTerm === '' || name.includes(searchTerm)) {
+                    card.style.display = '';
+                    productFound = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Search Gallery
+            const galleryItems = document.querySelectorAll('#galleryGrid .gallery-img');
+            let galleryFound = false;
+            galleryItems.forEach(item => {
+                const name = item.getAttribute('data-name') || '';
+                if (searchTerm === '' || name.includes(searchTerm)) {
+                    item.style.display = '';
+                    galleryFound = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Search Videos
+            const videoItems = document.querySelectorAll('#videosGrid .video-card');
+            let videoFound = false;
+            videoItems.forEach(item => {
+                const name = item.getAttribute('data-name') || '';
+                if (searchTerm === '' || name.includes(searchTerm)) {
+                    item.style.display = '';
+                    videoFound = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results messages
+            const noServiceMsg = document.getElementById('noServiceResults');
+            const noProductMsg = document.getElementById('noProductResults');
+            const noGalleryMsg = document.getElementById('noGalleryResults');
+            const noVideoMsg = document.getElementById('noVideoResults');
+            
+            if (noServiceMsg) noServiceMsg.classList.toggle('hidden', serviceFound || searchTerm === '');
+            if (noProductMsg) noProductMsg.classList.toggle('hidden', productFound || searchTerm === '');
+            if (noGalleryMsg) noGalleryMsg.classList.toggle('hidden', galleryFound || searchTerm === '');
+            if (noVideoMsg) noVideoMsg.classList.toggle('hidden', videoFound || searchTerm === '');
+        }
+        
+        function openServiceModal(serviceId) {
+            const service = servicesData[serviceId];
+            if(service) {
+                document.getElementById('modalTitle').innerText = service.title;
+                document.getElementById('modalImage').src = service.image;
+                document.getElementById('modalDescription').innerText = service.description;
+                let featuresHtml = '<div class="grid md:grid-cols-2 gap-2"><p class="font-semibold text-gray-700 dark:text-gray-300 mb-2 col-span-2">Key Features:</p>';
+                service.features.forEach(feature => { featuresHtml += `<div class="flex items-center space-x-2"><i class="fas fa-check-circle text-green-500 text-sm"></i><span class="text-gray-600 dark:text-gray-400 text-sm">${feature}</span></div>`; });
+                featuresHtml += '</div>';
+                document.getElementById('modalFeatures').innerHTML = featuresHtml;
+                document.getElementById('serviceModal').classList.remove('hidden');
+                document.getElementById('serviceModal').classList.add('flex');
+            }
+        }
+        
+        function closeServiceModal() {
+            document.getElementById('serviceModal').classList.add('hidden');
+            document.getElementById('serviceModal').classList.remove('flex');
+        }
+        
+        function openImageModal(imgSrc) {
+            document.getElementById('modalImageFull').src = imgSrc;
+            document.getElementById('imageModal').classList.remove('hidden');
+            document.getElementById('imageModal').classList.add('flex');
+        }
+        
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+            document.getElementById('imageModal').classList.remove('flex');
+        }
+        
+        function openVideoModal(videoId) {
+            const videoFrame = document.getElementById('videoFrame');
+            videoFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            document.getElementById('videoModal').classList.remove('hidden');
+            document.getElementById('videoModal').classList.add('flex');
+        }
+        
+        function closeVideoModal() {
+            const videoFrame = document.getElementById('videoFrame');
+            videoFrame.src = '';
+            document.getElementById('videoModal').classList.add('hidden');
+            document.getElementById('videoModal').classList.remove('flex');
+        }
+        
+        // Set data attributes for gallery and videos after render
+        function setDataAttributes() {
+            // Set gallery data attributes
+            const galleryItems = document.querySelectorAll('#galleryGrid .gallery-img');
+            galleryImages.forEach((img, index) => {
+                if (galleryItems[index]) {
+                    galleryItems[index].setAttribute('data-name', img.name.toLowerCase());
+                    galleryItems[index].setAttribute('data-category', 'gallery');
+                }
+            });
+            
+            // Set video data attributes
+            const videoItems = document.querySelectorAll('#videosGrid .video-card');
+            videos.forEach((video, index) => {
+                if (videoItems[index]) {
+                    videoItems[index].setAttribute('data-name', video.title.toLowerCase());
+                    videoItems[index].setAttribute('data-category', 'video');
+                }
+            });
+        }
+        
+        // Dark mode
+        let isDark = false;
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        
+        darkModeToggle?.addEventListener('click', () => {
+            isDark = !isDark;
+            if(isDark) {
+                document.body.classList.add('dark-mode');
+                darkModeIcon.classList.remove('fa-moon');
+                darkModeIcon.classList.add('fa-sun');
+            } else {
+                document.body.classList.remove('dark-mode');
+                darkModeIcon.classList.remove('fa-sun');
+                darkModeIcon.classList.add('fa-moon');
+            }
+        });
+        
+        // Search input event
+        const searchInput = document.getElementById('searchInput');
+        searchInput?.addEventListener('input', performSearch);
+        
+        // Mobile menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenuBtn?.addEventListener('click', () => { mobileMenu.classList.toggle('hidden'); });
+        
+        // Contact form
+        document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('contactName').value;
+            if(name) {
+                alert(`Thank you ${name}!\n\nYour message has been sent to Secretary Department.\nWe will get back to you within 24 hours.`);
+                this.reset();
+            } else { alert('Please fill all required fields.'); }
+        });
+        
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if(!href.startsWith('#')) return;
+                if(href === "#" || href === "#home" || href === "#services" || href === "#products" || href === "#gallery" || href === "#videos" || href === "#about" || href === "#contact") {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if(target) { target.scrollIntoView({ behavior: 'smooth' }); mobileMenu?.classList.add('hidden'); }
+                }
+            });
+        });
+        
+        // Initialize
+        renderGallery();
+        renderVideos();
+        setTimeout(setDataAttributes, 100);
+        
+        // Make functions global
+        window.openImageModal = openImageModal;
+        window.closeImageModal = closeImageModal;
+        window.openVideoModal = openVideoModal;
+        window.closeVideoModal = closeVideoModal;
+        window.openServiceModal = openServiceModal;
+        window.closeServiceModal = closeServiceModal;
+    </script>
 </body>
 </html>
