@@ -3,73 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - GeoTraverse</title>
+    <title>GeoTraverse - Admin Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- EmailJS - Kwa kutuma email halisi -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f74ba 0%, #0a5a8e 100%);
+            min-height: 100vh;
+        }
+        .login-card {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-blue-900 to-blue-700 min-h-screen flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+<body>
+
+<div class="min-h-screen flex items-center justify-center px-4">
+    <div class="login-card bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+        <!-- Logo -->
         <div class="text-center mb-8">
-            <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-globe-americas text-white text-2xl"></i>
+            <div class="flex justify-center mb-4">
+                <img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="Logo" class="w-16 h-16 rounded-xl shadow-lg">
             </div>
-            <h2 class="text-2xl font-bold text-gray-800">GeoTraverse</h2>
-            <p class="text-gray-500 mt-1">Admin Dashboard Login</p>
+            <h2 class="text-2xl font-bold text-gray-800">GeoTraverse Admin</h2>
+            <p class="text-gray-500 mt-1">Sign in to your dashboard</p>
         </div>
         
-        <form id="loginForm">
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                <div class="relative">
-                    <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="email" id="email" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="admin@geotraverse.com" required>
+        <!-- LOGIN FORM -->
+        <div id="loginFormDiv">
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="email" id="loginEmail" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="admin@geotraverse.com" required>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <div class="relative">
-                    <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="password" id="password" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="••••••••" required>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" id="loginPassword" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                    </div>
                 </div>
-            </div>
-            
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition font-medium">Login</button>
-        </form>
+                <div class="text-right mb-6">
+                    <a href="#" onclick="showForgotPassword()" class="text-sm text-blue-600 hover:underline">Forgot Password?</a>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 rounded-lg font-semibold transition duration-200">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+                </button>
+            </form>
+            <div id="loginError" class="mt-4 text-center text-red-600 text-sm hidden"></div>
+        </div>
         
-        <div id="errorMsg" class="mt-4 text-center text-red-600 text-sm hidden"></div>
+        <!-- FORGOT PASSWORD FORM -->
+        <div id="forgotPasswordDiv" style="display: none;">
+            <div class="text-center mb-6">
+                <i class="fas fa-key text-4xl text-blue-600 mb-3"></i>
+                <h3 class="text-xl font-bold text-gray-800">Reset Password</h3>
+                <p class="text-gray-500 text-sm mt-1">Enter your email address and we'll send you a new password</p>
+            </div>
+            <form id="forgotPasswordForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="email" id="resetEmail" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Enter your email" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 rounded-lg font-semibold transition duration-200">
+                    <i class="fas fa-paper-plane mr-2"></i> Send New Password
+                </button>
+                <div class="text-center mt-4">
+                    <a href="#" onclick="showLogin()" class="text-sm text-blue-600 hover:underline">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Login
+                    </a>
+                </div>
+            </form>
+            <div id="resetMessage" class="mt-4 text-center text-sm hidden"></div>
+        </div>
     </div>
+</div>
+
+<script>
+    // ==================== ADMIN ACCOUNT ====================
+    let ADMIN_EMAIL = "admin@geotraverse.com";
+    let ADMIN_PASSWORD = "Admin@2025";
     
-    <script>
-    const API_BASE = 'http://localhost/geotraverse/api/';
-    
-    $('#loginForm').on('submit', function(e) {
+    // ==================== LOGIN FUNCTION ====================
+    document.getElementById('loginForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
         
-        $.ajax({
-            url: API_BASE + 'login.php',
-            method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                email: $('#email').val(),
-                password: $('#password').val()
-            }),
-            success: function(response) {
-                if(response.success) {
-                    localStorage.setItem('auth_token', response.token);
-                    localStorage.setItem('admin_name', response.name);
-                    localStorage.setItem('admin_email', response.email);
-                    window.location.href = 'index.html';
-                } else {
-                    $('#errorMsg').text(response.message).removeClass('hidden');
-                }
-            },
-            error: function() {
-                $('#errorMsg').text('Login failed. Please try again.').removeClass('hidden');
-            }
-        });
+        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+            localStorage.setItem('admin_logged_in', 'true');
+            localStorage.setItem('admin_email', email);
+            localStorage.setItem('admin_name', 'Admin User');
+            showToast('Login successful! Redirecting...');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        } else {
+            document.getElementById('loginError').innerHTML = '<i class="fas fa-exclamation-circle mr-1"></i> Invalid email or password!';
+            document.getElementById('loginError').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('loginError').classList.add('hidden');
+            }, 3000);
+        }
     });
-    </script>
+    
+    // ==================== FORGOT PASSWORD FUNCTION ====================
+    function generateRandomPassword() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+        let password = '';
+        for (let i = 0; i < 12; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
+    }
+    
+    // Function ya kutuma email kwa njia ya EmailJS (Simulation)
+    // KWA MAZOEZI: Hii ina simulation ya kutuma email
+    function sendEmailToUser(email, newPassword) {
+        // NJIA 1: SIMULATION - Kwenye console inaonyesha
+        console.log(`📧 EMAIL SENT TO: ${email}`);
+        console.log(`📝 New Password: ${newPassword}`);
+        console.log(`🔗 Login Link: https://geotraverse.com/admin`);
+        
+        // NJIA 2: KWA SIMULATION - Onyesha popup
+        alert(`✉️ EMAIL SENT!\n\nTo: ${email}\nNew Password: ${newPassword}\n\n(Simulation mode - In real system, email will be sent to your inbox)\n\nPlease save this password!`);
+        
+        // NJIA 3: IKIWA UNA EMAILJS ACCOUNT (UNCOMMENT HII KWA EMAIL HALISI)
+        /*
+        emailjs.init("YOUR_PUBLIC_KEY");
+        
+        emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+            to_email: email,
+            new_password: newPassword,
+            login_link: "https://geotraverse.com/admin",
+            company_name: "GeoTraverse"
+        }).then(function(response) {
+            console.log("Email sent successfully!", response);
+        }, function(error) {
+            console.log("Email failed:", error);
+        });
+        */
+        
+        return true;
+    }
+    
+    document.getElementById('forgotPasswordForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('resetEmail').value;
+        const messageDiv = document.getElementById('resetMessage');
+        
+        if (email === ADMIN_EMAIL) {
+            // Generate new random password
+            const newPassword = generateRandomPassword();
+            
+            // Update admin password
+            ADMIN_PASSWORD = newPassword;
+            
+            // Save to localStorage for persistence
+            localStorage.setItem('admin_password', newPassword);
+            
+            // Send email with new password
+            sendEmailToUser(email, newPassword);
+            
+            // Show success message
+            messageDiv.innerHTML = `
+                <div class="bg-green-100 text-green-700 p-3 rounded-lg">
+                    <i class="fas fa-check-circle mr-2"></i> 
+                    New password has been sent to your email!
+                </div>
+            `;
+            messageDiv.classList.remove('hidden');
+            
+            // Clear form
+            document.getElementById('resetEmail').value = '';
+            
+            // After 3 seconds, redirect to login
+            setTimeout(() => {
+                showLogin();
+                messageDiv.classList.add('hidden');
+                showToast('Check your email for new password!');
+            }, 4000);
+            
+        } else {
+            messageDiv.innerHTML = `
+                <div class="bg-red-100 text-red-700 p-3 rounded-lg">
+                    <i class="fas fa-exclamation-circle mr-2"></i> 
+                    Email address not found in our system!
+                </div>
+            `;
+            messageDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 3000);
+        }
+    });
+    
+    // ==================== UI FUNCTIONS ====================
+    function showForgotPassword() {
+        document.getElementById('loginFormDiv').style.display = 'none';
+        document.getElementById('forgotPasswordDiv').style.display = 'block';
+    }
+    
+    function showLogin() {
+        document.getElementById('loginFormDiv').style.display = 'block';
+        document.getElementById('forgotPasswordDiv').style.display = 'none';
+        document.getElementById('resetMessage').classList.add('hidden');
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fas fa-info-circle mr-2"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+    
+    // Check if already logged in
+    if (localStorage.getItem('admin_logged_in') === 'true') {
+        window.location.href = 'dashboard.html';
+    }
+    
+    // Load saved password if exists
+    const savedPassword = localStorage.getItem('admin_password');
+    if (savedPassword) {
+        ADMIN_PASSWORD = savedPassword;
+    }
+</script>
 </body>
 </html>
