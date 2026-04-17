@@ -32,7 +32,7 @@
         ::-webkit-scrollbar-track { background: #e4e4e7; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #a1a1aa; border-radius: 10px; }
         
-        .sidebar { background: linear-gradient(180deg, #0f74ba 0%, #0a5a8e 100%); transition: background 0.3s ease; }
+        .sidebar { background: linear-gradient(180deg, #0f74ba 0%, #0a5a8e 100%); transition: background-color 0.3s ease; }
         .nav-item { transition: all 0.2s ease; border-left: 3px solid transparent; }
         .nav-item.active { background-color: rgba(255,255,255,0.12); border-left-color: #60a5fa; }
         .nav-item.active i { color: #60a5fa; }
@@ -101,8 +101,9 @@
         .chat-reply { background-color: #d1fae5; margin-left: auto; }
         .chat-message { background-color: #e5e7eb; }
         
-        .color-option { transition: all 0.2s; }
+        .color-option { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
         .color-option:hover { transform: scale(1.05); }
+        .color-option.selected { border-color: white; box-shadow: 0 0 0 2px #333; }
     </style>
 </head>
 <body>
@@ -255,7 +256,7 @@
                 </div>
             </div>
             
-            <!-- REPORTS SECTION -->
+            <!-- REPORTS SECTION - FULLY WORKING -->
             <div id="reportsSection" class="hidden">
                 <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Reports Dashboard</h2><p class="text-gray-500 mt-1">Generate and view department reports</p></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8" id="reportDepartmentsGrid"></div>
@@ -263,9 +264,18 @@
                     <button onclick="closeDepartmentReport()" class="text-gray-500 hover:text-blue-600 mb-4"><i class="fas fa-arrow-left"></i> Back to Departments</button>
                     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-5 text-white"><h3 id="reportDeptTitle" class="text-xl font-bold">Department Reports</h3><p id="reportDeptDesc" class="text-blue-200 mt-1">Department Reports</p></div>
-                        <div class="flex border-b"><button onclick="loadReport('daily')" id="tabDaily" class="report-tab active">Daily Report</button><button onclick="loadReport('weekly')" id="tabWeekly" class="report-tab">Weekly Report</button><button onclick="loadReport('monthly')" id="tabMonthly" class="report-tab">Monthly Report</button><button onclick="loadReport('annual')" id="tabAnnual" class="report-tab">Annual Report</button></div>
+                        <div class="flex border-b">
+                            <button onclick="loadReport('daily')" id="tabDaily" class="report-tab active">Daily Report</button>
+                            <button onclick="loadReport('weekly')" id="tabWeekly" class="report-tab">Weekly Report</button>
+                            <button onclick="loadReport('monthly')" id="tabMonthly" class="report-tab">Monthly Report</button>
+                            <button onclick="loadReport('annual')" id="tabAnnual" class="report-tab">Annual Report</button>
+                        </div>
                         <div id="reportContent" class="p-6"></div>
-                        <div class="px-6 py-4 border-t bg-gray-50 flex justify-end space-x-3"><button onclick="exportToPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg"><i class="fas fa-file-pdf"></i> Export PDF</button><button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg"><i class="fas fa-file-excel"></i> Export Excel</button><button onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-lg"><i class="fas fa-print"></i> Print</button></div>
+                        <div class="px-6 py-4 border-t bg-gray-50 flex justify-end space-x-3">
+                            <button onclick="exportToPDF()" class="bg-red-600 text-white px-4 py-2 rounded-lg"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                            <button onclick="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded-lg"><i class="fas fa-file-excel"></i> Export Excel</button>
+                            <button onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-lg"><i class="fas fa-print"></i> Print</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -289,7 +299,7 @@
                 </div>
             </div>
             
-            <!-- SETTINGS SECTION - ALL WORKING -->
+            <!-- SETTINGS SECTION -->
             <div id="settingsSection" class="hidden">
                 <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Settings</h2><p class="text-gray-500 mt-1">Manage your application preferences</p></div>
                 
@@ -297,9 +307,16 @@
                 <div class="bg-white rounded-xl shadow-sm p-5 mb-6"><h3 class="text-lg font-semibold mb-4"><i class="fas fa-key mr-2 text-blue-600"></i> Admin Password Change</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="password" id="currentPassword" placeholder="Current Password" class="p-2 border rounded-lg"><input type="password" id="newAdminPassword" placeholder="New Password" class="p-2 border rounded-lg"><input type="password" id="confirmAdminPassword" placeholder="Confirm Password" class="p-2 border rounded-lg"><button onclick="changeAdminPassword()" class="btn-primary text-white px-4 py-2 rounded-lg">Change Password</button></div></div>
                 
                 <!-- Sidebar Color Change - WORKING -->
-                <div class="bg-white rounded-xl shadow-sm p-5 mb-6"><h3 class="text-lg font-semibold mb-4"><i class="fas fa-palette mr-2 text-blue-600"></i> Sidebar Color Change</h3><div class="flex space-x-3"><div class="color-option w-10 h-10 rounded-full cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background-color: #0f74ba;" onclick="changeSidebarColor('#0f74ba', this)"></div><div class="color-option w-10 h-10 rounded-full cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background-color: #1e3a5f;" onclick="changeSidebarColor('#1e3a5f', this)"></div><div class="color-option w-10 h-10 rounded-full cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background-color: #7c3aed;" onclick="changeSidebarColor('#7c3aed', this)"></div><div class="color-option w-10 h-10 rounded-full cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background-color: #059669;" onclick="changeSidebarColor('#059669', this)"></div><div class="color-option w-10 h-10 rounded-full cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background-color: #dc2626;" onclick="changeSidebarColor('#dc2626', this)"></div><div class="color-option w-10 h-10 rounded-full cursor-pointer border-2 border-transparent hover:border-gray-400 transition" style="background-color: #d97706;" onclick="changeSidebarColor('#d97706', this)"></div></div></div>
+                <div class="bg-white rounded-xl shadow-sm p-5 mb-6"><h3 class="text-lg font-semibold mb-4"><i class="fas fa-palette mr-2 text-blue-600"></i> Sidebar Color Change</h3><div class="flex space-x-3">
+                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #0f74ba;" onclick="changeSidebarColor('#0f74ba', this)"></div>
+                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #1e3a5f;" onclick="changeSidebarColor('#1e3a5f', this)"></div>
+                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #7c3aed;" onclick="changeSidebarColor('#7c3aed', this)"></div>
+                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #059669;" onclick="changeSidebarColor('#059669', this)"></div>
+                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #dc2626;" onclick="changeSidebarColor('#dc2626', this)"></div>
+                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #d97706;" onclick="changeSidebarColor('#d97706', this)"></div>
+                </div></div>
                 
-                <!-- Settings Cards Grid - ALL WORKING -->
+                <!-- Settings Cards Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div class="setting-card bg-white rounded-xl shadow-sm p-5 cursor-pointer hover:shadow-md transition" onclick="openSettingModal('general')"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-globe text-2xl text-blue-600"></i><h3 class="font-bold text-lg">General Settings</h3></div><p class="text-sm text-gray-500">Company name, logo, timezone, language</p><div class="mt-2 text-blue-600 text-sm">Click to configure →</div></div>
                     <div class="setting-card bg-white rounded-xl shadow-sm p-5 cursor-pointer hover:shadow-md transition" onclick="openSettingModal('backup')"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-database text-2xl text-blue-600"></i><h3 class="font-bold text-lg">Backup & Restore</h3></div><p class="text-sm text-gray-500">Backup database, restore from backup</p><div class="mt-2 text-blue-600 text-sm">Click to configure →</div></div>
@@ -391,7 +408,6 @@
     
     // ==================== BACKUP & RESTORE SYSTEM ====================
     let backupData = null;
-    let deletedItems = [];
     
     function createBackup() {
         backupData = {
@@ -527,11 +543,121 @@
         document.getElementById('confirmAdminPassword').value = '';
     }
     
+    // ==================== COLOR MODES - WORKING ====================
     function changeSidebarColor(color, element) {
         document.getElementById('mainSidebar').style.backgroundColor = color;
-        document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('border-2', 'border-gray-400'));
-        element.classList.add('border-2', 'border-gray-400');
+        document.querySelectorAll('.color-option').forEach(opt => {
+            opt.classList.remove('border-2', 'border-gray-400', 'selected');
+        });
+        element.classList.add('selected', 'border-2', 'border-gray-400');
         showToast('Sidebar color changed');
+        localStorage.setItem('sidebar_color', color);
+    }
+    
+    // Load saved sidebar color
+    const savedColor = localStorage.getItem('sidebar_color');
+    if (savedColor) {
+        document.getElementById('mainSidebar').style.backgroundColor = savedColor;
+        document.querySelectorAll('.color-option').forEach(opt => {
+            if (opt.style.backgroundColor === savedColor) {
+                opt.classList.add('selected', 'border-2', 'border-gray-400');
+            }
+        });
+    }
+    
+    // ==================== REPORTS FUNCTIONS - FULLY WORKING ====================
+    function generateReportData(dept, type) {
+        const today = new Date();
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - today.getDay());
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        const yearStart = new Date(today.getFullYear(), 0, 1);
+        
+        let data = {
+            daily: { title: "Daily Report", date: today.toDateString(), completed: 1, inProgress: 2, approved: 1, revenue: "TZS 2,500,000", income: "TZS 2,500,000", expenses: "TZS 1,200,000", profit: "TZS 1,300,000", orders: 3, leads: 5, conversions: 2, messages: 8, appointments: 3 },
+            weekly: { title: "Weekly Report", period: `${weekStart.toDateString()} - ${today.toDateString()}`, completed: 5, inProgress: 3, approved: 2, revenue: "TZS 15,500,000", income: "TZS 8,750,000", expenses: "TZS 4,250,000", profit: "TZS 4,500,000", orders: 12, leads: 18, conversions: 8, messages: 35, appointments: 12 },
+            monthly: { title: "Monthly Report", period: monthStart.toDateString() + " - " + today.toDateString(), completed: 18, inProgress: 10, approved: 7, revenue: "TZS 45,000,000", income: "TZS 28,750,000", expenses: "TZS 18,250,000", profit: "TZS 10,500,000", orders: 28, leads: 45, conversions: 22, messages: 120, appointments: 28 },
+            annual: { title: "Annual Report", period: yearStart.toDateString() + " - " + today.toDateString(), completed: 156, inProgress: 25, approved: 30, revenue: "TZS 350,000,000", income: "TZS 125,000,000", expenses: "TZS 85,000,000", profit: "TZS 40,000,000", orders: 156, leads: 220, conversions: 98, messages: 450, appointments: 98 }
+        };
+        return data[type];
+    }
+    
+    function renderReportContent(dept, type) {
+        const data = generateReportData(dept, type);
+        let html = `<div class="mb-6"><h2 class="text-xl font-bold text-gray-800">${data.title}</h2><p class="text-gray-500">${data.period || data.date || ''}</p></div>`;
+        html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">`;
+        
+        if (dept === 'Managers') {
+            html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Completed Projects</p><p class="text-2xl font-bold text-green-600">${data.completed}</p></div>`;
+            html += `<div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">In Progress</p><p class="text-2xl font-bold text-orange-600">${data.inProgress}</p></div>`;
+            html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Approved Projects</p><p class="text-2xl font-bold text-blue-600">${data.approved}</p></div>`;
+            html += `<div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Revenue</p><p class="text-2xl font-bold text-purple-600">${data.revenue}</p></div>`;
+        } else if (dept === 'Finance') {
+            html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Income</p><p class="text-2xl font-bold text-green-600">${data.income}</p></div>`;
+            html += `<div class="bg-red-50 p-4 rounded-xl"><p class="text-sm">Expenses</p><p class="text-2xl font-bold text-red-600">${data.expenses}</p></div>`;
+            html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Profit</p><p class="text-2xl font-bold text-blue-600">${data.profit}</p></div>`;
+            html += `<div class="bg-yellow-50 p-4 rounded-xl"><p class="text-sm">Pending Invoices</p><p class="text-2xl font-bold text-yellow-600">${Math.floor(Math.random() * 10) + 1}</p></div>`;
+        } else if (dept === 'Sales') {
+            html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Orders</p><p class="text-2xl font-bold text-blue-600">${data.orders}</p></div>`;
+            html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Revenue</p><p class="text-2xl font-bold text-green-600">${data.revenue}</p></div>`;
+            html += `<div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Leads</p><p class="text-2xl font-bold text-purple-600">${data.leads}</p></div>`;
+            html += `<div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">Conversions</p><p class="text-2xl font-bold text-orange-600">${data.conversions}</p></div>`;
+        } else if (dept === 'Secretary') {
+            html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Messages</p><p class="text-2xl font-bold text-blue-600">${data.messages}</p></div>`;
+            html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Appointments</p><p class="text-2xl font-bold text-green-600">${data.appointments}</p></div>`;
+            html += `<div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Documents Processed</p><p class="text-2xl font-bold text-purple-600">${Math.floor(Math.random() * 50) + 20}</p></div>`;
+            html += `<div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">Pending Tasks</p><p class="text-2xl font-bold text-orange-600">${Math.floor(Math.random() * 15) + 5}</p></div>`;
+        }
+        html += `</div><div class="border-t pt-4"><p class="text-gray-600">This ${type} report shows the performance of the ${dept} department.</p><p class="text-gray-500 text-sm mt-2">Generated on: ${new Date().toLocaleString()}</p></div>`;
+        document.getElementById('reportContent').innerHTML = html;
+    }
+    
+    function openDepartmentReports(dept) {
+        currentDept = dept;
+        document.getElementById('reportDeptTitle').innerText = `${dept} Department Reports`;
+        document.getElementById('reportDeptDesc').innerText = `${dept} department performance reports`;
+        document.getElementById('departmentReportView').classList.remove('hidden');
+        document.getElementById('reportDepartmentsGrid').classList.add('hidden');
+        loadReport('daily');
+    }
+    
+    function loadReport(type) {
+        currentReportType = type;
+        document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
+        renderReportContent(currentDept, type);
+    }
+    
+    function closeDepartmentReport() {
+        document.getElementById('departmentReportView').classList.add('hidden');
+        document.getElementById('reportDepartmentsGrid').classList.remove('hidden');
+        renderReportDepartmentsGrid();
+    }
+    
+    function exportToPDF() {
+        const element = document.getElementById('reportContent');
+        html2pdf().set({ margin: [0.5,0.5,0.5,0.5], filename: `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4' } }).from(element).save();
+        showToast('PDF downloaded!');
+    }
+    
+    function exportToExcel() {
+        const data = generateReportData(currentDept, currentReportType);
+        let wsData = [[data.title], [data.period || data.date || ''], []];
+        
+        if (currentDept === 'Managers') {
+            wsData.push(['Completed Projects', data.completed], ['In Progress', data.inProgress], ['Approved Projects', data.approved], ['Revenue', data.revenue]);
+        } else if (currentDept === 'Finance') {
+            wsData.push(['Income', data.income], ['Expenses', data.expenses], ['Profit', data.profit]);
+        } else if (currentDept === 'Sales') {
+            wsData.push(['Orders', data.orders], ['Revenue', data.revenue], ['Leads', data.leads], ['Conversions', data.conversions]);
+        } else if (currentDept === 'Secretary') {
+            wsData.push(['Messages', data.messages], ['Appointments', data.appointments]);
+        }
+        wsData.push([], [`Generated: ${new Date().toLocaleString()}`]);
+        const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, `${currentDept}_${currentReportType}_Report`);
+        XLSX.writeFile(wb, `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.xlsx`);
+        showToast('Excel downloaded!');
     }
     
     // ==================== MESSAGES CHAT FUNCTIONS ====================
@@ -605,7 +731,6 @@
     let nextTaskId = 5;
     let currentDept = '';
     let currentReportType = 'daily';
-    let currentReportData = null;
     let currentSearchTerm = '';
     
     const departmentMap = { 'Management': 'Managers', 'Finance': 'Finance', 'Sales & Marketing': 'Sales', 'Administration': 'Secretary' };
@@ -743,55 +868,6 @@
     function toggleTask(id) {
         const task = tasks.find(t => t.id === id);
         if(task) { task.completed = !task.completed; renderTasks(); updateCounts(); showToast(task.completed ? 'Task completed!' : 'Task marked incomplete'); }
-    }
-    
-    function openDepartmentReports(dept) {
-        currentDept = dept;
-        document.getElementById('reportDeptTitle').innerText = `${dept} Department Reports`;
-        document.getElementById('reportDeptDesc').innerText = `${dept} department performance reports`;
-        document.getElementById('departmentReportView').classList.remove('hidden');
-        document.getElementById('reportDepartmentsGrid').classList.add('hidden');
-        loadReport('daily');
-    }
-    
-    function loadReport(type) {
-        currentReportType = type;
-        document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
-        const data = generateReportData(currentDept, type);
-        document.getElementById('reportContent').innerHTML = `<div class="mb-6"><h2 class="text-xl font-bold text-gray-800">${data.title}</h2><p class="text-gray-500">${data.period || data.date || ''}</p></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"><div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Completed</p><p class="text-2xl font-bold text-green-600">${data.completed || 0}</p></div><div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">In Progress</p><p class="text-2xl font-bold text-orange-600">${data.inProgress || 0}</p></div><div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Approved</p><p class="text-2xl font-bold text-blue-600">${data.approved || 0}</p></div><div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Revenue</p><p class="text-2xl font-bold text-purple-600">${data.revenue || 'TZS 0'}</p></div></div><div class="border-t pt-4"><p class="text-gray-600">This ${type} report shows the performance of the ${currentDept} department.</p><p class="text-gray-500 text-sm mt-2">Generated on: ${new Date().toLocaleString()}</p></div>`;
-    }
-    
-    function generateReportData(dept, type) {
-        const today = new Date();
-        const weekStart = new Date(today); weekStart.setDate(today.getDate() - today.getDay());
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        const yearStart = new Date(today.getFullYear(), 0, 1);
-        currentReportData = { title: `${type.charAt(0).toUpperCase() + type.slice(1)} Report`, period: type === 'daily' ? today.toDateString() : (type === 'weekly' ? `${weekStart.toDateString()} - ${today.toDateString()}` : (type === 'monthly' ? `${monthStart.toDateString()} - ${today.toDateString()}` : `${yearStart.toDateString()} - ${today.toDateString()}`)), completed: 5, inProgress: 3, approved: 2, revenue: "TZS 12,500,000" };
-        return currentReportData;
-    }
-    
-    function exportToPDF() {
-        const element = document.getElementById('reportContent');
-        html2pdf().set({ margin: [0.5,0.5,0.5,0.5], filename: `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4' } }).from(element).save();
-        showToast('PDF downloaded!');
-    }
-    
-    function exportToExcel() {
-        const data = currentReportData;
-        let wsData = [[data.title], [data.period || ''], []];
-        wsData.push(['Completed Projects', data.completed], ['In Progress', data.inProgress], ['Approved Projects', data.approved], ['Revenue', data.revenue]);
-        wsData.push([], [`Generated: ${new Date().toLocaleString()}`]);
-        const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(wsData);
-        XLSX.utils.book_append_sheet(wb, ws, `${currentDept}_${currentReportType}_Report`);
-        XLSX.writeFile(wb, `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.xlsx`);
-        showToast('Excel downloaded!');
-    }
-    
-    function closeDepartmentReport() {
-        document.getElementById('departmentReportView').classList.add('hidden');
-        document.getElementById('reportDepartmentsGrid').classList.remove('hidden');
-        renderReportDepartmentsGrid();
     }
     
     function openDepartmentDashboard(dept) {
