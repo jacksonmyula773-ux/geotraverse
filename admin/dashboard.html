@@ -543,27 +543,64 @@
         document.getElementById('confirmAdminPassword').value = '';
     }
     
-    // ==================== COLOR MODES - WORKING ====================
-    function changeSidebarColor(color, element) {
-        document.getElementById('mainSidebar').style.backgroundColor = color;
-        document.querySelectorAll('.color-option').forEach(opt => {
-            opt.classList.remove('border-2', 'border-gray-400', 'selected');
-        });
+// ==================== SIDEBAR COLOR CHANGE - WORKING FUNCTION ====================
+function changeSidebarColor(color, element) {
+    // Chukua sidebar element
+    const sidebar = document.getElementById('mainSidebar');
+    
+    // Badilisha rangi ya sidebar - simple direct color without complex gradient
+    sidebar.style.background = color;
+    sidebar.style.backgroundColor = color;
+    
+    // Remove gradient that was overriding
+    sidebar.style.backgroundImage = 'none';
+    
+    // Ondoa 'selected' class kwenye color options zote
+    document.querySelectorAll('.color-option').forEach(opt => {
+        opt.classList.remove('selected', 'border-2', 'border-gray-400');
+        opt.style.transform = 'scale(1)';
+    });
+    
+    // Ongeza 'selected' class kwenye rangi iliyobonyezwa
+    if (element) {
         element.classList.add('selected', 'border-2', 'border-gray-400');
-        showToast('Sidebar color changed');
-        localStorage.setItem('sidebar_color', color);
+        element.style.transform = 'scale(1.05)';
     }
     
-    // Load saved sidebar color
-    const savedColor = localStorage.getItem('sidebar_color');
-    if (savedColor) {
-        document.getElementById('mainSidebar').style.backgroundColor = savedColor;
-        document.querySelectorAll('.color-option').forEach(opt => {
-            if (opt.style.backgroundColor === savedColor) {
-                opt.classList.add('selected', 'border-2', 'border-gray-400');
-            }
-        });
+    // Hifadhi rangi kwenye localStorage
+    localStorage.setItem('sidebar_color', color);
+    
+    // Onyesha notification (kutumia alert ikiwa showToast haipo)
+    if (typeof showToast === 'function') {
+        showToast('Sidebar color changed successfully!');
+    } else {
+        alert('Sidebar color changed to ' + color);
     }
+    
+    // Rekodi activity
+    if (typeof addActivity === 'function') {
+        addActivity('Admin changed sidebar color');
+    }
+}
+
+// Function ya kupakia rangi iliyohifadhiwa
+function loadSavedSidebarColor() {
+    const savedColor = localStorage.getItem('sidebar_color');
+    const sidebar = document.getElementById('mainSidebar');
+    
+    // IKIWA HAKUNA RANGI ILIYOHIFADHIWA AU NI ORANGE, WEKA BLUE
+    if (savedColor && savedColor !== '#d97706') {
+        sidebar.style.background = savedColor;
+    } else {
+        sidebar.style.background = '#0f74ba';  // BLUE
+        localStorage.setItem('sidebar_color', '#0f74ba');  // Override orange
+    }
+}
+
+// Call this when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadSavedSidebarColor();
+});
     
     // ==================== REPORTS FUNCTIONS - FULLY WORKING ====================
     function generateReportData(dept, type) {
