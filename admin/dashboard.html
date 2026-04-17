@@ -386,7 +386,7 @@
 <script>
     // ==================== LOGIN SYSTEM ====================
     let ADMIN_EMAIL = "jacksonmyula773@gmail.com";
-    let ADMIN_PASSWORD = "Geotraverse@2025";
+    let ADMIN_PASSWORD = "1234";
     
     if (localStorage.getItem('admin_logged_in') === 'true') {
         document.getElementById('loginPage').style.display = 'none';
@@ -421,7 +421,7 @@
     function sendNewPassword() {
         const email = document.getElementById('forgotEmail').value;
         if (email === ADMIN_EMAIL) {
-            const newPassword = "Geo" + Math.random().toString(36).substr(2, 8) + "@2025";
+            const newPassword = "Geo" + Math.random().toString(36).substr(2, 8) ;
             ADMIN_PASSWORD = newPassword;
             localStorage.setItem('admin_temp_password', newPassword);
             alert(`Password reset successful!\n\nNew password has been sent to ${email}\nNew Password: ${newPassword}\n\nPlease login with this new password.`);
