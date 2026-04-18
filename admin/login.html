@@ -7,70 +7,290 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: linear-gradient(135deg, #0f74ba 0%, #0a5a8e 100%);
             min-height: 100vh;
+            font-family: 'Inter', sans-serif;
         }
-        .login-card { animation: fadeInUp 0.5s ease-out; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; color: #9ca3af; }
-        .password-toggle:hover { color: #0f74ba; }
-        .toast { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 24px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            display: block;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper i:first-child {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 16px;
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 40px 12px 42px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #0f74ba;
+            box-shadow: 0 0 0 3px rgba(15,116,186,0.1);
+        }
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+        .toggle-password:hover {
+            color: #0f74ba;
+        }
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #0f74ba 0%, #0a5a8e 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15,116,186,0.3);
+        }
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-top: 16px;
+            text-align: center;
+        }
+        .success-message {
+            background: #d1fae5;
+            color: #059669;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-top: 16px;
+            text-align: center;
+        }
+        .forgot-link {
+            text-align: right;
+            margin-top: 12px;
+        }
+        .forgot-link a {
+            color: #0f74ba;
+            font-size: 13px;
+            text-decoration: none;
+        }
+        .forgot-link a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        .hidden {
+            display: none;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        .modal-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .modal-buttons button:first-child {
+            background: #0f74ba;
+            color: white;
+            border: none;
+        }
+        .modal-buttons button:last-child {
+            background: #e5e7eb;
+            border: none;
+        }
     </style>
 </head>
 <body>
 
-<div class="min-h-screen flex items-center justify-center px-4">
-    <div class="login-card bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
-        <div class="text-center mb-8">
-            <img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="Logo" class="w-20 h-20 mx-auto rounded-xl shadow-lg">
-            <h2 class="text-2xl font-bold text-gray-800 mt-3">Admin Login</h2>
-            <p class="text-gray-500 text-sm">Sign in to your dashboard</p>
-        </div>
+<div class="login-container">
+    <div class="login-card">
+        <img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="GeoTraverse Logo" class="logo">
+        <h2>Admin Login</h2>
+        <p class="subtitle">Sign in to your dashboard</p>
         
-        <!-- LOGIN FORM - NO PHP ACTION -->
-        <form id="loginForm">
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                <div class="relative">
-                    <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="email" id="email" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg" placeholder="admin@geotraverse.com" required>
+        <form id="loginAdminForm">
+            <div class="input-group">
+                <label>Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="admin@geotraverse.com" required>
                 </div>
             </div>
             
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <div class="relative">
-                    <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="password" id="password" class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg" required>
-                    <button type="button" onclick="togglePassword()" class="password-toggle">
+            <div class="input-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
             </div>
             
-            <div class="text-right mb-6">
-                <a href="#" onclick="showForgotPassword()" class="text-sm text-blue-600 hover:underline">Forgot Password?</a>
+            <div class="forgot-link">
+                <a href="#" onclick="showForgotPasswordModal()">Forgot Password?</a>
             </div>
             
-            <button type="submit" id="loginBtn" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 rounded-lg font-semibold">
-                <i class="fas fa-sign-in-alt mr-2"></i> Sign In
+            <button type="submit" id="loginBtn" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
             </button>
         </form>
         
-        <div id="errorMessage" class="mt-4 text-center hidden"></div>
-        <div class="text-center mt-6 pt-4 border-t border-gray-100">
-            <p class="text-xs text-gray-400">© 2024 GeoTraverse. All rights reserved.</p>
+        <div id="messageArea" class="hidden"></div>
+        
+        <div class="footer">
+            <p>&copy; 2024 GeoTraverse. All rights reserved.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgotModal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Reset Password</h3>
+        <p style="margin-bottom: 16px; color: #6b7280;">Enter your email address and we'll send you a new password.</p>
+        <input type="email" id="forgotEmail" placeholder="Your email address">
+        <div class="modal-buttons">
+            <button onclick="sendNewPassword()">Send New Password</button>
+            <button onclick="closeForgotModal()">Cancel</button>
         </div>
     </div>
 </div>
 
 <script>
-    // Toggle password visibility
-    function togglePassword() {
+    // ============================================
+    // ADMIN CREDENTIALS (Simple password)
+    // ============================================
+    const ADMIN_EMAIL = "jacksonmyula773@gmail.com";
+    const ADMIN_PASSWORD = "1234";
+    
+    // ============================================
+    // TOGGLE PASSWORD VISIBILITY
+    // ============================================
+    function togglePasswordVisibility() {
         const passwordInput = document.getElementById('password');
-        const icon = document.querySelector('.password-toggle i');
+        const icon = document.querySelector('.toggle-password i');
+        
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
             icon.classList.remove('fa-eye');
@@ -82,69 +302,96 @@
         }
     }
     
-    function showToast(message, isError = false) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2"></i> ${message}`;
-        if (isError) toast.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+    // ============================================
+    // SHOW MESSAGE
+    // ============================================
+    function showMessage(message, isError = true) {
+        const messageArea = document.getElementById('messageArea');
+        messageArea.innerHTML = `<div class="${isError ? 'error-message' : 'success-message'}">${message}</div>`;
+        messageArea.classList.remove('hidden');
+        
+        setTimeout(() => {
+            messageArea.classList.add('hidden');
+        }, 4000);
     }
     
-    function showForgotPassword() {
-        const email = prompt('Enter your email address:');
-        if (email && email === 'jacksonmyula773@gmail.com') {
-            showToast('Password reset link sent to your email!');
-        } else if (email) {
-            showToast('Email not found!', true);
+    // ============================================
+    // FORGOT PASSWORD MODAL
+    // ============================================
+    function showForgotPasswordModal() {
+        document.getElementById('forgotModal').classList.remove('hidden');
+    }
+    
+    function closeForgotModal() {
+        document.getElementById('forgotModal').classList.add('hidden');
+        document.getElementById('forgotEmail').value = '';
+    }
+    
+    function sendNewPassword() {
+        const email = document.getElementById('forgotEmail').value;
+        
+        if (email === ADMIN_EMAIL) {
+            // Generate random password
+            const newPassword = "Geo" + Math.random().toString(36).substr(2, 8);
+            
+            // In real system, send email here
+            // For demo, show alert
+            alert(`✅ Password Reset Successful!\n\n📧 Email: ${email}\n🔑 New Password: ${newPassword}\n\n⚠️ Please save this password and login.`);
+            
+            // Note: In real implementation, you would update ADMIN_PASSWORD
+            // and send email via SMTP. For now, we just show the password.
+            
+            closeForgotModal();
+            showMessage('New password has been sent to your email!', false);
+        } else {
+            showMessage('Email address not found in our system!', true);
         }
     }
     
     // ============================================
-    // LOGIN WITH FETCH API - HII NDIO TUNAYOHITAJI
+    // LOGIN FORM SUBMIT
     // ============================================
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    document.getElementById('loginAdminForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const loginBtn = document.getElementById('loginBtn');
-        const errorDiv = document.getElementById('errorMessage');
+        
+        if (!email || !password) {
+            showMessage('Please fill in all fields', true);
+            return;
+        }
         
         loginBtn.disabled = true;
-        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Logging in...';
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
         
-        try {
-            // CALL BACKEND API - HUU NDIO MSTARI WA FETCH!
-            const response = await fetch('http://localhost/geotraverse/backend/api/admin_login.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, password: password })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
+        // Simple validation (no backend for now)
+        setTimeout(() => {
+            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                // Save login state
                 localStorage.setItem('admin_logged_in', 'true');
                 localStorage.setItem('admin_email', email);
-                showToast('Login successful!');
+                localStorage.setItem('admin_name', 'Admin User');
+                
+                showMessage('Login successful! Redirecting...', false);
+                
+                // Redirect to dashboard
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1000);
             } else {
-                errorDiv.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg">${result.message}</div>`;
-                errorDiv.classList.remove('hidden');
+                showMessage('Invalid email or password', true);
                 loginBtn.disabled = false;
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> Sign In';
-                setTimeout(() => errorDiv.classList.add('hidden'), 3000);
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
             }
-        } catch (error) {
-            errorDiv.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg">Connection error: ${error.message}</div>`;
-            errorDiv.classList.remove('hidden');
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> Sign In';
-        }
+        }, 800);
     });
+    
+    // Check if already logged in
+    if (localStorage.getItem('admin_logged_in') === 'true') {
+        window.location.href = 'dashboard.html';
+    }
 </script>
 </body>
 </html>

@@ -432,15 +432,41 @@
         }
     }
     
-    document.getElementById('logoutBtn')?.addEventListener('click', function() {
-        localStorage.removeItem('admin_logged_in');
-        localStorage.removeItem('admin_email');
-        localStorage.removeItem('admin_name');
-        document.getElementById('dashboardApp').style.display = 'none';
-        document.getElementById('loginPage').style.display = 'flex';
-        document.getElementById('loginForm')?.reset();
-    });
+document.getElementById('logoutBtn')?.addEventListener('click', function() {
+    // Futa localStorage zote
+    localStorage.removeItem('admin_logged_in');
+    localStorage.removeItem('admin_email');
+    localStorage.removeItem('admin_name');
     
+    // Futa sessionStorage ikiwa ipo
+    sessionStorage.clear();
+    
+    // Ficha dashboard, onyesha login
+    document.getElementById('dashboardApp').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('loginForm')?.reset();
+    
+    // MUHIMU: Safisha password input na urejeshe icon ya kuview password
+    const passwordInput = document.getElementById('loginPassword');
+    if (passwordInput) {
+        passwordInput.value = '';
+        passwordInput.type = 'password';  // Rudisha kuwa password type
+    }
+    
+    // Rudisha icon ya eye (toggle password)
+    const toggleIcon = document.querySelector('#loginPage .password-toggle i');
+    if (toggleIcon) {
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+    
+    // Ongeza hii ili kuhakikisha form iko safi
+    const errorDiv = document.getElementById('loginError');
+    if (errorDiv) {
+        errorDiv.classList.add('hidden');
+        errorDiv.innerHTML = '';
+    }
+});
     // ==================== BACKUP & RESTORE SYSTEM ====================
     let backupData = null;
     
