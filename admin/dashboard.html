@@ -104,41 +104,169 @@
         .color-option { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
         .color-option:hover { transform: scale(1.05); }
         .color-option.selected { border-color: white; box-shadow: 0 0 0 2px #333; }
+        /* Login card hover effect */
+.login-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.3);
+}
+
+/* Input focus animation */
+.input-field {
+    transition: all 0.3s ease;
+}
+
+.input-field:focus {
+    transform: scale(1.01);
+}
+
+/* Button loading state */
+.login-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Spinner animation */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+}
+
+/* Modal animation */
+.modal {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
     </style>
 </head>
 <body>
 
 <!-- LOGIN PAGE -->
 <div id="loginPage" class="login-container flex items-center justify-center">
-    <div class="login-card bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 mx-4">
+    <div class="login-card bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl w-full max-w-md p-8 mx-4 border border-white/20">
+        
+        <!-- Logo Section -->
         <div class="text-center mb-8">
-            <div class="flex justify-center mb-4"><img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="Logo" class="w-16 h-16 rounded-xl"></div>
-            <h2 class="text-2xl font-bold text-gray-800">Welcome Back</h2>
-            <p class="text-gray-500 mt-1">Sign in to your admin account</p>
+            <div class="flex justify-center mb-5">
+                <img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="GeoTraverse Logo" 
+                     class="w-20 h-20 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300">
+            </div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
+            <p class="text-gray-500 text-sm">Sign in to your admin dashboard</p>
         </div>
         
+        <!-- Login Form -->
         <form id="loginForm">
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                <div class="relative"><i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i><input type="email" id="loginEmail" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="admin@geotraverse.com" required></div>
+            <!-- Email Field -->
+            <div class="mb-5">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-envelope mr-2 text-blue-600"></i>
+                    Email Address
+                </label>
+                <div class="relative">
+                    <input type="email" id="loginEmail" 
+                           class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all"
+                           placeholder="admin@geotraverse.com" required>
+                    <i class="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
             </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <div class="relative"><i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i><input type="password" id="loginPassword" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required></div>
+            
+            <!-- Password Field with Toggle Button -->
+            <div class="mb-3">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-lock mr-2 text-blue-600"></i>
+                    Password
+                </label>
+                <div class="relative">
+                    <input type="password" id="loginPassword" 
+                           class="w-full pl-12 pr-12 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all"
+                           placeholder="Enter your password" required>
+                    <i class="fas fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <button type="button" id="togglePasswordBtn" 
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-all">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
-            <div class="text-right mb-6"><a href="#" onclick="showForgotPassword()" class="text-sm text-blue-600 hover:underline">Forgot Password?</a></div>
-            <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">Sign In</button>
+            
+            <!-- Forgot Password Link -->
+            <div class="text-right mb-6">
+                <a href="#" id="forgotPasswordLink" 
+                   class="text-sm text-gray-500 hover:text-blue-600 transition-all inline-flex items-center gap-1">
+                    <i class="fas fa-question-circle"></i>
+                    Forgot Password?
+                </a>
+            </div>
+            
+            <!-- Login Button -->
+            <button type="submit" id="loginBtn" 
+                    class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Sign In</span>
+            </button>
         </form>
         
-        <div id="loginError" class="mt-4 text-center text-red-600 text-sm hidden"></div>
+        <!-- Footer -->
+        <div class="text-center mt-8 pt-6 border-t border-gray-100">
+            <p class="text-xs text-gray-400">
+                <i class="fas fa-shield-alt mr-1"></i>
+                Secure Login • Protected by GeoTraverse
+            </p>
+            <p class="text-xs text-gray-400 mt-2">
+                &copy; 2024 GeoTraverse. All rights reserved.
+            </p>
+        </div>
     </div>
 </div>
 
 <!-- Forgot Password Modal -->
-<div id="forgotModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl w-full max-w-md modal-pop">
-        <div class="px-6 py-4 border-b"><h3 class="text-lg font-bold">Reset Password</h3><button onclick="closeForgotModal()" class="float-right"><i class="fas fa-times"></i></button></div>
-        <div class="p-6"><p class="text-gray-600 mb-4">Enter your email address and we'll send you a new password.</p><input type="email" id="forgotEmail" placeholder="Your email" class="w-full p-3 border rounded-lg mb-4"><button onclick="sendNewPassword()" class="w-full btn-primary text-white py-3 rounded-lg">Send New Password</button></div>
+<div id="forgotModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">
+                    <i class="fas fa-key mr-2"></i> Reset Password
+                </h3>
+                <button id="closeModalBtn" class="text-white hover:text-gray-200 transition-all">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <p class="text-gray-600 mb-4 text-center">
+                Enter your email address and we'll send you a new password.
+            </p>
+            <input type="email" id="resetEmail" 
+                   class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-all mb-4"
+                   placeholder="admin@geotraverse.com">
+            <button id="sendResetBtn" 
+                    class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 rounded-xl font-semibold transition-all">
+                <i class="fas fa-paper-plane mr-2"></i> Send New Password
+            </button>
+        </div>
     </div>
 </div>
 
@@ -304,17 +432,38 @@
                 <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Settings</h2><p class="text-gray-500 mt-1">Manage your application preferences</p></div>
                 
                 <!-- Admin Password Change -->
-                <div class="bg-white rounded-xl shadow-sm p-5 mb-6"><h3 class="text-lg font-semibold mb-4"><i class="fas fa-key mr-2 text-blue-600"></i> Admin Password Change</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><input type="password" id="currentPassword" placeholder="Current Password" class="p-2 border rounded-lg"><input type="password" id="newAdminPassword" placeholder="New Password" class="p-2 border rounded-lg"><input type="password" id="confirmAdminPassword" placeholder="Confirm Password" class="p-2 border rounded-lg"><button onclick="changeAdminPassword()" class="btn-primary text-white px-4 py-2 rounded-lg">Change Password</button></div></div>
-                
-                <!-- Sidebar Color Change - WORKING -->
-                <div class="bg-white rounded-xl shadow-sm p-5 mb-6"><h3 class="text-lg font-semibold mb-4"><i class="fas fa-palette mr-2 text-blue-600"></i> Sidebar Color Change</h3><div class="flex space-x-3">
-                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #0f74ba;" onclick="changeSidebarColor('#0f74ba', this)"></div>
-                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #1e3a5f;" onclick="changeSidebarColor('#1e3a5f', this)"></div>
-                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #7c3aed;" onclick="changeSidebarColor('#7c3aed', this)"></div>
-                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #059669;" onclick="changeSidebarColor('#059669', this)"></div>
-                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #dc2626;" onclick="changeSidebarColor('#dc2626', this)"></div>
-                    <div class="color-option w-10 h-10 rounded-full" style="background-color: #d97706;" onclick="changeSidebarColor('#d97706', this)"></div>
-                </div></div>
+                <div class="bg-white rounded-xl shadow-sm p-5 mb-6">
+                <h3 class="text-lg font-semibold mb-4"><i class="fas fa-key mr-2 text-blue-600"></i> Admin Password Change</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+                <!-- Current Password -->
+                <div class="relative">
+                    <input type="password" id="currentPassword" placeholder="Current Password" class="w-full p-2 border rounded-lg pr-10">
+                    <button type="button" onclick="togglePasswordField('currentPassword', this)" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600">
+                    <i class="fas fa-eye"></i>
+                </button>
+        </div>
+        
+        <!-- New Password -->
+        <div class="relative">
+            <input type="password" id="newAdminPassword" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10">
+            <button type="button" onclick="togglePasswordField('newAdminPassword', this)" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600">
+                <i class="fas fa-eye"></i>
+            </button>
+        </div>
+        
+        <!-- Confirm Password -->
+        <div class="relative">
+            <input type="password" id="confirmAdminPassword" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10">
+            <button type="button" onclick="togglePasswordField('confirmAdminPassword', this)" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600">
+                <i class="fas fa-eye"></i>
+            </button>
+        </div>
+        
+        <!-- Change Password Button -->
+        <button onclick="changeAdminPassword()" class="btn-primary text-white px-4 py-2 rounded-lg">Change Password</button>
+    </div>
+</div>
                 
                 <!-- Settings Cards Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -349,62 +498,191 @@
 <div id="addTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b"><h3>Add New Task</h3><button onclick="closeTaskModal()" class="float-right"><i class="fas fa-times"></i></button></div><div class="px-6 py-4"><input type="text" id="taskTitle" placeholder="Task Title" class="w-full p-2 border rounded-lg mb-3"><select id="taskDepartment" class="w-full p-2 border rounded-lg mb-3"><option value="Managers">Managers Dept</option><option value="Finance">Finance Dept</option><option value="Sales">Sales Dept</option><option value="Secretary">Secretary Dept</option></select><textarea id="taskDescription" rows="3" placeholder="Task Description" class="w-full p-2 border rounded-lg"></textarea></div><div class="px-6 py-4 border-t flex space-x-3"><button onclick="addNewTask()" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Task</button><button onclick="closeTaskModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div></div></div>
 
 <script>
-    // ==================== LOGIN SYSTEM ====================
-    let ADMIN_EMAIL = "jacksonmyula773@gmail.com";
-    let ADMIN_PASSWORD = "Geotraverse@2025";
+    // Weka hii mwanzoni mwa script yako (override credentials)
+const ADMIN_EMAIL = "jacksonmyula773@gmail.com";
+const ADMIN_PASSWORD = "1234";
+
+// Weka hii mwishoni mwa script (override login)
+document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
     
-    if (localStorage.getItem('admin_logged_in') === 'true') {
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        localStorage.setItem('admin_logged_in', 'true');
         document.getElementById('loginPage').style.display = 'none';
         document.getElementById('dashboardApp').style.display = 'block';
-        document.getElementById('adminName').innerText = localStorage.getItem('admin_name') || 'Admin User';
-        document.getElementById('adminEmail').innerText = localStorage.getItem('admin_email') || ADMIN_EMAIL;
+    } else {
+        alert('Wrong credentials! Use: ' + ADMIN_EMAIL + ' / ' + ADMIN_PASSWORD);
+    }
+});
+// ============================================
+// LOGIN FORM FUNCTIONS (Modern)
+// ============================================
+
+document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorDiv = document.getElementById('loginError');
+    
+    // Debug - Angalia console
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Email entered:', email);
+    console.log('Password entered:', password);
+    console.log('Expected email:', ADMIN_EMAIL);
+    console.log('Expected password:', ADMIN_PASSWORD);
+    
+    // Validation
+    if (!email || !password) {
+        errorDiv.innerText = 'Please fill in all fields';
+        errorDiv.classList.remove('hidden');
+        showToast('Please fill in all fields', true);
+        return;
     }
     
-    document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
+    // Check credentials
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        console.log('✅ Login successful!');
         
+        // Save login state
+        localStorage.setItem('admin_logged_in', 'true');
+        localStorage.setItem('admin_email', email);
+        localStorage.setItem('admin_name', 'Admin User');
+        
+        // Show success
+        showToast('Login successful! Redirecting...', false);
+        
+        // Redirect to dashboard
+        setTimeout(() => {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboardApp').style.display = 'block';
+            document.getElementById('adminName').innerText = 'Admin User';
+            document.getElementById('adminEmail').innerText = email;
+        }, 500);
+        
+    } else {
+        console.log('❌ Login failed - Invalid credentials');
+        errorDiv.innerText = 'Invalid email or password. Please try again.';
+        errorDiv.classList.remove('hidden');
+        showToast('Invalid email or password', true);
+        
+        // Clear password field
+        document.getElementById('loginPassword').value = '';
+        
+        // Hide error after 3 seconds
+        setTimeout(() => {
+            errorDiv.classList.add('hidden');
+        }, 3000);
+    }
+});
+
+// Forgot Password Modal
+if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        forgotModal.classList.remove('hidden');
+        forgotModal.classList.add('flex');
+        if (resetEmail) resetEmail.value = '';
+    });
+}
+
+function closeForgotModal() {
+    forgotModal.classList.add('hidden');
+    forgotModal.classList.remove('flex');
+}
+
+if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeForgotModal);
+}
+
+// Close modal when clicking outside
+forgotModal.addEventListener('click', function(e) {
+    if (e.target === forgotModal) {
+        closeForgotModal();
+    }
+});
+
+// Send New Password
+if (sendResetBtn) {
+    sendResetBtn.addEventListener('click', function() {
+        const email = resetEmail.value.trim();
+        
+        if (!email) {
+            showToast('Please enter your email address', true);
+            return;
+        }
+        
+        if (email === ADMIN_EMAIL) {
+            const newPassword = 'Geo@' + Math.random().toString(36).substr(2, 8) + Math.floor(Math.random() * 1000);
+            // Update password (kwa demo)
+            ADMIN_PASSWORD = newPassword;
+            showToast(`✅ New password sent to ${email}`, false);
+            setTimeout(() => {
+                alert(`Demo Mode:\n\nYour new password is:\n${newPassword}\n\nPlease save this password.`);
+            }, 500);
+            closeForgotModal();
+        } else {
+            showToast('❌ Email address not found in our system!', true);
+        }
+    });
+}
+
+// Login Form Submit with Loading State
+document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const errorDiv = document.getElementById('loginError');
+    
+    // Validation
+    if (!email || !password) {
+        showToast('Please fill in all fields', true);
+        return;
+    }
+    
+    // Show loading state
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<div class="spinner"></div><span class="ml-2">Signing in...</span>';
+    
+    // Simulate network delay
+    setTimeout(() => {
         if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
             localStorage.setItem('admin_logged_in', 'true');
             localStorage.setItem('admin_email', email);
-            localStorage.setItem('admin_name', 'Jackson Myula');
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('dashboardApp').style.display = 'block';
-            document.getElementById('adminName').innerText = 'Jackson Myula';
-            document.getElementById('adminEmail').innerText = email;
-            showToast('Login successful! Welcome back.');
+            localStorage.setItem('admin_name', 'Admin User');
+            
+            showToast('✅ Login successful! Redirecting...', false);
+            
+            setTimeout(() => {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboardApp').style.display = 'block';
+                document.getElementById('adminName').innerText = 'Admin User';
+                document.getElementById('adminEmail').innerText = email;
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span class="ml-2">Sign In</span>';
+            }, 1000);
         } else {
-            document.getElementById('loginError').innerText = 'Invalid email or password. Please try again.';
-            document.getElementById('loginError').classList.remove('hidden');
+            showToast('❌ Invalid email or password', true);
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span class="ml-2">Sign In</span>';
         }
-    });
-    
-    function showForgotPassword() { document.getElementById('forgotModal').classList.remove('hidden'); document.getElementById('forgotModal').classList.add('flex'); }
-    function closeForgotModal() { document.getElementById('forgotModal').classList.add('hidden'); document.getElementById('forgotModal').classList.remove('flex'); }
-    
-    function sendNewPassword() {
-        const email = document.getElementById('forgotEmail').value;
-        if (email === ADMIN_EMAIL) {
-            const newPassword = "Geo" + Math.random().toString(36).substr(2, 8) + "@2025";
-            ADMIN_PASSWORD = newPassword;
-            localStorage.setItem('admin_temp_password', newPassword);
-            alert(`Password reset successful!\n\nNew password has been sent to ${email}\nNew Password: ${newPassword}\n\nPlease login with this new password.`);
-            closeForgotModal();
-            document.getElementById('loginForm').reset();
-        } else {
-            alert('Email address not found in our system.');
-        }
+    }, 800);
+});
+
+// Toast notification function
+function showToast(message, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${isError ? 'error' : ''}`;
+    toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2"></i>${message}`;
+    if (isError) {
+        toast.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
     }
-    
-    document.getElementById('logoutBtn')?.addEventListener('click', function() {
-        localStorage.removeItem('admin_logged_in');
-        localStorage.removeItem('admin_email');
-        localStorage.removeItem('admin_name');
-        document.getElementById('dashboardApp').style.display = 'none';
-        document.getElementById('loginPage').style.display = 'flex';
-        document.getElementById('loginForm')?.reset();
-    });
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
     
     // ==================== BACKUP & RESTORE SYSTEM ====================
     let backupData = null;
@@ -1050,6 +1328,79 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(document.getElementById('pieChart'), { type: 'doughnut', data: { labels: ['Managers', 'Finance', 'Sales', 'Secretary'], datasets: [{ data: [2, 1, 1, 1], backgroundColor: ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444'], borderWidth: 0 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
     
     loadData();
+
+// ============================================
+// TOGGLE PASSWORD FOR SETTINGS
+// ============================================
+function togglePasswordField(inputId, button) {
+    const input = document.getElementById(inputId);
+    const icon = button.querySelector('i');
+    
+    if (!input) return;
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// ============================================
+// LOGOUT FUNCTION - TAYARI KUFANYA KAZI
+// ============================================
+(function setupLogout() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Futa data zote za session
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Ficha dashboard
+            const dashboard = document.getElementById('dashboardApp');
+            if (dashboard) dashboard.style.display = 'none';
+            
+            // Onyesha login
+            const loginPage = document.getElementById('loginPage');
+            if (loginPage) loginPage.style.display = 'flex';
+            
+            // Safisha form
+            const emailInput = document.getElementById('loginEmail');
+            const passwordInput = document.getElementById('loginPassword');
+            if (emailInput) emailInput.value = '';
+            if (passwordInput) {
+                passwordInput.value = '';
+                passwordInput.type = 'password';
+            }
+            
+            // Ficha error
+            const errorDiv = document.getElementById('loginError');
+            if (errorDiv) errorDiv.classList.add('hidden');
+            
+            // Rudisha icon ya eye
+            const eyeIcon = document.querySelector('#loginPage .relative button i, #loginPage .toggle-password i');
+            if (eyeIcon) {
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+            
+            // Ujumbe
+            alert('Logged out successfully!');
+            console.log('Logout successful at: ' + new Date().toLocaleTimeString());
+        });
+        console.log('Logout button found and ready!');
+    } else {
+        console.error('Logout button with id "logoutBtn" not found!');
+    }
+})();
 </script>
 </body>
 </html>
