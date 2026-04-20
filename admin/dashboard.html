@@ -63,7 +63,13 @@
         @keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .modal-pop { animation: modalPop 0.2s ease-out; }
         
-        .toast-notification { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: slideInRight 0.3s ease; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .toast-notification {
+            position: fixed; bottom: 20px; right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; padding: 12px 20px; border-radius: 8px;
+            z-index: 1000; animation: slideInRight 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
         .toast-notification.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
         @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
@@ -397,42 +403,26 @@
                 </div>
             </div>
             
-            <!-- ==================== SETTINGS SECTION (Horizontal Cards kama mwanzo) ==================== -->
+            <!-- ==================== SETTINGS SECTION ==================== -->
             <div id="settingsSection" class="hidden">
                 <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Settings</h2><p class="text-gray-500 mt-1">Manage your application preferences</p></div>
                 
-                <!-- Settings Cards - Horizontal Grid kama mwanzo -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
                     <!-- Reset Password Card -->
                     <div class="setting-card bg-white rounded-xl shadow-sm p-5">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <i class="fas fa-key text-2xl text-blue-600"></i>
-                            <h3 class="font-bold text-lg">Reset Password</h3>
-                        </div>
+                        <div class="flex items-center space-x-3 mb-3"><i class="fas fa-key text-2xl text-blue-600"></i><h3 class="font-bold text-lg">Reset Password</h3></div>
                         <p class="text-sm text-gray-500 mb-3">Change your admin account password</p>
                         <div class="space-y-2">
-                            <div class="password-field relative">
-                                <input type="password" id="currentPassword" placeholder="Current Password" class="w-full p-2 border rounded-lg pr-10">
-                                <i class="fas fa-eye password-toggle" onclick="togglePassword('currentPassword', this)"></i>
-                            </div>
-                            <div class="password-field relative">
-                                <input type="password" id="newAdminPassword" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10">
-                                <i class="fas fa-eye password-toggle" onclick="togglePassword('newAdminPassword', this)"></i>
-                            </div>
-                            <div class="password-field relative">
-                                <input type="password" id="confirmAdminPassword" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10">
-                                <i class="fas fa-eye password-toggle" onclick="togglePassword('confirmAdminPassword', this)"></i>
-                            </div>
+                            <div class="password-field relative"><input type="password" id="currentPassword" placeholder="Current Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePassword('currentPassword', this)"></i></div>
+                            <div class="password-field relative"><input type="password" id="newAdminPassword" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePassword('newAdminPassword', this)"></i></div>
+                            <div class="password-field relative"><input type="password" id="confirmAdminPassword" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePassword('confirmAdminPassword', this)"></i></div>
                             <button onclick="changeAdminPassword()" class="w-full btn-primary text-white px-4 py-2 rounded-lg mt-2">Change Password</button>
                         </div>
                     </div>
                     
                     <!-- Sidebar Color Card -->
                     <div class="setting-card bg-white rounded-xl shadow-sm p-5">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <i class="fas fa-palette text-2xl text-purple-600"></i>
-                            <h3 class="font-bold text-lg">Sidebar Color</h3>
-                        </div>
+                        <div class="flex items-center space-x-3 mb-3"><i class="fas fa-palette text-2xl text-purple-600"></i><h3 class="font-bold text-lg">Sidebar Color</h3></div>
                         <p class="text-sm text-gray-500 mb-3">Choose your preferred sidebar color</p>
                         <div class="flex flex-wrap gap-2">
                             <div class="color-option w-8 h-8 rounded-full cursor-pointer shadow-md" style="background-color: #0f74ba;" onclick="changeSidebarColor('#0f74ba', this)"></div>
@@ -447,34 +437,22 @@
                     
                     <!-- Backup & Restore Card -->
                     <div class="setting-card bg-white rounded-xl shadow-sm p-5">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <i class="fas fa-database text-2xl text-green-600"></i>
-                            <h3 class="font-bold text-lg">Backup & Restore</h3>
-                        </div>
+                        <div class="flex items-center space-x-3 mb-3"><i class="fas fa-database text-2xl text-green-600"></i><h3 class="font-bold text-lg">Backup & Restore</h3></div>
                         <p class="text-sm text-gray-500 mb-3">Backup or restore your data</p>
-                        <div class="flex gap-2">
-                            <button onclick="createBackup()" class="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-download mr-1"></i> Backup</button>
-                            <button onclick="restoreBackup()" class="flex-1 bg-orange-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-upload mr-1"></i> Restore</button>
-                        </div>
+                        <div class="flex gap-2"><button onclick="createBackup()" class="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-download mr-1"></i> Backup</button><button onclick="restoreBackup()" class="flex-1 bg-orange-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-upload mr-1"></i> Restore</button></div>
                     </div>
                     
-                    <!-- System Logs Card -->
+                    <!-- System Logs Card (Iliyorekebishwa) -->
                     <div class="setting-card bg-white rounded-xl shadow-sm p-5">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <i class="fas fa-history text-2xl text-blue-600"></i>
-                            <h3 class="font-bold text-lg">System Logs</h3>
-                        </div>
+                        <div class="flex items-center space-x-3 mb-3"><i class="fas fa-history text-2xl text-blue-600"></i><h3 class="font-bold text-lg">System Logs</h3></div>
                         <p class="text-sm text-gray-500 mb-3">View recent system activities</p>
                         <div class="max-h-32 overflow-y-auto space-y-1 text-sm" id="systemLogsList"></div>
-                        <button onclick="clearAllLogs()" class="w-full mt-3 bg-red-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-trash mr-1"></i> Clear Logs</button>
+                        <button onclick="clearAllLogs()" class="w-full mt-3 bg-red-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-trash mr-1"></i> Clear All Logs</button>
                     </div>
                     
                     <!-- General Settings Card -->
                     <div class="setting-card bg-white rounded-xl shadow-sm p-5">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <i class="fas fa-globe text-2xl text-blue-600"></i>
-                            <h3 class="font-bold text-lg">General Settings</h3>
-                        </div>
+                        <div class="flex items-center space-x-3 mb-3"><i class="fas fa-globe text-2xl text-blue-600"></i><h3 class="font-bold text-lg">General Settings</h3></div>
                         <p class="text-sm text-gray-500 mb-3">Company information & preferences</p>
                         <div class="space-y-2">
                             <input type="text" id="companyName" placeholder="Company Name" value="GeoTraverse" class="w-full p-2 border rounded-lg text-sm">
@@ -487,10 +465,7 @@
                     
                     <!-- Email Configuration Card -->
                     <div class="setting-card bg-white rounded-xl shadow-sm p-5">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <i class="fas fa-envelope text-2xl text-blue-600"></i>
-                            <h3 class="font-bold text-lg">Email Config</h3>
-                        </div>
+                        <div class="flex items-center space-x-3 mb-3"><i class="fas fa-envelope text-2xl text-blue-600"></i><h3 class="font-bold text-lg">Email Config</h3></div>
                         <p class="text-sm text-gray-500 mb-3">SMTP email settings</p>
                         <div class="space-y-2">
                             <input type="text" id="smtpServer" placeholder="SMTP Server" value="smtp.gmail.com" class="w-full p-2 border rounded-lg text-sm">
@@ -583,12 +558,92 @@
         document.body.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
     }
     
+    // ==================== ACTIVITY LOGS (ILIYOREKEBISHWA - CLEAR LOGS INAFANYA KAZI) ====================
+    let activityLogs = [];
+    
+    function loadActivityLogs() {
+        const savedLogs = localStorage.getItem('geotraverse_activity_logs');
+        if (savedLogs) {
+            activityLogs = JSON.parse(savedLogs);
+        } else {
+            activityLogs = [
+                { action: "Admin logged in", time: new Date().toLocaleString() },
+                { action: "System initialized", time: new Date().toLocaleString() }
+            ];
+            saveActivityLogs();
+        }
+        renderSystemLogs();
+        renderActivityFeed();
+    }
+    
+    function saveActivityLogs() {
+        localStorage.setItem('geotraverse_activity_logs', JSON.stringify(activityLogs));
+    }
+    
+    function addActivityLog(action) {
+        const newLog = { action: action, time: new Date().toLocaleString() };
+        activityLogs.unshift(newLog);
+        if (activityLogs.length > 50) activityLogs.pop();
+        saveActivityLogs();
+        renderSystemLogs();
+        renderActivityFeed();
+    }
+    
+    function renderSystemLogs() {
+        const logsDiv = document.getElementById('systemLogsList');
+        if(logsDiv) {
+            if (activityLogs.length === 0) {
+                logsDiv.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm"><i class="fas fa-inbox mr-1"></i> No logs available</div>';
+            } else {
+                logsDiv.innerHTML = activityLogs.map(log => `<div class="flex justify-between items-center p-2 border-b"><span class="text-xs">${log.action}</span><span class="text-xs text-gray-400">${log.time}</span></div>`).join('');
+            }
+        }
+    }
+    
+    function renderActivityFeed() {
+        const feedDiv = document.getElementById('activityFeed');
+        if (!feedDiv) return;
+        if (activityLogs.length === 0) {
+            feedDiv.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm"><i class="fas fa-inbox mr-1"></i> No recent activity</div>';
+            return;
+        }
+        const recentLogs = activityLogs.slice(0, 5);
+        feedDiv.innerHTML = recentLogs.map(log => `
+            <div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                <i class="fas fa-circle text-blue-500 text-xs mt-1"></i>
+                <div class="flex-1">
+                    <p class="text-sm">${log.action}</p>
+                    <p class="text-xs text-gray-400">${log.time}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function clearAllLogs() {
+        if(confirm('Are you sure you want to clear ALL system logs and activity history?')) {
+            activityLogs = [];
+            saveActivityLogs();
+            renderSystemLogs();
+            renderActivityFeed();
+            showToast('✅ All logs cleared successfully');
+            addActivityLog('System logs cleared by admin');
+        }
+    }
+    
     // ==================== DASHBOARD DATA ====================
     function loadDashboardData() {
-        document.getElementById('totalEmployees').innerText = '24'; document.getElementById('pendingTasksCount').innerText = '8'; document.getElementById('unreadMessagesCount').innerText = '5'; document.getElementById('totalProjects').innerText = '15';
-        document.getElementById('pendingTasksBadge').innerText = '8'; document.getElementById('unreadMessagesBadge').innerText = '5';
-        document.getElementById('activityFeed').innerHTML = `<div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg"><i class="fas fa-user-plus text-green-500 mt-0.5"></i><div><p class="text-sm">New employee added: John Doe</p><p class="text-xs text-gray-400">2 min ago</p></div></div><div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg"><i class="fas fa-check-circle text-blue-500 mt-0.5"></i><div><p class="text-sm">Task "Complete report" completed</p><p class="text-xs text-gray-400">1 hour ago</p></div></div><div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg"><i class="fas fa-envelope text-purple-500 mt-0.5"></i><div><p class="text-sm">New message from Finance dept</p><p class="text-xs text-gray-400">3 hours ago</p></div></div>`;
-        new Chart(document.getElementById('revenueChart'), { type: 'line', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Revenue (TZS M)', data: [12, 19, 15, 22, 28, 32], borderColor: '#0f74ba', backgroundColor: 'rgba(15,116,186,0.1)', fill: true, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
+        document.getElementById('totalEmployees').innerText = '24';
+        document.getElementById('pendingTasksCount').innerText = '8';
+        document.getElementById('unreadMessagesCount').innerText = '5';
+        document.getElementById('totalProjects').innerText = '15';
+        document.getElementById('pendingTasksBadge').innerText = '8';
+        document.getElementById('unreadMessagesBadge').innerText = '5';
+        
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'line',
+            data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Revenue (TZS M)', data: [12, 19, 15, 22, 28, 32], borderColor: '#0f74ba', backgroundColor: 'rgba(15,116,186,0.1)', fill: true, tension: 0.4 }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+        });
     }
     
     // ==================== DEPARTMENTS ====================
@@ -630,20 +685,27 @@
         const tbody = document.getElementById('employeeTableBody'); if(!tbody) return;
         let filtered = employees; if(currentSearchTerm) filtered = employees.filter(e => e.name.toLowerCase().includes(currentSearchTerm) || e.email.toLowerCase().includes(currentSearchTerm) || e.phone.includes(currentSearchTerm));
         tbody.innerHTML = filtered.map(emp => `<tr class="employee-row border-b hover:bg-gray-50 transition"><td class="px-5 py-3 text-sm">${emp.id}</td><td class="px-5 py-3 font-medium text-sm">${emp.name}</td><td class="px-5 py-3 text-sm hidden md:table-cell">${emp.email}</td><td class="px-5 py-3 text-sm hidden lg:table-cell">${emp.phone}</td><td class="px-5 py-3"><span class="px-2 py-1 text-xs rounded-full ${getRoleBadge(emp.role)}">${emp.role}</span></td><td class="px-5 py-3 text-sm hidden xl:table-cell">${emp.department}</td><td class="px-5 py-3 text-sm hidden 2xl:table-cell">TZS ${emp.salary}</td><td class="px-5 py-3"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">${emp.status}</span></td><td class="px-5 py-3"><button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 mr-2"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${emp.id})" class="text-red-600 mr-2"><i class="fas fa-trash"></i></button><button onclick="openChangePwdModal(${emp.id})" class="text-orange-600"><i class="fas fa-key"></i></button></td></tr>`).join('');
-        if(filtered.length === 0 && currentSearchTerm) tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No employees found</td></tr>';
     }
     
     function openAddEmployeeModal() { document.getElementById('employeeModal').classList.remove('hidden'); document.getElementById('employeeModal').classList.add('flex'); }
     function closeModal() { document.getElementById('employeeModal').classList.add('hidden'); document.getElementById('employeeModal').classList.remove('flex'); document.getElementById('employeeForm').reset(); }
     function openEditEmployeeModal(id) { const emp = employees.find(e => e.id === id); if(emp) { document.getElementById('editEmpId').value = emp.id; document.getElementById('editEmpName').value = emp.name; document.getElementById('editEmpEmail').value = emp.email; document.getElementById('editEmpPhone').value = emp.phone; document.getElementById('editEmpRole').value = emp.role; document.getElementById('editEmpDepartment').value = emp.department; document.getElementById('editEmpSalary').value = emp.salary.replace(/,/g, ''); document.getElementById('editEmployeeModal').classList.remove('hidden'); document.getElementById('editEmployeeModal').classList.add('flex'); } }
     function closeEditModal() { document.getElementById('editEmployeeModal').classList.add('hidden'); document.getElementById('editEmployeeModal').classList.remove('flex'); }
-    function deleteEmployee(id) { if(confirm('Are you sure?')) { employees = employees.filter(e => e.id !== id); renderEmployeeTable(); showToast('Employee deleted'); } }
+    function deleteEmployee(id) { 
+        if(confirm('Are you sure?')) { 
+            const emp = employees.find(e => e.id === id);
+            employees = employees.filter(e => e.id !== id); 
+            renderEmployeeTable(); 
+            addActivityLog(`Deleted employee: ${emp?.name || 'Unknown'}`);
+            showToast('Employee deleted'); 
+        } 
+    }
     function openChangePwdModal(id) { const emp = employees.find(e => e.id === id); if(emp) { document.getElementById('pwdEmpId').value = emp.id; document.getElementById('pwdEmpName').value = emp.name; document.getElementById('changePwdModal').classList.remove('hidden'); document.getElementById('changePwdModal').classList.add('flex'); } }
     function closePwdModal() { document.getElementById('changePwdModal').classList.add('hidden'); document.getElementById('changePwdModal').classList.remove('flex'); document.getElementById('changePwdForm').reset(); }
     function changeEmployeePassword() { const newPwd = document.getElementById('newPassword').value; const confirmPwd = document.getElementById('confirmNewPassword').value; if(!newPwd) { showToast('Enter new password', true); return; } if(newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; } showToast('Password changed'); closePwdModal(); }
     
-    document.getElementById('employeeForm')?.addEventListener('submit', function(e) { e.preventDefault(); const name = document.getElementById('empName').value; if(!name) return; employees.push({ id: nextEmpId++, name, email: document.getElementById('empEmail').value, phone: document.getElementById('empPhone').value, role: document.getElementById('empRole').value, department: document.getElementById('empDepartment').value, salary: document.getElementById('empSalary').value, status: 'Active' }); renderEmployeeTable(); closeModal(); showToast('Employee added'); });
-    document.getElementById('editEmployeeForm')?.addEventListener('submit', function(e) { e.preventDefault(); const id = parseInt(document.getElementById('editEmpId').value); const emp = employees.find(e => e.id === id); if(emp) { emp.name = document.getElementById('editEmpName').value; emp.email = document.getElementById('editEmpEmail').value; emp.phone = document.getElementById('editEmpPhone').value; emp.role = document.getElementById('editEmpRole').value; emp.department = document.getElementById('editEmpDepartment').value; emp.salary = document.getElementById('editEmpSalary').value; renderEmployeeTable(); closeEditModal(); showToast('Employee updated'); } });
+    document.getElementById('employeeForm')?.addEventListener('submit', function(e) { e.preventDefault(); const name = document.getElementById('empName').value; if(!name) return; employees.push({ id: nextEmpId++, name, email: document.getElementById('empEmail').value, phone: document.getElementById('empPhone').value, role: document.getElementById('empRole').value, department: document.getElementById('empDepartment').value, salary: document.getElementById('empSalary').value, status: 'Active' }); renderEmployeeTable(); closeModal(); addActivityLog(`Added new employee: ${name}`); showToast('Employee added'); });
+    document.getElementById('editEmployeeForm')?.addEventListener('submit', function(e) { e.preventDefault(); const id = parseInt(document.getElementById('editEmpId').value); const emp = employees.find(e => e.id === id); if(emp) { emp.name = document.getElementById('editEmpName').value; emp.email = document.getElementById('editEmpEmail').value; emp.phone = document.getElementById('editEmpPhone').value; emp.role = document.getElementById('editEmpRole').value; emp.department = document.getElementById('editEmpDepartment').value; emp.salary = document.getElementById('editEmpSalary').value; renderEmployeeTable(); closeEditModal(); addActivityLog(`Updated employee: ${emp.name}`); showToast('Employee updated'); } });
     document.getElementById('changePwdForm')?.addEventListener('submit', function(e) { e.preventDefault(); changeEmployeePassword(); });
     
     // ==================== TASKS ====================
@@ -662,14 +724,14 @@
     function toggleTask(id) { const task = tasks.find(t => t.id === id); if(task) { task.completed = !task.completed; renderTasks(); updateDashboardCounts(); showToast(task.completed ? 'Task completed!' : 'Task marked incomplete'); } }
     function openAddTaskModal() { document.getElementById('taskModal').classList.remove('hidden'); document.getElementById('taskModal').classList.add('flex'); }
     function closeTaskModal() { document.getElementById('taskModal').classList.add('hidden'); document.getElementById('taskModal').classList.remove('flex'); document.getElementById('taskTitle').value = ''; document.getElementById('taskDescription').value = ''; }
-    function addNewTask() { const title = document.getElementById('taskTitle').value; if(!title) { showToast('Enter task title', true); return; } tasks.unshift({ id: nextTaskId++, title, description: document.getElementById('taskDescription').value || 'No description', department: document.getElementById('taskDepartment').value, completed: false }); renderTasks(); updateDashboardCounts(); closeTaskModal(); showToast('Task added'); }
+    function addNewTask() { const title = document.getElementById('taskTitle').value; if(!title) { showToast('Enter task title', true); return; } tasks.unshift({ id: nextTaskId++, title, description: document.getElementById('taskDescription').value || 'No description', department: document.getElementById('taskDepartment').value, completed: false }); renderTasks(); updateDashboardCounts(); closeTaskModal(); addActivityLog(`Added new task: ${title}`); showToast('Task added'); }
     
     // ==================== MESSAGES ====================
     let messages = [
         { id: 1, fromDept: "Managers", subject: "Project Update", message: "We have completed 2 new modern houses this month. The projects are ready for handover.", timestamp: new Date(Date.now() - 2*60*60*1000), read: false, replies: [] },
         { id: 2, fromDept: "Finance", subject: "Invoice Payment", message: "Client John Doe has paid TZS 5,000,000 for the Modern Villa project.", timestamp: new Date(Date.now() - 5*60*60*1000), read: false, replies: [] },
         { id: 3, fromDept: "Sales", subject: "New Customer Inquiry", message: "We have received a new inquiry from a customer interested in a 5-acre land survey.", timestamp: new Date(Date.now() - 1*24*60*60*1000), read: true, replies: [] },
-        { id: 4, fromDept: "Secretary", subject: "Meeting Request", message: "Please confirm the board meeting schedule for next week. Proposed date: April 25, 2024 at 10:00 AM.", timestamp: new Date(Date.now() - 2*24*60*60*1000), read: false, replies: [] }
+        { id: 4, fromDept: "Secretary", subject: "Meeting Request", message: "Please confirm the board meeting schedule for next week.", timestamp: new Date(Date.now() - 2*24*60*60*1000), read: false, replies: [] }
     ];
     
     function formatTime(date) { const now = new Date(); const diff = now - date; const minutes = Math.floor(diff / 60000); const hours = Math.floor(diff / 3600000); const days = Math.floor(diff / 86400000); if(minutes < 60) return `${minutes} min ago`; if(hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`; return `${days} day${days > 1 ? 's' : ''} ago`; }
@@ -690,7 +752,7 @@
         detailView.innerHTML = chatHtml;
     }
     
-    function sendReply(msgId) { const replyText = document.getElementById('replyText')?.value; if(!replyText || replyText.trim() === '') { showToast('Please enter a reply', true); return; } const msg = messages.find(m => m.id === msgId); if(msg) { msg.replies.push({ message: replyText, timestamp: new Date().toLocaleString() }); renderMessagesList(); showToast(`Reply sent to ${msg.fromDept} department`); viewConversation(msgId); } }
+    function sendReply(msgId) { const replyText = document.getElementById('replyText')?.value; if(!replyText || replyText.trim() === '') { showToast('Please enter a reply', true); return; } const msg = messages.find(m => m.id === msgId); if(msg) { msg.replies.push({ message: replyText, timestamp: new Date().toLocaleString() }); renderMessagesList(); addActivityLog(`Replied to message from ${msg.fromDept} department`); showToast(`Reply sent to ${msg.fromDept} department`); viewConversation(msgId); } }
     
     // ==================== PROJECTS ====================
     let projects = [{ id: 1, name: "Modern Villa - Kigamboni", status: "Completed", progress: 100, client: "John M.", amount: "TZS 180M" }, { id: 2, name: "Commercial Complex - Pwani", status: "In Progress", progress: 65, client: "Sarah K.", amount: "TZS 350M" }, { id: 3, name: "Land Survey - 15 Acres", status: "Approved", progress: 30, client: "James P.", amount: "TZS 3.5M" }];
@@ -707,67 +769,28 @@
     function loadReport(type) { currentReportType = type; document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active')); document.getElementById(`tab${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active'); renderReportContent(currentDept, type); }
     function closeDepartmentReport() { document.getElementById('departmentReportView').classList.add('hidden'); document.getElementById('reportDepartmentsGrid').classList.remove('hidden'); renderReportDepartmentsGrid(); }
     
-    // ==================== EXPORT FUNCTIONS (PDF na Excel) ====================
+    // ==================== EXPORT FUNCTIONS ====================
     function exportToPDF() { const element = document.getElementById('reportContent'); if(element) { html2pdf().set({ margin: 0.5, filename: `${currentDept}_${currentReportType}_report.pdf` }).from(element).save(); showToast('PDF downloaded'); } }
-    
     function exportToExcel() {
         const data = generateReportData(currentDept, currentReportType);
-        let wsData = [];
-        
-        // Header
-        wsData.push([`${currentDept} Department - ${data.title}`]);
-        wsData.push([`Period: ${data.period || data.date || ''}`]);
-        wsData.push([]);
-        
-        // Data based on department
-        if(currentDept === 'Managers') {
-            wsData.push(['Metric', 'Value']);
-            wsData.push(['Completed Projects', data.completed]);
-            wsData.push(['In Progress', data.inProgress]);
-            wsData.push(['Approved Projects', data.approved]);
-            wsData.push(['Revenue', data.revenue]);
-        } else if(currentDept === 'Finance') {
-            wsData.push(['Metric', 'Value']);
-            wsData.push(['Income', data.income]);
-            wsData.push(['Expenses', data.expenses]);
-            wsData.push(['Profit', data.profit]);
-            wsData.push(['Pending Invoices', Math.floor(Math.random() * 10) + 1]);
-        } else if(currentDept === 'Sales') {
-            wsData.push(['Metric', 'Value']);
-            wsData.push(['Orders', data.orders]);
-            wsData.push(['Revenue', data.revenue]);
-            wsData.push(['Leads', data.leads]);
-            wsData.push(['Conversions', data.conversions]);
-        } else if(currentDept === 'Secretary') {
-            wsData.push(['Metric', 'Value']);
-            wsData.push(['Messages', data.messages]);
-            wsData.push(['Appointments', data.appointments]);
-            wsData.push(['Documents Processed', Math.floor(Math.random() * 50) + 20]);
-            wsData.push(['Pending Tasks', Math.floor(Math.random() * 15) + 5]);
-        }
-        
-        wsData.push([]);
-        wsData.push([`Generated on: ${new Date().toLocaleString()}`]);
-        
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        XLSX.utils.book_append_sheet(wb, ws, `${currentDept}_${currentReportType}_Report`);
-        XLSX.writeFile(wb, `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.xlsx`);
-        showToast('Excel report downloaded successfully!');
+        let wsData = [[`${currentDept} Department - ${data.title}`], [`Period: ${data.period || data.date || ''}`], []];
+        if(currentDept === 'Managers') { wsData.push(['Metric', 'Value']); wsData.push(['Completed Projects', data.completed]); wsData.push(['In Progress', data.inProgress]); wsData.push(['Approved Projects', data.approved]); wsData.push(['Revenue', data.revenue]); }
+        else if(currentDept === 'Finance') { wsData.push(['Metric', 'Value']); wsData.push(['Income', data.income]); wsData.push(['Expenses', data.expenses]); wsData.push(['Profit', data.profit]); wsData.push(['Pending Invoices', Math.floor(Math.random() * 10) + 1]); }
+        else if(currentDept === 'Sales') { wsData.push(['Metric', 'Value']); wsData.push(['Orders', data.orders]); wsData.push(['Revenue', data.revenue]); wsData.push(['Leads', data.leads]); wsData.push(['Conversions', data.conversions]); }
+        else if(currentDept === 'Secretary') { wsData.push(['Metric', 'Value']); wsData.push(['Messages', data.messages]); wsData.push(['Appointments', data.appointments]); wsData.push(['Documents Processed', Math.floor(Math.random() * 50) + 20]); wsData.push(['Pending Tasks', Math.floor(Math.random() * 15) + 5]); }
+        wsData.push([]); wsData.push([`Generated on: ${new Date().toLocaleString()}`]);
+        const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(wsData); XLSX.utils.book_append_sheet(wb, ws, `${currentDept}_${currentReportType}_Report`); XLSX.writeFile(wb, `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.xlsx`); showToast('Excel report downloaded successfully!');
     }
     
     // ==================== SETTINGS FUNCTIONS ====================
     function togglePassword(inputId, element) { const input = document.getElementById(inputId); if(input.type === 'password') { input.type = 'text'; element.classList.remove('fa-eye'); element.classList.add('fa-eye-slash'); } else { input.type = 'password'; element.classList.remove('fa-eye-slash'); element.classList.add('fa-eye'); } }
-    function changeAdminPassword() { const currentPwd = document.getElementById('currentPassword').value; const newPwd = document.getElementById('newAdminPassword').value; const confirmPwd = document.getElementById('confirmAdminPassword').value; if(!currentPwd) { showToast('Enter current password', true); return; } if(!newPwd) { showToast('Enter new password', true); return; } if(newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; } showToast('Password changed successfully'); document.getElementById('currentPassword').value = ''; document.getElementById('newAdminPassword').value = ''; document.getElementById('confirmAdminPassword').value = ''; }
-    function changeSidebarColor(color, element) { const sidebar = document.getElementById('mainSidebar'); sidebar.style.background = color; sidebar.style.backgroundImage = 'none'; document.querySelectorAll('.color-option').forEach(opt => { opt.classList.remove('selected'); opt.style.transform = 'scale(1)'; }); if(element) { element.classList.add('selected'); element.style.transform = 'scale(1.05)'; } localStorage.setItem('sidebar_color', color); showToast('Sidebar color changed'); }
+    function changeAdminPassword() { const currentPwd = document.getElementById('currentPassword').value; const newPwd = document.getElementById('newAdminPassword').value; const confirmPwd = document.getElementById('confirmAdminPassword').value; if(!currentPwd) { showToast('Enter current password', true); return; } if(!newPwd) { showToast('Enter new password', true); return; } if(newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; } showToast('Password changed successfully'); addActivityLog('Admin password changed'); document.getElementById('currentPassword').value = ''; document.getElementById('newAdminPassword').value = ''; document.getElementById('confirmAdminPassword').value = ''; }
+    function changeSidebarColor(color, element) { const sidebar = document.getElementById('mainSidebar'); sidebar.style.background = color; sidebar.style.backgroundImage = 'none'; document.querySelectorAll('.color-option').forEach(opt => { opt.classList.remove('selected'); opt.style.transform = 'scale(1)'; }); if(element) { element.classList.add('selected'); element.style.transform = 'scale(1.05)'; } localStorage.setItem('sidebar_color', color); showToast('Sidebar color changed'); addActivityLog('Sidebar color changed'); }
     function loadSavedSidebarColor() { const savedColor = localStorage.getItem('sidebar_color'); const sidebar = document.getElementById('mainSidebar'); if(savedColor && sidebar) { sidebar.style.background = savedColor; sidebar.style.backgroundImage = 'none'; } }
-    function createBackup() { const backup = { employees, tasks, messages, projects, timestamp: new Date().toISOString() }; localStorage.setItem('geotraverse_backup', JSON.stringify(backup)); showToast('Backup created successfully'); }
-    function restoreBackup() { const backup = localStorage.getItem('geotraverse_backup'); if(backup) { const data = JSON.parse(backup); if(data.employees) employees = data.employees; if(data.tasks) tasks = data.tasks; if(data.messages) messages = data.messages; if(data.projects) projects = data.projects; renderEmployeeTable(); renderTasks(); renderMessagesList(); renderProjects(); updateDashboardCounts(); showToast('Backup restored successfully'); } else { showToast('No backup found', true); } }
-    let activityLogs = [{ action: "Admin logged in", time: "2024-01-15 09:30:00" }, { action: "Added new employee: John Doe", time: "2024-01-14 14:20:00" }, { action: "Updated project status", time: "2024-01-14 11:45:00" }];
-    function renderSystemLogs() { const logsDiv = document.getElementById('systemLogsList'); if(logsDiv) logsDiv.innerHTML = activityLogs.map(log => `<div class="flex justify-between items-center p-2 border-b"><span class="text-xs">${log.action}</span><span class="text-xs text-gray-400">${log.time}</span></div>`).join(''); }
-    function clearAllLogs() { if(confirm('Clear all logs?')) { activityLogs = []; renderSystemLogs(); showToast('Logs cleared'); } }
-    function saveGeneralSettings() { showToast('General settings saved'); }
-    function saveEmailConfig() { showToast('Email configuration saved'); }
+    function createBackup() { const backup = { employees, tasks, messages, projects, timestamp: new Date().toISOString() }; localStorage.setItem('geotraverse_backup', JSON.stringify(backup)); showToast('Backup created successfully'); addActivityLog('System backup created'); }
+    function restoreBackup() { const backup = localStorage.getItem('geotraverse_backup'); if(backup) { const data = JSON.parse(backup); if(data.employees) employees = data.employees; if(data.tasks) tasks = data.tasks; if(data.messages) messages = data.messages; if(data.projects) projects = data.projects; renderEmployeeTable(); renderTasks(); renderMessagesList(); renderProjects(); updateDashboardCounts(); showToast('Backup restored successfully'); addActivityLog('System restored from backup'); } else { showToast('No backup found', true); } }
+    function saveGeneralSettings() { showToast('General settings saved'); addActivityLog('General settings updated'); }
+    function saveEmailConfig() { showToast('Email configuration saved'); addActivityLog('Email configuration updated'); }
     function updateDashboardCounts() { const pendingTasks = tasks.filter(t => !t.completed).length; const unreadMessages = messages.filter(m => !m.read).length; document.getElementById('pendingTasksCount') && (document.getElementById('pendingTasksCount').innerText = pendingTasks); document.getElementById('unreadMessagesCount') && (document.getElementById('unreadMessagesCount').innerText = unreadMessages); document.getElementById('pendingTasksBadge') && (document.getElementById('pendingTasksBadge').innerText = pendingTasks); document.getElementById('unreadMessagesBadge') && (document.getElementById('unreadMessagesBadge').innerText = unreadMessages); }
     
     // ==================== SEARCH FUNCTION ====================
@@ -775,7 +798,7 @@
     
     // ==================== NAVIGATION ====================
     const sections = { dashboard: 'dashboardSection', employees: 'employeeSection', departments: 'departmentsSection', reports: 'reportsSection', tasks: 'tasksSection', messages: 'messagesSection', settings: 'settingsSection' };
-    function showSection(sectionId) { Object.values(sections).forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); document.getElementById(sectionId).classList.remove('hidden'); if(sectionId === 'employees') renderEmployeeTable(); if(sectionId === 'tasks') renderTasks(); if(sectionId === 'messages') renderMessagesList(); if(sectionId === 'projects') renderProjects(); if(sectionId === 'departments') renderDepartmentsGrid(); if(sectionId === 'reports') renderReportDepartmentsGrid(); if(sectionId === 'settings') { renderSystemLogs(); } closeMobileSidebar(); }
+    function showSection(sectionId) { Object.values(sections).forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); document.getElementById(sectionId).classList.remove('hidden'); if(sectionId === 'employees') renderEmployeeTable(); if(sectionId === 'tasks') renderTasks(); if(sectionId === 'messages') renderMessagesList(); if(sectionId === 'projects') renderProjects(); if(sectionId === 'departments') renderDepartmentsGrid(); if(sectionId === 'reports') renderReportDepartmentsGrid(); if(sectionId === 'settings') { } closeMobileSidebar(); }
     document.querySelectorAll('.nav-item').forEach(item => { item.addEventListener('click', (e) => { e.preventDefault(); const section = item.getAttribute('data-section'); if(section && sections[section]) { showSection(sections[section]); document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); item.classList.add('active'); } }); });
     document.getElementById('homeButton')?.addEventListener('click', () => { showSection('dashboardSection'); document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); document.querySelector('.nav-item[data-section="dashboard"]')?.classList.add('active'); });
     
@@ -793,7 +816,26 @@
     document.getElementById('scrollTopBtn')?.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
     
     // ==================== INITIALIZATION ====================
-    function init() { loadDashboardData(); renderEmployeeTable(); renderTasks(); renderMessagesList(); renderProjects(); renderDepartmentsGrid(); renderReportDepartmentsGrid(); renderManagersProjects(); renderFinanceInvoices(); renderSalesOrders(); renderSecretaryMessages(); updateDashboardCounts(); loadSavedSidebarColor(); loadDarkMode(); showSection('dashboardSection'); document.getElementById('searchInput')?.addEventListener('input', performSearch); console.log('Dashboard initialized'); }
+    function init() { 
+        loadDashboardData(); 
+        renderEmployeeTable(); 
+        renderTasks(); 
+        renderMessagesList(); 
+        renderProjects(); 
+        renderDepartmentsGrid(); 
+        renderReportDepartmentsGrid(); 
+        renderManagersProjects(); 
+        renderFinanceInvoices(); 
+        renderSalesOrders(); 
+        renderSecretaryMessages(); 
+        updateDashboardCounts(); 
+        loadSavedSidebarColor(); 
+        loadDarkMode(); 
+        loadActivityLogs();
+        showSection('dashboardSection'); 
+        document.getElementById('searchInput')?.addEventListener('input', performSearch); 
+        console.log('Dashboard initialized'); 
+    }
     init();
     
     // Expose global functions
