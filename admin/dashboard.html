@@ -1,78 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sw">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoTraverse - Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GeoTraverse | Admin Dashboard</title>
     
-    <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
-    <!-- SheetJS for Excel Export -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-    
-    <!-- html2pdf for PDF Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         * { font-family: 'Inter', sans-serif; }
-        
-        body { background: #f0f2f5; }
+        body { background: #f0f2f5; transition: background 0.3s ease; }
         
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #e4e4e7; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #a1a1aa; border-radius: 10px; }
         
         .sidebar { background: linear-gradient(180deg, #0f74ba 0%, #0a5a8e 100%); transition: background-color 0.3s ease; }
-        .nav-item { transition: all 0.2s ease; border-left: 3px solid transparent; }
+        .nav-item { transition: all 0.2s ease; border-left: 3px solid transparent; cursor: pointer; }
         .nav-item.active { background-color: rgba(255,255,255,0.12); border-left-color: #60a5fa; }
         .nav-item.active i { color: #60a5fa; }
         .nav-item:hover:not(.active) { background-color: rgba(255,255,255,0.08); }
         
-        .stat-card { transition: all 0.3s ease; border: 1px solid #e5e7eb; }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border-color: #0f74ba; }
+        .stat-card { transition: all 0.3s ease; border: 1px solid #e5e7eb; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); border-color: #0f74ba; }
         
-        @keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .modal-pop { animation: modalPop 0.2s ease-out; }
-        
-        .toast-notification { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: slideInRight 0.3s ease; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        
-        .dept-card { transition: all 0.3s ease; }
-        .dept-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        
-        .activity-item { transition: all 0.2s ease; border-radius: 10px; padding: 10px; }
-        .activity-item:hover { background-color: #f8fafc; transform: translateX(5px); }
-        
-        .search-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(15,116,186,0.3); border-color: #0f74ba; }
-        
-        .btn-primary { background: linear-gradient(135deg, #0f74ba, #0a5a8e); transition: all 0.2s ease; }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(15,116,186,0.3); }
-        
-        .gradient-text { background: linear-gradient(135deg, #0f74ba, #60a5fa); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        
-        body.dark-mode { background-color: #0f172a; }
-        body.dark-mode .bg-white { background-color: #1e293b; }
-        body.dark-mode .text-gray-800, body.dark-mode .text-gray-700 { color: #f1f5f9; }
-        body.dark-mode .text-gray-500, body.dark-mode .text-gray-400 { color: #94a3b8; }
-        body.dark-mode .bg-gray-50 { background-color: #0f172a; }
-        body.dark-mode .border-gray-100, body.dark-mode .border-gray-200 { border-color: #334155; }
-        body.dark-mode .stat-card { background-color: #1e293b; border-color: #334155; }
-        body.dark-mode .activity-item:hover { background-color: #334155; }
-        body.dark-mode .employee-row:hover { background-color: #334155; }
-        
-        .report-tab { transition: all 0.2s ease; cursor: pointer; padding: 10px 20px; border-radius: 8px; }
-        .report-tab.active { background: linear-gradient(135deg, #0f74ba, #60a5fa); color: white; }
-        .report-tab:hover:not(.active) { background-color: #e5e7eb; }
+        .dept-card { transition: all 0.3s ease; cursor: pointer; }
+        .dept-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         
         .function-list { list-style: none; padding-left: 0; margin: 0; }
         .function-list li { padding: 12px 0; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; border-radius: 8px; }
@@ -83,15 +41,12 @@
         .project-card { transition: all 0.2s; cursor: pointer; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
         .project-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         
-        .login-container { min-height: 100vh; background: linear-gradient(135deg, #0f74ba 0%, #0a5a8e 100%); }
-        .login-card { animation: fadeInUp 0.5s ease-out; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .report-tab { transition: all 0.2s ease; cursor: pointer; padding: 10px 20px; border-radius: 8px; }
+        .report-tab.active { background: linear-gradient(135deg, #0f74ba, #60a5fa); color: white; }
+        .report-tab:hover:not(.active) { background-color: #e5e7eb; }
         
-        .status-pending { background-color: #fef3c7; color: #d97706; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
-        .status-paid { background-color: #d1fae5; color: #059669; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
-        
-        .setting-card { transition: all 0.3s ease; cursor: pointer; }
-        .setting-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .setting-card { transition: all 0.3s ease; cursor: pointer; border: 1px solid #e5e7eb; }
+        .setting-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-color: #0f74ba; }
         
         .message-item { transition: all 0.2s; cursor: pointer; }
         .message-item:hover { background-color: #f8fafc; }
@@ -104,196 +59,124 @@
         .color-option { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
         .color-option:hover { transform: scale(1.05); }
         .color-option.selected { border-color: white; box-shadow: 0 0 0 2px #333; }
-        /* Login card hover effect */
-.login-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.login-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.3);
-}
-
-/* Input focus animation */
-.input-field {
-    transition: all 0.3s ease;
-}
-
-.input-field:focus {
-    transform: scale(1.01);
-}
-
-/* Button loading state */
-.login-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-/* Spinner animation */
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid white;
-    border-radius: 50%;
-    border-top-color: transparent;
-    animation: spin 0.6s linear infinite;
-}
-
-/* Modal animation */
-.modal {
-    animation: modalFadeIn 0.3s ease-out;
-}
-
-@keyframes modalFadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
+        
+        @keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal-pop { animation: modalPop 0.2s ease-out; }
+        
+        .toast-notification { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: slideInRight 0.3s ease; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .toast-notification.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        body.dark-mode { background-color: #0f172a; }
+        body.dark-mode .bg-white { background-color: #1e293b; }
+        body.dark-mode .text-gray-800, body.dark-mode .text-gray-700 { color: #f1f5f9; }
+        body.dark-mode .text-gray-500, body.dark-mode .text-gray-400 { color: #94a3b8; }
+        body.dark-mode .bg-gray-50 { background-color: #0f172a; }
+        body.dark-mode .border-gray-100, body.dark-mode .border-gray-200 { border-color: #334155; }
+        body.dark-mode .stat-card { background-color: #1e293b; border-color: #334155; }
+        body.dark-mode .setting-card { background-color: #1e293b; border-color: #334155; }
+        body.dark-mode .dept-card .bg-white { background-color: #1e293b; }
+        body.dark-mode .function-list li { border-bottom-color: #334155; }
+        body.dark-mode .function-list li:hover { background-color: #334155; }
+        body.dark-mode .chat-message { background-color: #334155; color: white; }
+        body.dark-mode .chat-reply { background-color: #065f46; color: white; }
+        
+        .btn-primary { background: linear-gradient(135deg, #0f74ba, #0a5a8e); transition: all 0.2s ease; cursor: pointer; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(15,116,186,0.3); }
+        
+        .gradient-text { background: linear-gradient(135deg, #0f74ba, #60a5fa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        
+        .scroll-top { position: fixed; bottom: 20px; right: 20px; background: #0f74ba; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: all 0.3s; z-index: 99; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .scroll-top.visible { opacity: 1; }
+        
+        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .loading-spinner { width: 50px; height: 50px; border: 4px solid #f3f3f3; border-top: 4px solid #0f74ba; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .task-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 3px solid #0f74ba; transition: all 0.2s; }
+        .task-item:hover { transform: translateX(3px); }
+        
+        .employee-row:hover { background-color: #f8fafc; }
+        body.dark-mode .employee-row:hover { background-color: #334155; }
+        
+        .password-field { position: relative; }
+        .password-field input { padding-right: 40px; }
+        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; }
+        .password-toggle:hover { color: #0f74ba; }
+        
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: -100%; transition: left 0.3s; z-index: 100; width: 80%; }
+            .sidebar.mobile-open { left: 0; }
+            .mobile-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
+            .mobile-menu-overlay.open { display: block; }
+        }
     </style>
 </head>
 <body>
 
-<!-- LOGIN PAGE -->
-<div id="loginPage" class="login-container flex items-center justify-center">
-    <div class="login-card bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl w-full max-w-md p-8 mx-4 border border-white/20">
-        
-        <!-- Logo Section -->
-        <div class="text-center mb-8">
-            <div class="flex justify-center mb-5">
-                <img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="GeoTraverse Logo" 
-                     class="w-20 h-20 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-300">
-            </div>
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome Back!</h2>
-            <p class="text-gray-500 text-sm">Sign in to your admin dashboard</p>
-        </div>
-        
-        <!-- Login Form -->
-        <form id="loginForm">
-            <!-- Email Field -->
-            <div class="mb-5">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-envelope mr-2 text-blue-600"></i>
-                    Email Address
-                </label>
-                <div class="relative">
-                    <input type="email" id="loginEmail" 
-                           class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all"
-                           placeholder="admin@geotraverse.com" required>
-                    <i class="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                </div>
-            </div>
-            
-            <!-- Password Field with Toggle Button -->
-            <div class="mb-3">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    <i class="fas fa-lock mr-2 text-blue-600"></i>
-                    Password
-                </label>
-                <div class="relative">
-                    <input type="password" id="loginPassword" 
-                           class="w-full pl-12 pr-12 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all"
-                           placeholder="Enter your password" required>
-                    <i class="fas fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <button type="button" id="togglePasswordBtn" 
-                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-all">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Forgot Password Link -->
-            <div class="text-right mb-6">
-                <a href="#" id="forgotPasswordLink" 
-                   class="text-sm text-gray-500 hover:text-blue-600 transition-all inline-flex items-center gap-1">
-                    <i class="fas fa-question-circle"></i>
-                    Forgot Password?
-                </a>
-            </div>
-            
-            <!-- Login Button -->
-            <button type="submit" id="loginBtn" 
-                    class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-2">
-                <i class="fas fa-sign-in-alt"></i>
-                <span>Sign In</span>
-            </button>
-        </form>
-        
-        <!-- Footer -->
-        <div class="text-center mt-8 pt-6 border-t border-gray-100">
-            <p class="text-xs text-gray-400">
-                <i class="fas fa-shield-alt mr-1"></i>
-                Secure Login • Protected by GeoTraverse
-            </p>
-            <p class="text-xs text-gray-400 mt-2">
-                &copy; 2024 GeoTraverse. All rights reserved.
-            </p>
-        </div>
-    </div>
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner"></div>
 </div>
 
-<!-- Forgot Password Modal -->
-<div id="forgotModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4">
-            <div class="flex justify-between items-center">
-                <h3 class="text-xl font-bold text-white">
-                    <i class="fas fa-key mr-2"></i> Reset Password
-                </h3>
-                <button id="closeModalBtn" class="text-white hover:text-gray-200 transition-all">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-            </div>
-        </div>
-        
-        <div class="p-6">
-            <p class="text-gray-600 mb-4 text-center">
-                Enter your email address and we'll send you a new password.
-            </p>
-            <input type="email" id="resetEmail" 
-                   class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-all mb-4"
-                   placeholder="admin@geotraverse.com">
-            <button id="sendResetBtn" 
-                    class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white py-3 rounded-xl font-semibold transition-all">
-                <i class="fas fa-paper-plane mr-2"></i> Send New Password
-            </button>
-        </div>
-    </div>
-</div>
+<!-- Mobile Menu Overlay -->
+<div id="mobileMenuOverlay" class="mobile-menu-overlay" onclick="closeMobileSidebar()"></div>
 
 <!-- MAIN DASHBOARD -->
-<div id="dashboardApp" style="display: none;">
+<div id="dashboardApp">
 <div class="flex h-screen overflow-hidden">
     
     <!-- SIDEBAR -->
     <aside id="mainSidebar" class="sidebar w-64 shadow-xl flex flex-col z-20">
         <div class="px-6 py-6 border-b border-white/20">
-            <div class="flex items-center space-x-3"><img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="Logo" class="w-10 h-10 rounded-lg object-cover"><span class="text-xl font-bold text-white">GeoTraverse</span></div>
-            <p class="text-xs text-white/60 mt-2">Admin Dashboard</p>
+            <div class="flex items-center space-x-3">
+                <img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="GeoTraverse Logo" class="w-10 h-10 rounded-lg object-cover">
+                <div>
+                    <span class="text-xl font-bold text-white">GeoTraverse</span>
+                    <p class="text-[10px] text-white/60">Admin Dashboard</p>
+                </div>
+            </div>
         </div>
         
         <nav class="flex-1 px-3 py-6 space-y-1">
-            <a href="#" class="nav-item active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white font-medium" data-section="dashboard"><i class="fas fa-tachometer-alt w-5 text-white/70"></i><span>Dashboard</span></a>
-            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="departments" id="departmentsLink"><i class="fas fa-building w-5 text-white/70"></i><span>Departments</span></a>
-            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="employees" id="employeeTableLink"><i class="fas fa-users w-5 text-white/70"></i><span>Employees</span></a>
-            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="reports" id="reportsLink"><i class="fas fa-chart-line w-5 text-white/70"></i><span>Reports</span></a>
-            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="tasks" id="tasksLink"><i class="fas fa-tasks w-5 text-white/70"></i><span>Tasks</span><span class="ml-auto bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full" id="pendingTasksBadge">0</span></a>
-            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="messages" id="messagesLink"><i class="fas fa-envelope w-5 text-white/70"></i><span>Messages</span><span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full" id="unreadMessagesBadge">0</span></a>
-            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="settings" id="settingsLink"><i class="fas fa-cog w-5 text-white/70"></i><span>Settings</span></a>
+            <a href="#" class="nav-item active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="dashboard">
+                <i class="fas fa-tachometer-alt w-5 text-white/70"></i><span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="employees">
+                <i class="fas fa-users w-5 text-white/70"></i><span>Employees</span>
+            </a>
+            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="departments">
+                <i class="fas fa-building w-5 text-white/70"></i><span>Departments</span>
+            </a>
+            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="reports">
+                <i class="fas fa-chart-line w-5 text-white/70"></i><span>Reports</span>
+            </a>
+            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="tasks">
+                <i class="fas fa-tasks w-5 text-white/70"></i><span>Tasks</span>
+                <span class="ml-auto bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full" id="pendingTasksBadge">0</span>
+            </a>
+            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="messages">
+                <i class="fas fa-envelope w-5 text-white/70"></i><span>Messages</span>
+                <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full" id="unreadMessagesBadge">0</span>
+            </a>
+            <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="settings">
+                <i class="fas fa-cog w-5 text-white/70"></i><span>Settings</span>
+            </a>
         </nav>
         
         <div class="p-4 border-t border-white/20">
-            <div class="flex items-center space-x-3 mb-3"><div class="w-9 h-9 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center"><i class="fas fa-user text-white text-sm"></i></div><div class="flex-1"><p class="text-sm font-semibold text-white" id="adminName">Admin User</p><p class="text-xs text-white/70" id="adminEmail">admin@geotraverse.com</p></div></div>
-            <button id="logoutBtn" class="w-full bg-red-600/80 hover:bg-red-600 text-white py-2 rounded-lg text-sm transition flex items-center justify-center space-x-2"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="w-9 h-9 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-white text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-white" id="adminName">Loading...</p>
+                    <p class="text-xs text-white/70" id="adminEmail">loading@geotraverse.com</p>
+                </div>
+            </div>
+            <button id="logoutBtn" class="w-full bg-red-600/80 hover:bg-red-600 text-white py-2 rounded-lg text-sm transition flex items-center justify-center space-x-2">
+                <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+            </button>
         </div>
     </aside>
     
@@ -303,44 +186,120 @@
         <header class="bg-white shadow-sm px-6 py-4 sticky top-0 z-10 border-b border-gray-200">
             <div class="flex items-center justify-between flex-wrap gap-3">
                 <div class="flex items-center space-x-4">
-                    <button id="homeButton" class="text-gray-600 hover:text-blue-600 transition"><i class="fas fa-home text-xl"></i></button>
-                    <div class="h-6 w-px bg-gray-300"></div>
-                    <a href="/index.html" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1"><i class="fas fa-external-link-alt text-sm"></i><span>Main Website</span></a>
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-blue-600 transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <button id="homeButton" class="text-gray-600 hover:text-blue-600 transition">
+                        <i class="fas fa-home text-xl"></i>
+                    </button>
+                    <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
+                    <a href="/geotraverse/index.html" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1 text-sm">
+                        <i class="fas fa-external-link-alt text-sm"></i><span>Main Website</span>
+                    </a>
                 </div>
-                <div class="flex-1 max-w-md mx-4"><div class="relative"><i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i><input type="text" id="searchInput" placeholder="Search employees, tasks, messages..." class="search-input w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm"></div></div>
-                <button id="darkModeToggle" class="text-gray-500 hover:text-blue-600 transition"><i id="darkModeIcon" class="fas fa-moon text-xl"></i></button>
+                <div class="flex-1 max-w-md mx-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <input type="text" id="searchInput" placeholder="Search employees, tasks, messages..." 
+                               class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <button id="darkModeToggle" class="text-gray-500 hover:text-blue-600 transition">
+                    <i id="darkModeIcon" class="fas fa-moon text-xl"></i>
+                </button>
             </div>
         </header>
         
         <div class="p-6" id="mainContent">
             
-            <!-- DASHBOARD SECTION -->
+            <!-- ==================== DASHBOARD SECTION ==================== -->
             <div id="dashboardSection">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
-                    <div class="stat-card bg-white rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Total Employees</p><p class="text-3xl font-bold text-gray-800" id="totalEmployees">0</p><p class="text-green-600 text-sm mt-1"><i class="fas fa-arrow-up"></i> +12%</p></div><div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center"><i class="fas fa-users text-blue-500 text-xl"></i></div></div></div>
-                    <div class="stat-card bg-white rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Monthly Revenue</p><p class="text-3xl font-bold text-gray-800">TZS 12.5M</p><p class="text-green-600 text-sm mt-1"><i class="fas fa-arrow-up"></i> 8.2%</p></div><div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center"><i class="fas fa-chart-line text-green-500 text-xl"></i></div></div></div>
-                    <div class="stat-card bg-white rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Pending Tasks</p><p class="text-3xl font-bold text-orange-600" id="pendingTasksCount">0</p><p class="text-orange-600 text-sm mt-1"><i class="fas fa-clock"></i> Need action</p></div><div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center"><i class="fas fa-tasks text-orange-500 text-xl"></i></div></div></div>
-                    <div class="stat-card bg-white rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Unread Messages</p><p class="text-3xl font-bold text-red-600" id="unreadMessagesCount">0</p><p class="text-red-600 text-sm mt-1"><i class="fas fa-envelope"></i> New</p></div><div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center"><i class="fas fa-envelope text-red-500 text-xl"></i></div></div></div>
+                    <div class="stat-card bg-white rounded-xl p-5">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-sm mb-1">Total Employees</p><p class="text-3xl font-bold text-gray-800" id="totalEmployees">0</p><p class="text-green-600 text-sm mt-1"><i class="fas fa-arrow-up"></i> +12%</p></div>
+                            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center"><i class="fas fa-users text-blue-500 text-xl"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card bg-white rounded-xl p-5">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-sm mb-1">Pending Tasks</p><p class="text-3xl font-bold text-orange-600" id="pendingTasksCount">0</p><p class="text-orange-600 text-sm mt-1"><i class="fas fa-clock"></i> Need action</p></div>
+                            <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center"><i class="fas fa-tasks text-orange-500 text-xl"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card bg-white rounded-xl p-5">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-sm mb-1">Unread Messages</p><p class="text-3xl font-bold text-red-600" id="unreadMessagesCount">0</p><p class="text-red-600 text-sm mt-1"><i class="fas fa-envelope"></i> New</p></div>
+                            <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center"><i class="fas fa-envelope text-red-500 text-xl"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card bg-white rounded-xl p-5">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-sm mb-1">Total Projects</p><p class="text-3xl font-bold text-green-600" id="totalProjects">0</p><p class="text-green-600 text-sm mt-1"><i class="fas fa-building"></i> Active</p></div>
+                            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center"><i class="fas fa-building text-green-500 text-xl"></i></div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 lg:col-span-2"><h3 class="text-base font-semibold text-gray-800 mb-4">Revenue Overview</h3><canvas id="revenueChart" height="200" style="max-height: 220px;"></canvas></div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5"><h3 class="text-base font-semibold text-gray-800 mb-4">Department Distribution</h3><canvas id="pieChart" height="150" style="max-height: 150px;"></canvas><div class="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-gray-100"><div class="text-center"><p class="text-xs text-gray-500">Managers</p><p class="text-lg font-bold text-purple-600" id="mgmtCount">0</p></div><div class="text-center"><p class="text-xs text-gray-500">Finance</p><p class="text-lg font-bold text-green-600" id="financeCount">0</p></div><div class="text-center"><p class="text-xs text-gray-500">Sales</p><p class="text-lg font-bold text-orange-600" id="salesCount">0</p></div><div class="text-center"><p class="text-xs text-gray-500">Secretary</p><p class="text-lg font-bold text-red-600" id="secretaryCount">0</p></div></div></div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 lg:col-span-2">
+                        <h3 class="text-base font-semibold text-gray-800 mb-4">Revenue Overview</h3>
+                        <canvas id="revenueChart" height="200" style="max-height: 220px;"></canvas>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                        <h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-history mr-2 text-blue-500"></i>Recent Activity</h3>
+                        <div class="space-y-3 max-h-64 overflow-y-auto" id="activityFeed"></div>
+                    </div>
                 </div>
                 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5"><h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-history mr-2 text-blue-500"></i>Recent Activity</h3><div class="space-y-3" id="activityFeed"></div></div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 lg:col-span-2"><h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-chart-simple mr-2 text-green-500"></i>Quick Stats</h3><div class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl"><i class="fas fa-chart-pie text-2xl text-blue-500"></i><p class="text-sm font-semibold mt-2">Total Projects</p><p class="text-2xl font-bold text-blue-600">15</p></div><div class="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl"><i class="fas fa-file-invoice text-2xl text-green-500"></i><p class="text-sm font-semibold mt-2">Invoices</p><p class="text-2xl font-bold text-green-600">24</p></div><div class="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl"><i class="fas fa-shopping-cart text-2xl text-orange-500"></i><p class="text-sm font-semibold mt-2">Orders</p><p class="text-2xl font-bold text-orange-600">18</p></div><div class="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl"><i class="fas fa-calendar text-2xl text-purple-500"></i><p class="text-sm font-semibold mt-2">Meetings</p><p class="text-2xl font-bold text-purple-600">12</p></div></div></div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center">
+                        <i class="fas fa-chart-pie text-2xl text-blue-500"></i>
+                        <p class="text-sm font-semibold mt-2">Total Revenue</p>
+                        <p class="text-xl font-bold text-blue-600">TZS 32.5M</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
+                        <i class="fas fa-file-invoice text-2xl text-green-500"></i>
+                        <p class="text-sm font-semibold mt-2">Invoices</p>
+                        <p class="text-xl font-bold text-green-600">24</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 text-center">
+                        <i class="fas fa-shopping-cart text-2xl text-orange-500"></i>
+                        <p class="text-sm font-semibold mt-2">Orders</p>
+                        <p class="text-xl font-bold text-orange-600">18</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center">
+                        <i class="fas fa-calendar text-2xl text-purple-500"></i>
+                        <p class="text-sm font-semibold mt-2">Meetings</p>
+                        <p class="text-xl font-bold text-purple-600">12</p>
+                    </div>
                 </div>
             </div>
             
-            <!-- DEPARTMENTS SECTION -->
+            <!-- ==================== EMPLOYEES SECTION ==================== -->
+            <div id="employeeSection" class="hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="px-5 py-4 border-b flex flex-wrap justify-between items-center gap-3">
+                        <h3 class="text-base font-semibold text-gray-800"><i class="fas fa-users mr-2 text-blue-500"></i>Employee Management</h3>
+                        <button onclick="openAddEmployeeModal()" class="btn-primary text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i> Add Employee</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b">
+                                <tr><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Email</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Phone</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden xl:table-cell">Department</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden 2xl:table-cell">Salary</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th></tr></thead>
+                            <tbody id="employeeTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ==================== DEPARTMENTS SECTION ==================== -->
             <div id="departmentsSection" class="hidden">
                 <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Departments</h2><p class="text-gray-500 mt-1">Manage and view all company departments</p></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="departmentsGrid"></div>
             </div>
             
-            <!-- MANAGERS DASHBOARD -->
+            <!-- ==================== MANAGERS DASHBOARD ==================== -->
             <div id="managersDashboard" class="hidden">
                 <div class="mb-6"><button onclick="goBackToDepartments()" class="text-gray-500 hover:text-blue-600 mb-2"><i class="fas fa-arrow-left"></i> Back to Departments</button><h2 class="text-2xl font-bold gradient-text">Managers Dashboard</h2><p class="text-gray-500">Housing Projects & Land Survey Management</p></div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -351,7 +310,7 @@
                 </div>
             </div>
             
-            <!-- FINANCE DASHBOARD -->
+            <!-- ==================== FINANCE DASHBOARD ==================== -->
             <div id="financeDashboard" class="hidden">
                 <div class="mb-6"><button onclick="goBackToDepartments()" class="text-gray-500 hover:text-blue-600 mb-2"><i class="fas fa-arrow-left"></i> Back to Departments</button><h2 class="text-2xl font-bold gradient-text">Finance Dashboard</h2><p class="text-gray-500">Financial management & accounting</p></div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -362,7 +321,7 @@
                 </div>
             </div>
             
-            <!-- SALES DASHBOARD -->
+            <!-- ==================== SALES DASHBOARD ==================== -->
             <div id="salesDashboard" class="hidden">
                 <div class="mb-6"><button onclick="goBackToDepartments()" class="text-gray-500 hover:text-blue-600 mb-2"><i class="fas fa-arrow-left"></i> Back to Departments</button><h2 class="text-2xl font-bold gradient-text">Sales & Marketing Dashboard</h2><p class="text-gray-500">Track promotions and customer engagements</p></div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -373,7 +332,7 @@
                 </div>
             </div>
             
-            <!-- SECRETARY DASHBOARD -->
+            <!-- ==================== SECRETARY DASHBOARD ==================== -->
             <div id="secretaryDashboard" class="hidden">
                 <div class="mb-6"><button onclick="goBackToDepartments()" class="text-gray-500 hover:text-blue-600 mb-2"><i class="fas fa-arrow-left"></i> Back to Departments</button><h2 class="text-2xl font-bold gradient-text">Secretary Dashboard</h2><p class="text-gray-500">Administration & communication management</p></div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -384,7 +343,7 @@
                 </div>
             </div>
             
-            <!-- REPORTS SECTION - FULLY WORKING -->
+            <!-- ==================== REPORTS SECTION ==================== -->
             <div id="reportsSection" class="hidden">
                 <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Reports Dashboard</h2><p class="text-gray-500 mt-1">Generate and view department reports</p></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8" id="reportDepartmentsGrid"></div>
@@ -392,7 +351,7 @@
                     <button onclick="closeDepartmentReport()" class="text-gray-500 hover:text-blue-600 mb-4"><i class="fas fa-arrow-left"></i> Back to Departments</button>
                     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-5 text-white"><h3 id="reportDeptTitle" class="text-xl font-bold">Department Reports</h3><p id="reportDeptDesc" class="text-blue-200 mt-1">Department Reports</p></div>
-                        <div class="flex border-b">
+                        <div class="flex border-b flex-wrap">
                             <button onclick="loadReport('daily')" id="tabDaily" class="report-tab active">Daily Report</button>
                             <button onclick="loadReport('weekly')" id="tabWeekly" class="report-tab">Weekly Report</button>
                             <button onclick="loadReport('monthly')" id="tabMonthly" class="report-tab">Monthly Report</button>
@@ -408,645 +367,304 @@
                 </div>
             </div>
             
-            <!-- TASKS SECTION -->
+            <!-- ==================== TASKS SECTION ==================== -->
             <div id="tasksSection" class="hidden">
-                <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Task Management</h2><p class="text-gray-500 mt-1">Tasks from all departments</p></div>
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+                    <h3 class="text-lg font-semibold text-gray-800"><i class="fas fa-tasks mr-2 text-orange-500"></i>Task Management</h3>
+                    <button onclick="openAddTaskModal()" class="btn-primary text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i> Add New Task</button>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-xl shadow-sm p-5"><h3 class="text-lg font-semibold mb-4 text-orange-600"><i class="fas fa-clock mr-2"></i>Incomplete Tasks</h3><div id="incompleteTasksList" class="space-y-3"></div></div>
-                    <div class="bg-white rounded-xl shadow-sm p-5"><h3 class="text-lg font-semibold mb-4 text-green-600"><i class="fas fa-check-circle mr-2"></i>Completed Tasks</h3><div id="completedTasksList" class="space-y-3"></div></div>
+                    <div class="bg-white rounded-xl shadow-sm p-5"><h3 class="text-md font-semibold mb-4 text-orange-600"><i class="fas fa-clock mr-2"></i>Pending Tasks <span id="pendingTasksBadgeInline" class="ml-2 bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full text-xs">0</span></h3><div id="pendingTasksList" class="space-y-3 max-h-96 overflow-y-auto"></div></div>
+                    <div class="bg-white rounded-xl shadow-sm p-5"><h3 class="text-md font-semibold mb-4 text-green-600"><i class="fas fa-check-circle mr-2"></i>Completed Tasks</h3><div id="completedTasksList" class="space-y-3 max-h-96 overflow-y-auto"></div></div>
                 </div>
-                <div class="mt-4 flex justify-end"><button onclick="openAddTaskModal()" class="btn-primary text-white px-4 py-2 rounded-lg"><i class="fas fa-plus mr-1"></i> Add New Task</button></div>
             </div>
             
-            <!-- MESSAGES SECTION -->
+            <!-- ==================== MESSAGES SECTION ==================== -->
             <div id="messagesSection" class="hidden">
-                <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Messages from Departments</h2><p class="text-gray-500 mt-1">View and reply to messages (Chat style)</p></div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-1 bg-white rounded-xl shadow-sm p-4"><h3 class="font-semibold mb-3"><i class="fas fa-comments mr-2 text-blue-500"></i> Conversations</h3><div id="conversationsList" class="space-y-2"></div></div>
-                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-4"><div id="messageDetailView" class="text-center py-12 text-gray-400"><i class="fas fa-envelope-open-text text-5xl mb-3"></i><p>Select a conversation to start chatting</p></div></div>
+                <div class="bg-white rounded-xl shadow-sm p-5">
+                    <h3 class="text-lg font-semibold mb-4"><i class="fas fa-envelope mr-2 text-blue-500"></i>Messages from Departments</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-1 border-r pr-4">
+                            <div class="space-y-2" id="messagesList"></div>
+                        </div>
+                        <div class="lg:col-span-2">
+                            <div id="messageDetailView" class="text-center py-12 text-gray-400">
+                                <i class="fas fa-envelope-open-text text-5xl mb-3"></i>
+                                <p>Select a message to view and reply</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <!-- SETTINGS SECTION -->
+            <!-- ==================== SETTINGS SECTION (Horizontal Cards kama mwanzo) ==================== -->
             <div id="settingsSection" class="hidden">
                 <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Settings</h2><p class="text-gray-500 mt-1">Manage your application preferences</p></div>
                 
-                <!-- Admin Password Change -->
-                <div class="bg-white rounded-xl shadow-sm p-5 mb-6">
-                <h3 class="text-lg font-semibold mb-4"><i class="fas fa-key mr-2 text-blue-600"></i> Admin Password Change</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        
-                <!-- Current Password -->
-                <div class="relative">
-                    <input type="password" id="currentPassword" placeholder="Current Password" class="w-full p-2 border rounded-lg pr-10">
-                    <button type="button" onclick="togglePasswordField('currentPassword', this)" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600">
-                    <i class="fas fa-eye"></i>
-                </button>
-        </div>
-        
-        <!-- New Password -->
-        <div class="relative">
-            <input type="password" id="newAdminPassword" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10">
-            <button type="button" onclick="togglePasswordField('newAdminPassword', this)" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600">
-                <i class="fas fa-eye"></i>
-            </button>
-        </div>
-        
-        <!-- Confirm Password -->
-        <div class="relative">
-            <input type="password" id="confirmAdminPassword" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10">
-            <button type="button" onclick="togglePasswordField('confirmAdminPassword', this)" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600">
-                <i class="fas fa-eye"></i>
-            </button>
-        </div>
-        
-        <!-- Change Password Button -->
-        <button onclick="changeAdminPassword()" class="btn-primary text-white px-4 py-2 rounded-lg">Change Password</button>
-    </div>
-</div>
-
-           <!-- Sidebar Color Change Setting -->
-<div class="bg-white rounded-xl shadow-sm p-5 mb-6">
-    <h3 class="text-lg font-semibold mb-4">
-        <i class="fas fa-palette mr-2 text-purple-600"></i> Sidebar Color Change
-    </h3>
-    <p class="text-sm text-gray-500 mb-3">Choose your preferred sidebar color:</p>
-    <div class="flex flex-wrap gap-3">
-        <div class="color-option w-10 h-10 rounded-full cursor-pointer shadow-md transition hover:scale-110" style="background-color: #0f74ba;" onclick="changeSidebarColor('#0f74ba', this)"></div>
-        <div class="color-option w-10 h-10 rounded-full cursor-pointer shadow-md transition hover:scale-110" style="background-color: #1e3a5f;" onclick="changeSidebarColor('#1e3a5f', this)"></div>
-        <div class="color-option w-10 h-10 rounded-full cursor-pointer shadow-md transition hover:scale-110" style="background-color: #7c3aed;" onclick="changeSidebarColor('#7c3aed', this)"></div>
-        <div class="color-option w-10 h-10 rounded-full cursor-pointer shadow-md transition hover:scale-110" style="background-color: #059669;" onclick="changeSidebarColor('#059669', this)"></div>
-        <div class="color-option w-10 h-10 rounded-full cursor-pointer shadow-md transition hover:scale-110" style="background-color: #dc2626;" onclick="changeSidebarColor('#dc2626', this)"></div>
-        <div class="color-option w-10 h-10 rounded-full cursor-pointer shadow-md transition hover:scale-110" style="background-color: #d97706;" onclick="changeSidebarColor('#d97706', this)"></div>
-        <div class="color-option w-10 h-10 rounded-full cursor-pointer shadow-md transition hover:scale-110" style="background-color: #0891b2;" onclick="changeSidebarColor('#0891b2', this)"></div>
-        <div class="color-option w-10 h-10 rounded-full cursor-pointer shadow-md transition hover:scale-110" style="background-color: #db2777;" onclick="changeSidebarColor('#db2777', this)"></div>
-    </div>
-    <div class="mt-4 pt-3 border-t border-gray-200">
-        <p class="text-xs text-gray-400"><i class="fas fa-info-circle mr-1"></i> Color is saved automatically and will persist after page refresh.</p>
-    </div>
-</div>     
-                <!-- Settings Cards Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    <div class="setting-card bg-white rounded-xl shadow-sm p-5 cursor-pointer hover:shadow-md transition" onclick="openSettingModal('general')"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-globe text-2xl text-blue-600"></i><h3 class="font-bold text-lg">General Settings</h3></div><p class="text-sm text-gray-500">Company name, logo, timezone, language</p><div class="mt-2 text-blue-600 text-sm">Click to configure →</div></div>
-                    <div class="setting-card bg-white rounded-xl shadow-sm p-5 cursor-pointer hover:shadow-md transition" onclick="openSettingModal('backup')"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-database text-2xl text-blue-600"></i><h3 class="font-bold text-lg">Backup & Restore</h3></div><p class="text-sm text-gray-500">Backup database, restore from backup</p><div class="mt-2 text-blue-600 text-sm">Click to configure →</div></div>
-                    <div class="setting-card bg-white rounded-xl shadow-sm p-5 cursor-pointer hover:shadow-md transition" onclick="openSettingModal('logs')"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-history text-2xl text-blue-600"></i><h3 class="font-bold text-lg">System Logs</h3></div><p class="text-sm text-gray-500">View activity logs, user actions</p><div class="mt-2 text-blue-600 text-sm">Click to configure →</div></div>
-                    <div class="setting-card bg-white rounded-xl shadow-sm p-5 cursor-pointer hover:shadow-md transition" onclick="openSettingModal('email')"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-envelope text-2xl text-blue-600"></i><h3 class="font-bold text-lg">Email Configuration</h3></div><p class="text-sm text-gray-500">SMTP settings, email templates</p><div class="mt-2 text-blue-600 text-sm">Click to configure →</div></div>
-                    <div class="setting-card bg-white rounded-xl shadow-sm p-5 cursor-pointer hover:shadow-md transition" onclick="openSettingModal('security')"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-lock text-2xl text-blue-600"></i><h3 class="font-bold text-lg">Security Settings</h3></div><p class="text-sm text-gray-500">Password policy, 2FA, session timeout</p><div class="mt-2 text-blue-600 text-sm">Click to configure →</div></div>
-                    <div class="setting-card bg-white rounded-xl shadow-sm p-5 cursor-pointer hover:shadow-md transition" onclick="openSettingModal('notifications')"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-bell text-2xl text-blue-600"></i><h3 class="font-bold text-lg">Notification Settings</h3></div><p class="text-sm text-gray-500">Email, push notifications, alerts</p><div class="mt-2 text-blue-600 text-sm">Click to configure →</div></div>
+                <!-- Settings Cards - Horizontal Grid kama mwanzo -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+                    <!-- Reset Password Card -->
+                    <div class="setting-card bg-white rounded-xl shadow-sm p-5">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <i class="fas fa-key text-2xl text-blue-600"></i>
+                            <h3 class="font-bold text-lg">Reset Password</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">Change your admin account password</p>
+                        <div class="space-y-2">
+                            <div class="password-field relative">
+                                <input type="password" id="currentPassword" placeholder="Current Password" class="w-full p-2 border rounded-lg pr-10">
+                                <i class="fas fa-eye password-toggle" onclick="togglePassword('currentPassword', this)"></i>
+                            </div>
+                            <div class="password-field relative">
+                                <input type="password" id="newAdminPassword" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10">
+                                <i class="fas fa-eye password-toggle" onclick="togglePassword('newAdminPassword', this)"></i>
+                            </div>
+                            <div class="password-field relative">
+                                <input type="password" id="confirmAdminPassword" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10">
+                                <i class="fas fa-eye password-toggle" onclick="togglePassword('confirmAdminPassword', this)"></i>
+                            </div>
+                            <button onclick="changeAdminPassword()" class="w-full btn-primary text-white px-4 py-2 rounded-lg mt-2">Change Password</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Sidebar Color Card -->
+                    <div class="setting-card bg-white rounded-xl shadow-sm p-5">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <i class="fas fa-palette text-2xl text-purple-600"></i>
+                            <h3 class="font-bold text-lg">Sidebar Color</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">Choose your preferred sidebar color</p>
+                        <div class="flex flex-wrap gap-2">
+                            <div class="color-option w-8 h-8 rounded-full cursor-pointer shadow-md" style="background-color: #0f74ba;" onclick="changeSidebarColor('#0f74ba', this)"></div>
+                            <div class="color-option w-8 h-8 rounded-full cursor-pointer shadow-md" style="background-color: #1e3a5f;" onclick="changeSidebarColor('#1e3a5f', this)"></div>
+                            <div class="color-option w-8 h-8 rounded-full cursor-pointer shadow-md" style="background-color: #7c3aed;" onclick="changeSidebarColor('#7c3aed', this)"></div>
+                            <div class="color-option w-8 h-8 rounded-full cursor-pointer shadow-md" style="background-color: #059669;" onclick="changeSidebarColor('#059669', this)"></div>
+                            <div class="color-option w-8 h-8 rounded-full cursor-pointer shadow-md" style="background-color: #dc2626;" onclick="changeSidebarColor('#dc2626', this)"></div>
+                            <div class="color-option w-8 h-8 rounded-full cursor-pointer shadow-md" style="background-color: #d97706;" onclick="changeSidebarColor('#d97706', this)"></div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-3"><i class="fas fa-info-circle mr-1"></i> Saved automatically</p>
+                    </div>
+                    
+                    <!-- Backup & Restore Card -->
+                    <div class="setting-card bg-white rounded-xl shadow-sm p-5">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <i class="fas fa-database text-2xl text-green-600"></i>
+                            <h3 class="font-bold text-lg">Backup & Restore</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">Backup or restore your data</p>
+                        <div class="flex gap-2">
+                            <button onclick="createBackup()" class="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-download mr-1"></i> Backup</button>
+                            <button onclick="restoreBackup()" class="flex-1 bg-orange-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-upload mr-1"></i> Restore</button>
+                        </div>
+                    </div>
+                    
+                    <!-- System Logs Card -->
+                    <div class="setting-card bg-white rounded-xl shadow-sm p-5">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <i class="fas fa-history text-2xl text-blue-600"></i>
+                            <h3 class="font-bold text-lg">System Logs</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">View recent system activities</p>
+                        <div class="max-h-32 overflow-y-auto space-y-1 text-sm" id="systemLogsList"></div>
+                        <button onclick="clearAllLogs()" class="w-full mt-3 bg-red-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-trash mr-1"></i> Clear Logs</button>
+                    </div>
+                    
+                    <!-- General Settings Card -->
+                    <div class="setting-card bg-white rounded-xl shadow-sm p-5">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <i class="fas fa-globe text-2xl text-blue-600"></i>
+                            <h3 class="font-bold text-lg">General Settings</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">Company information & preferences</p>
+                        <div class="space-y-2">
+                            <input type="text" id="companyName" placeholder="Company Name" value="GeoTraverse" class="w-full p-2 border rounded-lg text-sm">
+                            <input type="email" id="companyEmail" placeholder="Company Email" value="info@geotraverse.com" class="w-full p-2 border rounded-lg text-sm">
+                            <input type="text" id="companyPhone" placeholder="Company Phone" value="+255 719 336 667" class="w-full p-2 border rounded-lg text-sm">
+                            <select id="timezone" class="w-full p-2 border rounded-lg text-sm"><option>Africa/Dar_es_Salaam</option><option>Africa/Nairobi</option></select>
+                            <button onclick="saveGeneralSettings()" class="w-full btn-primary text-white px-3 py-2 rounded-lg text-sm">Save Settings</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Email Configuration Card -->
+                    <div class="setting-card bg-white rounded-xl shadow-sm p-5">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <i class="fas fa-envelope text-2xl text-blue-600"></i>
+                            <h3 class="font-bold text-lg">Email Config</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3">SMTP email settings</p>
+                        <div class="space-y-2">
+                            <input type="text" id="smtpServer" placeholder="SMTP Server" value="smtp.gmail.com" class="w-full p-2 border rounded-lg text-sm">
+                            <input type="text" id="smtpPort" placeholder="SMTP Port" value="587" class="w-full p-2 border rounded-lg text-sm">
+                            <input type="email" id="senderEmail" placeholder="Sender Email" value="noreply@geotraverse.com" class="w-full p-2 border rounded-lg text-sm">
+                            <button onclick="saveEmailConfig()" class="w-full btn-primary text-white px-3 py-2 rounded-lg text-sm">Save Email Config</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- EMPLOYEE SECTION -->
-            <div id="employeeSection" class="hidden">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100"><div class="px-5 py-4 border-b flex justify-between"><h3 class="text-base font-semibold text-gray-800">Employee Management</h3><button onclick="openAddEmployeeModal()" class="btn-primary text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i> Add Employee</button></div><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50 border-b"><tr><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Department</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Salary</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th></tr></thead><tbody id="employeeTableBody"></tbody></table></div></div>
             </div>
         </div>
     </main>
 </div>
 </div>
 
-<!-- Setting Modal -->
-<div id="settingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl w-full max-w-2xl modal-pop max-h-[90vh] overflow-y-auto"><div class="px-6 py-4 border-b flex justify-between items-center sticky top-0 bg-white"><h3 id="settingModalTitle" class="text-xl font-bold text-gray-800">Setting Title</h3><button onclick="closeSettingModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button></div><div id="settingModalContent" class="p-6"></div><div class="px-6 py-4 border-t flex justify-end space-x-3 sticky bottom-0 bg-white"><button onclick="closeSettingModal()" class="px-4 py-2 bg-gray-200 rounded-lg">Cancel</button><button onclick="saveSetting()" class="px-4 py-2 btn-primary text-white rounded-lg">Save Changes</button></div></div></div>
-
 <!-- MODALS -->
-<div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b"><h3 id="modalTitle">Add Employee</h3><button onclick="closeModal()" class="float-right"><i class="fas fa-times"></i></button></div><form id="employeeForm"><input type="hidden" id="employeeId"><div class="px-6 py-4 space-y-3"><input type="text" id="empName" placeholder="Full Name" class="w-full p-2 border rounded-lg"><input type="email" id="empEmail" placeholder="Email" class="w-full p-2 border rounded-lg"><input type="tel" id="empPhone" placeholder="Phone Number" class="w-full p-2 border rounded-lg"><input type="password" id="empPassword" placeholder="Password" class="w-full p-2 border rounded-lg"><select id="empRole" class="w-full p-2 border rounded-lg"><option value="Manager">Manager</option><option value="Accountant">Accountant</option><option value="Sales Executive">Sales Executive</option><option value="Secretary">Secretary</option></select><select id="empDepartment" class="w-full p-2 border rounded-lg"><option value="Management">Management</option><option value="Finance">Finance</option><option value="Sales & Marketing">Sales & Marketing</option><option value="Administration">Secretary</option></select><input type="number" id="empSalary" placeholder="Salary (TZS)" class="w-full p-2 border rounded-lg"></div><div class="px-6 py-4 border-t flex space-x-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save</button><button type="button" onclick="closeModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div></form></div></div>
+<div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-pop">
+        <div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Add Employee</h3><button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
+        <form id="employeeForm" class="p-6 space-y-3">
+            <input type="text" id="empName" placeholder="Full Name" class="w-full p-2 border rounded-lg" required>
+            <input type="email" id="empEmail" placeholder="Email" class="w-full p-2 border rounded-lg" required>
+            <input type="tel" id="empPhone" placeholder="Phone Number" class="w-full p-2 border rounded-lg">
+            <select id="empRole" class="w-full p-2 border rounded-lg"><option value="Manager">Manager</option><option value="Accountant">Accountant</option><option value="Sales Executive">Sales Executive</option><option value="Secretary">Secretary</option></select>
+            <select id="empDepartment" class="w-full p-2 border rounded-lg"><option value="Management">Management</option><option value="Finance">Finance</option><option value="Sales & Marketing">Sales & Marketing</option><option value="Administration">Secretary</option></select>
+            <input type="number" id="empSalary" placeholder="Salary (TZS)" class="w-full p-2 border rounded-lg">
+            <div class="flex space-x-3 pt-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save</button><button type="button" onclick="closeModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
+        </form>
+    </div>
+</div>
 
-<div id="editEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b"><h3>Edit Employee</h3><button onclick="closeEditModal()" class="float-right"><i class="fas fa-times"></i></button></div><form id="editEmployeeForm"><input type="hidden" id="editEmpId"><div class="px-6 py-4 space-y-3"><input type="text" id="editEmpName" placeholder="Full Name" class="w-full p-2 border rounded-lg"><input type="email" id="editEmpEmail" placeholder="Email" class="w-full p-2 border rounded-lg"><input type="tel" id="editEmpPhone" placeholder="Phone Number" class="w-full p-2 border rounded-lg"><select id="editEmpRole" class="w-full p-2 border rounded-lg"><option value="Manager">Manager</option><option value="Accountant">Accountant</option><option value="Sales Executive">Sales Executive</option><option value="Secretary">Secretary</option></select><select id="editEmpDepartment" class="w-full p-2 border rounded-lg"><option value="Management">Management</option><option value="Finance">Finance</option><option value="Sales & Marketing">Sales & Marketing</option><option value="Administration">Secretary</option></select><input type="number" id="editEmpSalary" placeholder="Salary (TZS)" class="w-full p-2 border rounded-lg"></div><div class="px-6 py-4 border-t flex space-x-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Update</button><button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div></form></div></div>
+<div id="editEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-pop">
+        <div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Edit Employee</h3><button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
+        <form id="editEmployeeForm" class="p-6 space-y-3">
+            <input type="hidden" id="editEmpId"><input type="text" id="editEmpName" placeholder="Full Name" class="w-full p-2 border rounded-lg" required>
+            <input type="email" id="editEmpEmail" placeholder="Email" class="w-full p-2 border rounded-lg" required>
+            <input type="tel" id="editEmpPhone" placeholder="Phone Number" class="w-full p-2 border rounded-lg">
+            <select id="editEmpRole" class="w-full p-2 border rounded-lg"><option value="Manager">Manager</option><option value="Accountant">Accountant</option><option value="Sales Executive">Sales Executive</option><option value="Secretary">Secretary</option></select>
+            <select id="editEmpDepartment" class="w-full p-2 border rounded-lg"><option value="Management">Management</option><option value="Finance">Finance</option><option value="Sales & Marketing">Sales & Marketing</option><option value="Administration">Secretary</option></select>
+            <input type="number" id="editEmpSalary" placeholder="Salary (TZS)" class="w-full p-2 border rounded-lg">
+            <div class="flex space-x-3 pt-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Update</button><button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
+        </form>
+    </div>
+</div>
 
-<div id="changePwdModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b"><h3>Change Employee Password</h3><button onclick="closePwdModal()" class="float-right"><i class="fas fa-times"></i></button></div><form id="changePwdForm"><input type="hidden" id="pwdEmpId"><div class="px-6 py-4 space-y-3"><input type="text" id="pwdEmpName" class="w-full p-2 border rounded-lg bg-gray-100" readonly><input type="password" id="newPassword" placeholder="New Password" class="w-full p-2 border rounded-lg"><input type="password" id="confirmNewPassword" placeholder="Confirm Password" class="w-full p-2 border rounded-lg"></div><div class="px-6 py-4 border-t flex space-x-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Change Password</button><button type="button" onclick="closePwdModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div></form></div></div>
+<div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-pop">
+        <div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Add New Task</h3><button onclick="closeTaskModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
+        <div class="p-6 space-y-3">
+            <input type="text" id="taskTitle" placeholder="Task Title" class="w-full p-2 border rounded-lg">
+            <textarea id="taskDescription" rows="3" placeholder="Task Description" class="w-full p-2 border rounded-lg"></textarea>
+            <select id="taskDepartment" class="w-full p-2 border rounded-lg"><option value="Managers">Managers Dept</option><option value="Finance">Finance Dept</option><option value="Sales">Sales Dept</option><option value="Secretary">Secretary Dept</option></select>
+            <div class="flex space-x-3 pt-3"><button onclick="addNewTask()" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Task</button><button onclick="closeTaskModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
+        </div>
+    </div>
+</div>
 
-<div id="addTaskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b"><h3>Add New Task</h3><button onclick="closeTaskModal()" class="float-right"><i class="fas fa-times"></i></button></div><div class="px-6 py-4"><input type="text" id="taskTitle" placeholder="Task Title" class="w-full p-2 border rounded-lg mb-3"><select id="taskDepartment" class="w-full p-2 border rounded-lg mb-3"><option value="Managers">Managers Dept</option><option value="Finance">Finance Dept</option><option value="Sales">Sales Dept</option><option value="Secretary">Secretary Dept</option></select><textarea id="taskDescription" rows="3" placeholder="Task Description" class="w-full p-2 border rounded-lg"></textarea></div><div class="px-6 py-4 border-t flex space-x-3"><button onclick="addNewTask()" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Task</button><button onclick="closeTaskModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div></div></div>
+<div id="changePwdModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-pop">
+        <div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Change Employee Password</h3><button onclick="closePwdModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
+        <form id="changePwdForm" class="p-6 space-y-3">
+            <input type="hidden" id="pwdEmpId"><input type="text" id="pwdEmpName" class="w-full p-2 border rounded-lg bg-gray-100" readonly>
+            <div class="password-field relative"><input type="password" id="newPassword" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePassword('newPassword', this)"></i></div>
+            <div class="password-field relative"><input type="password" id="confirmNewPassword" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePassword('confirmNewPassword', this)"></i></div>
+            <div class="flex space-x-3 pt-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Change Password</button><button type="button" onclick="closePwdModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="scroll-top" id="scrollTopBtn"><i class="fas fa-arrow-up text-white text-sm"></i></div>
 
 <script>
-    // Weka hii mwanzoni mwa script yako (override credentials)
-const ADMIN_EMAIL = "jacksonmyula773@gmail.com";
-const ADMIN_PASSWORD = "1234";
-
-// Weka hii mwishoni mwa script (override login)
-document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+    // ==================== AUTHENTICATION CHECK ====================
+    (function checkAuth() {
+        const token = localStorage.getItem('admin_token');
+        const user = localStorage.getItem('admin_user');
+        if (!token || !user) { window.location.href = 'login.html'; return; }
+        try { const userData = JSON.parse(user); document.getElementById('adminName').innerText = userData.full_name || userData.email?.split('@')[0] || 'Admin'; document.getElementById('adminEmail').innerText = userData.email || 'admin@geotraverse.com'; } catch(e) { window.location.href = 'login.html'; }
+    })();
     
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        localStorage.setItem('admin_logged_in', 'true');
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('dashboardApp').style.display = 'block';
-    } else {
-        alert('Wrong credentials! Use: ' + ADMIN_EMAIL + ' / ' + ADMIN_PASSWORD);
-    }
-});
-// ============================================
-// LOGIN FORM FUNCTIONS (Modern)
-// ============================================
-
-document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
+    // ==================== LOGOUT ====================
+    function logout() { localStorage.removeItem('admin_token'); localStorage.removeItem('admin_user'); showToast('Logged out successfully'); setTimeout(() => window.location.href = 'login.html', 500); }
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
     
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const errorDiv = document.getElementById('loginError');
-    
-    // Debug - Angalia console
-    console.log('=== LOGIN ATTEMPT ===');
-    console.log('Email entered:', email);
-    console.log('Password entered:', password);
-    console.log('Expected email:', ADMIN_EMAIL);
-    console.log('Expected password:', ADMIN_PASSWORD);
-    
-    // Validation
-    if (!email || !password) {
-        errorDiv.innerText = 'Please fill in all fields';
-        errorDiv.classList.remove('hidden');
-        showToast('Please fill in all fields', true);
-        return;
+    // ==================== TOAST ====================
+    function showToast(message, isError = false) {
+        const existingToast = document.querySelector('.toast-notification'); if (existingToast) existingToast.remove();
+        const toast = document.createElement('div'); toast.className = `toast-notification ${isError ? 'error' : ''}`; toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2"></i>${message}`;
+        document.body.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
     }
     
-    // Check credentials
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        console.log('✅ Login successful!');
-        
-        // Save login state
-        localStorage.setItem('admin_logged_in', 'true');
-        localStorage.setItem('admin_email', email);
-        localStorage.setItem('admin_name', 'Admin User');
-        
-        // Show success
-        showToast('Login successful! Redirecting...', false);
-        
-        // Redirect to dashboard
-        setTimeout(() => {
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('dashboardApp').style.display = 'block';
-            document.getElementById('adminName').innerText = 'Admin User';
-            document.getElementById('adminEmail').innerText = email;
-        }, 500);
-        
-    } else {
-        console.log('❌ Login failed - Invalid credentials');
-        errorDiv.innerText = 'Invalid email or password. Please try again.';
-        errorDiv.classList.remove('hidden');
-        showToast('Invalid email or password', true);
-        
-        // Clear password field
-        document.getElementById('loginPassword').value = '';
-        
-        // Hide error after 3 seconds
-        setTimeout(() => {
-            errorDiv.classList.add('hidden');
-        }, 3000);
-    }
-});
-
-// Forgot Password Modal
-if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        forgotModal.classList.remove('hidden');
-        forgotModal.classList.add('flex');
-        if (resetEmail) resetEmail.value = '';
-    });
-}
-
-function closeForgotModal() {
-    forgotModal.classList.add('hidden');
-    forgotModal.classList.remove('flex');
-}
-
-if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', closeForgotModal);
-}
-
-// Close modal when clicking outside
-forgotModal.addEventListener('click', function(e) {
-    if (e.target === forgotModal) {
-        closeForgotModal();
-    }
-});
-
-// Send New Password
-if (sendResetBtn) {
-    sendResetBtn.addEventListener('click', function() {
-        const email = resetEmail.value.trim();
-        
-        if (!email) {
-            showToast('Please enter your email address', true);
-            return;
-        }
-        
-        if (email === ADMIN_EMAIL) {
-            const newPassword = 'Geo@' + Math.random().toString(36).substr(2, 8) + Math.floor(Math.random() * 1000);
-            // Update password (kwa demo)
-            ADMIN_PASSWORD = newPassword;
-            showToast(`✅ New password sent to ${email}`, false);
-            setTimeout(() => {
-                alert(`Demo Mode:\n\nYour new password is:\n${newPassword}\n\nPlease save this password.`);
-            }, 500);
-            closeForgotModal();
-        } else {
-            showToast('❌ Email address not found in our system!', true);
-        }
-    });
-}
-
-// Login Form Submit with Loading State
-document.getElementById('loginForm')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const errorDiv = document.getElementById('loginError');
-    
-    // Validation
-    if (!email || !password) {
-        showToast('Please fill in all fields', true);
-        return;
+    // ==================== DASHBOARD DATA ====================
+    function loadDashboardData() {
+        document.getElementById('totalEmployees').innerText = '24'; document.getElementById('pendingTasksCount').innerText = '8'; document.getElementById('unreadMessagesCount').innerText = '5'; document.getElementById('totalProjects').innerText = '15';
+        document.getElementById('pendingTasksBadge').innerText = '8'; document.getElementById('unreadMessagesBadge').innerText = '5';
+        document.getElementById('activityFeed').innerHTML = `<div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg"><i class="fas fa-user-plus text-green-500 mt-0.5"></i><div><p class="text-sm">New employee added: John Doe</p><p class="text-xs text-gray-400">2 min ago</p></div></div><div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg"><i class="fas fa-check-circle text-blue-500 mt-0.5"></i><div><p class="text-sm">Task "Complete report" completed</p><p class="text-xs text-gray-400">1 hour ago</p></div></div><div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg"><i class="fas fa-envelope text-purple-500 mt-0.5"></i><div><p class="text-sm">New message from Finance dept</p><p class="text-xs text-gray-400">3 hours ago</p></div></div>`;
+        new Chart(document.getElementById('revenueChart'), { type: 'line', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Revenue (TZS M)', data: [12, 19, 15, 22, 28, 32], borderColor: '#0f74ba', backgroundColor: 'rgba(15,116,186,0.1)', fill: true, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
     }
     
-    // Show loading state
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<div class="spinner"></div><span class="ml-2">Signing in...</span>';
-    
-    // Simulate network delay
-    setTimeout(() => {
-        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-            localStorage.setItem('admin_logged_in', 'true');
-            localStorage.setItem('admin_email', email);
-            localStorage.setItem('admin_name', 'Admin User');
-            
-            showToast('✅ Login successful! Redirecting...', false);
-            
-            setTimeout(() => {
-                document.getElementById('loginPage').style.display = 'none';
-                document.getElementById('dashboardApp').style.display = 'block';
-                document.getElementById('adminName').innerText = 'Admin User';
-                document.getElementById('adminEmail').innerText = email;
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span class="ml-2">Sign In</span>';
-            }, 1000);
-        } else {
-            showToast('❌ Invalid email or password', true);
-            loginBtn.disabled = false;
-            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i><span class="ml-2">Sign In</span>';
-        }
-    }, 800);
-});
-
-// Toast notification function
-function showToast(message, isError = false) {
-    const toast = document.createElement('div');
-    toast.className = `toast-notification ${isError ? 'error' : ''}`;
-    toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2"></i>${message}`;
-    if (isError) {
-        toast.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-    }
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
-}
-    
-    // ==================== BACKUP & RESTORE SYSTEM ====================
-    let backupData = null;
-    
-    function createBackup() {
-        backupData = {
-            employees: JSON.parse(JSON.stringify(employees)),
-            projects: JSON.parse(JSON.stringify(projects)),
-            tasks: JSON.parse(JSON.stringify(tasks)),
-            messages: JSON.parse(JSON.stringify(messages)),
-            activities: JSON.parse(JSON.stringify(activities)),
-            timestamp: new Date().toLocaleString()
-        };
-        localStorage.setItem('geotraverse_backup', JSON.stringify(backupData));
-        showToast('Backup created successfully! You can now restore anytime.');
-        addActivity('System backup created');
-    }
-    
-    function restoreBackup() {
-        const stored = localStorage.getItem('geotraverse_backup');
-        if (stored) {
-            const backup = JSON.parse(stored);
-            employees = backup.employees;
-            projects = backup.projects;
-            tasks = backup.tasks;
-            messages = backup.messages;
-            activities = backup.activities;
-            nextId = Math.max(...employees.map(e => e.id), 0) + 1;
-            nextTaskId = Math.max(...tasks.map(t => t.id), 0) + 1;
-            renderEmployeeTable(); updateCounts(); renderTasks(); renderMessagesList(); renderActivities();
-            renderManagersProjects(); renderFinanceInvoices(); renderSalesOrders(); renderSecretaryMessages();
-            showToast('Backup restored successfully!');
-            addActivity('System restored from backup');
-        } else {
-            showToast('No backup found. Please create a backup first.');
-        }
-    }
-    
-    // ==================== SETTING MODAL FUNCTIONS ====================
-    let emailSettings = { smtpServer: "smtp.gmail.com", smtpPort: "587", encryption: "TLS", senderEmail: "noreply@geotraverse.com" };
-    let notificationSettings = { emailAlerts: true, pushNotifications: true, taskReminders: true };
-    let generalSettings = { companyName: "GeoTraverse", companyEmail: "info@geotraverse.com", companyPhone: "+255 123 456 789", timezone: "Africa/Dar_es_Salaam", language: "English" };
-    
-    function openSettingModal(type) {
-        const modal = document.getElementById('settingModal');
-        const title = document.getElementById('settingModalTitle');
-        const content = document.getElementById('settingModalContent');
-        
-        if (type === 'general') {
-            title.innerText = 'General Settings';
-            content.innerHTML = `<div class="space-y-4">
-                <div><label class="block text-sm font-medium mb-1">Company Name</label><input type="text" id="companyName" value="${generalSettings.companyName}" class="w-full p-2 border rounded"></div>
-                <div><label class="block text-sm font-medium mb-1">Company Email</label><input type="email" id="companyEmail" value="${generalSettings.companyEmail}" class="w-full p-2 border rounded"></div>
-                <div><label class="block text-sm font-medium mb-1">Company Phone</label><input type="text" id="companyPhone" value="${generalSettings.companyPhone}" class="w-full p-2 border rounded"></div>
-                <div><label class="block text-sm font-medium mb-1">Timezone</label><select id="timezone" class="w-full p-2 border rounded"><option ${generalSettings.timezone === 'Africa/Dar_es_Salaam' ? 'selected' : ''}>Africa/Dar_es_Salaam</option><option ${generalSettings.timezone === 'Africa/Nairobi' ? 'selected' : ''}>Africa/Nairobi</option></select></div>
-                <div><label class="block text-sm font-medium mb-1">Language</label><select id="language" class="w-full p-2 border rounded"><option ${generalSettings.language === 'English' ? 'selected' : ''}>English</option><option ${generalSettings.language === 'Swahili' ? 'selected' : ''}>Swahili</option></select></div>
-            </div>`;
-        } else if (type === 'backup') {
-            title.innerText = 'Backup & Restore';
-            content.innerHTML = `<div class="space-y-4"><div class="grid grid-cols-2 gap-4"><button onclick="createBackup()" class="bg-green-600 text-white px-4 py-2 rounded">Create Backup</button><button onclick="restoreBackup()" class="bg-orange-600 text-white px-4 py-2 rounded">Restore Backup</button></div><div class="border-t pt-4 mt-4"><h4 class="font-semibold mb-2">Backup Info</h4><p class="text-sm text-gray-500">Your backup is saved in your browser. You can restore anytime.</p></div></div>`;
-        } else if (type === 'logs') {
-            title.innerText = 'System Logs';
-            content.innerHTML = `<div class="space-y-4"><div class="max-h-96 overflow-y-auto" id="systemLogsModal"></div><button onclick="clearAllLogs()" class="bg-red-600 text-white px-4 py-2 rounded mt-4">Clear All Logs</button></div>`;
-            setTimeout(() => { document.getElementById('systemLogsModal').innerHTML = activities.map(a => `<div class="flex items-center justify-between p-2 border-b"><div><i class="fas ${a.icon} text-${a.color}-500 mr-2"></i>${a.message}<div class="text-xs text-gray-400">${a.time}</div></div></div>`).join(''); }, 100);
-        } else if (type === 'email') {
-            title.innerText = 'Email Configuration';
-            content.innerHTML = `<div class="space-y-4">
-                <div><label class="block text-sm font-medium mb-1">SMTP Server</label><input type="text" id="smtpServer" value="${emailSettings.smtpServer}" class="w-full p-2 border rounded"></div>
-                <div><label class="block text-sm font-medium mb-1">SMTP Port</label><input type="text" id="smtpPort" value="${emailSettings.smtpPort}" class="w-full p-2 border rounded"></div>
-                <div><label class="block text-sm font-medium mb-1">Encryption</label><select id="encryption" class="w-full p-2 border rounded"><option ${emailSettings.encryption === 'TLS' ? 'selected' : ''}>TLS</option><option ${emailSettings.encryption === 'SSL' ? 'selected' : ''}>SSL</option></select></div>
-                <div><label class="block text-sm font-medium mb-1">Sender Email</label><input type="email" id="senderEmail" value="${emailSettings.senderEmail}" class="w-full p-2 border rounded"></div>
-                <button onclick="testEmailConfig()" class="bg-blue-600 text-white px-4 py-2 rounded mt-2">Test Email Configuration</button>
-            </div>`;
-        } else if (type === 'security') {
-            title.innerText = 'Security Settings';
-            content.innerHTML = `<div class="space-y-4"><div><label class="block text-sm font-medium mb-1">Session Timeout (minutes)</label><input type="number" id="sessionTimeout" value="30" class="w-full p-2 border rounded"></div><div><label class="flex items-center space-x-2"><input type="checkbox" id="twoFactorAuth"> <span>Enable Two-Factor Authentication</span></label></div><div><label class="block text-sm font-medium mb-1">Max Login Attempts</label><input type="number" id="maxLoginAttempts" value="5" class="w-full p-2 border rounded"></div></div>`;
-        } else if (type === 'notifications') {
-            title.innerText = 'Notification Settings';
-            content.innerHTML = `<div class="space-y-3">
-                <label class="flex items-center space-x-2"><input type="checkbox" id="emailAlerts" ${notificationSettings.emailAlerts ? 'checked' : ''}> <span>Email Alerts</span></label>
-                <label class="flex items-center space-x-2"><input type="checkbox" id="pushNotifications" ${notificationSettings.pushNotifications ? 'checked' : ''}> <span>Push Notifications</span></label>
-                <label class="flex items-center space-x-2"><input type="checkbox" id="taskReminders" ${notificationSettings.taskReminders ? 'checked' : ''}> <span>Task Reminders</span></label>
-                <button onclick="saveNotificationSettings()" class="bg-blue-600 text-white px-4 py-2 rounded mt-3">Save Notification Settings</button>
-            </div>`;
-        }
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-    
-    function saveNotificationSettings() {
-        notificationSettings.emailAlerts = document.getElementById('emailAlerts')?.checked || false;
-        notificationSettings.pushNotifications = document.getElementById('pushNotifications')?.checked || false;
-        notificationSettings.taskReminders = document.getElementById('taskReminders')?.checked || false;
-        showToast('Notification settings saved successfully!');
-        closeSettingModal();
-    }
-    
-    function testEmailConfig() {
-        showToast('Test email sent successfully to admin@geotraverse.com!');
-    }
-    
-    function closeSettingModal() { document.getElementById('settingModal').classList.add('hidden'); document.getElementById('settingModal').classList.remove('flex'); }
-    
-    function saveSetting() {
-        if (document.getElementById('companyName')) {
-            generalSettings.companyName = document.getElementById('companyName').value;
-            generalSettings.companyEmail = document.getElementById('companyEmail').value;
-            generalSettings.companyPhone = document.getElementById('companyPhone').value;
-            generalSettings.timezone = document.getElementById('timezone').value;
-            generalSettings.language = document.getElementById('language').value;
-            showToast('General settings saved successfully!');
-        } else if (document.getElementById('smtpServer')) {
-            emailSettings.smtpServer = document.getElementById('smtpServer').value;
-            emailSettings.smtpPort = document.getElementById('smtpPort').value;
-            emailSettings.encryption = document.getElementById('encryption').value;
-            emailSettings.senderEmail = document.getElementById('senderEmail').value;
-            showToast('Email settings saved successfully!');
-        } else if (document.getElementById('sessionTimeout')) {
-            showToast('Security settings saved successfully!');
-        }
-        closeSettingModal();
-    }
-    
-    function clearAllLogs() { if(confirm('Clear all activity logs?')) { activities = []; renderActivities(); showToast('Logs cleared'); } }
-    
-    function changeAdminPassword() {
-        const currentPwd = document.getElementById('currentPassword').value;
-        const newPwd = document.getElementById('newAdminPassword').value;
-        const confirmPwd = document.getElementById('confirmAdminPassword').value;
-        if (currentPwd !== ADMIN_PASSWORD) { alert('Current password is incorrect'); return; }
-        if (!newPwd || newPwd !== confirmPwd) { alert('New passwords do not match'); return; }
-        ADMIN_PASSWORD = newPwd;
-        showToast('Admin password changed successfully!');
-        document.getElementById('currentPassword').value = '';
-        document.getElementById('newAdminPassword').value = '';
-        document.getElementById('confirmAdminPassword').value = '';
-    }
-    
-// ==================== SIDEBAR COLOR CHANGE - WORKING FUNCTION ====================
-function changeSidebarColor(color, element) {
-    // Chukua sidebar element
-    const sidebar = document.getElementById('mainSidebar');
-    
-    // Badilisha rangi ya sidebar - simple direct color without complex gradient
-    sidebar.style.background = color;
-    sidebar.style.backgroundColor = color;
-    
-    // Remove gradient that was overriding
-    sidebar.style.backgroundImage = 'none';
-    
-    // Ondoa 'selected' class kwenye color options zote
-    document.querySelectorAll('.color-option').forEach(opt => {
-        opt.classList.remove('selected', 'border-2', 'border-gray-400');
-        opt.style.transform = 'scale(1)';
-    });
-    
-    // Ongeza 'selected' class kwenye rangi iliyobonyezwa
-    if (element) {
-        element.classList.add('selected', 'border-2', 'border-gray-400');
-        element.style.transform = 'scale(1.05)';
-    }
-    
-    // Hifadhi rangi kwenye localStorage
-    localStorage.setItem('sidebar_color', color);
-    
-    // Onyesha notification (kutumia alert ikiwa showToast haipo)
-    if (typeof showToast === 'function') {
-        showToast('Sidebar color changed successfully!');
-    } else {
-        alert('Sidebar color changed to ' + color);
-    }
-    
-    // Rekodi activity
-    if (typeof addActivity === 'function') {
-        addActivity('Admin changed sidebar color');
-    }
-}
-
-// Function ya kupakia rangi iliyohifadhiwa
-function loadSavedSidebarColor() {
-    const savedColor = localStorage.getItem('sidebar_color');
-    const sidebar = document.getElementById('mainSidebar');
-    
-    // IKIWA HAKUNA RANGI ILIYOHIFADHIWA AU NI ORANGE, WEKA BLUE
-    if (savedColor && savedColor !== '#d97706') {
-        sidebar.style.background = savedColor;
-    } else {
-        sidebar.style.background = '#0f74ba';  // BLUE
-        localStorage.setItem('sidebar_color', '#0f74ba');  // Override orange
-    }
-}
-
-// Call this when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    loadSavedSidebarColor();
-});
-    
-    // ==================== REPORTS FUNCTIONS - FULLY WORKING ====================
-    function generateReportData(dept, type) {
-        const today = new Date();
-        const weekStart = new Date(today);
-        weekStart.setDate(today.getDate() - today.getDay());
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        const yearStart = new Date(today.getFullYear(), 0, 1);
-        
-        let data = {
-            daily: { title: "Daily Report", date: today.toDateString(), completed: 1, inProgress: 2, approved: 1, revenue: "TZS 2,500,000", income: "TZS 2,500,000", expenses: "TZS 1,200,000", profit: "TZS 1,300,000", orders: 3, leads: 5, conversions: 2, messages: 8, appointments: 3 },
-            weekly: { title: "Weekly Report", period: `${weekStart.toDateString()} - ${today.toDateString()}`, completed: 5, inProgress: 3, approved: 2, revenue: "TZS 15,500,000", income: "TZS 8,750,000", expenses: "TZS 4,250,000", profit: "TZS 4,500,000", orders: 12, leads: 18, conversions: 8, messages: 35, appointments: 12 },
-            monthly: { title: "Monthly Report", period: monthStart.toDateString() + " - " + today.toDateString(), completed: 18, inProgress: 10, approved: 7, revenue: "TZS 45,000,000", income: "TZS 28,750,000", expenses: "TZS 18,250,000", profit: "TZS 10,500,000", orders: 28, leads: 45, conversions: 22, messages: 120, appointments: 28 },
-            annual: { title: "Annual Report", period: yearStart.toDateString() + " - " + today.toDateString(), completed: 156, inProgress: 25, approved: 30, revenue: "TZS 350,000,000", income: "TZS 125,000,000", expenses: "TZS 85,000,000", profit: "TZS 40,000,000", orders: 156, leads: 220, conversions: 98, messages: 450, appointments: 98 }
-        };
-        return data[type];
-    }
-    
-    function renderReportContent(dept, type) {
-        const data = generateReportData(dept, type);
-        let html = `<div class="mb-6"><h2 class="text-xl font-bold text-gray-800">${data.title}</h2><p class="text-gray-500">${data.period || data.date || ''}</p></div>`;
-        html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">`;
-        
-        if (dept === 'Managers') {
-            html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Completed Projects</p><p class="text-2xl font-bold text-green-600">${data.completed}</p></div>`;
-            html += `<div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">In Progress</p><p class="text-2xl font-bold text-orange-600">${data.inProgress}</p></div>`;
-            html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Approved Projects</p><p class="text-2xl font-bold text-blue-600">${data.approved}</p></div>`;
-            html += `<div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Revenue</p><p class="text-2xl font-bold text-purple-600">${data.revenue}</p></div>`;
-        } else if (dept === 'Finance') {
-            html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Income</p><p class="text-2xl font-bold text-green-600">${data.income}</p></div>`;
-            html += `<div class="bg-red-50 p-4 rounded-xl"><p class="text-sm">Expenses</p><p class="text-2xl font-bold text-red-600">${data.expenses}</p></div>`;
-            html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Profit</p><p class="text-2xl font-bold text-blue-600">${data.profit}</p></div>`;
-            html += `<div class="bg-yellow-50 p-4 rounded-xl"><p class="text-sm">Pending Invoices</p><p class="text-2xl font-bold text-yellow-600">${Math.floor(Math.random() * 10) + 1}</p></div>`;
-        } else if (dept === 'Sales') {
-            html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Orders</p><p class="text-2xl font-bold text-blue-600">${data.orders}</p></div>`;
-            html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Revenue</p><p class="text-2xl font-bold text-green-600">${data.revenue}</p></div>`;
-            html += `<div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Leads</p><p class="text-2xl font-bold text-purple-600">${data.leads}</p></div>`;
-            html += `<div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">Conversions</p><p class="text-2xl font-bold text-orange-600">${data.conversions}</p></div>`;
-        } else if (dept === 'Secretary') {
-            html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Messages</p><p class="text-2xl font-bold text-blue-600">${data.messages}</p></div>`;
-            html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Appointments</p><p class="text-2xl font-bold text-green-600">${data.appointments}</p></div>`;
-            html += `<div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Documents Processed</p><p class="text-2xl font-bold text-purple-600">${Math.floor(Math.random() * 50) + 20}</p></div>`;
-            html += `<div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">Pending Tasks</p><p class="text-2xl font-bold text-orange-600">${Math.floor(Math.random() * 15) + 5}</p></div>`;
-        }
-        html += `</div><div class="border-t pt-4"><p class="text-gray-600">This ${type} report shows the performance of the ${dept} department.</p><p class="text-gray-500 text-sm mt-2">Generated on: ${new Date().toLocaleString()}</p></div>`;
-        document.getElementById('reportContent').innerHTML = html;
-    }
-    
-    function openDepartmentReports(dept) {
-        currentDept = dept;
-        document.getElementById('reportDeptTitle').innerText = `${dept} Department Reports`;
-        document.getElementById('reportDeptDesc').innerText = `${dept} department performance reports`;
-        document.getElementById('departmentReportView').classList.remove('hidden');
-        document.getElementById('reportDepartmentsGrid').classList.add('hidden');
-        loadReport('daily');
-    }
-    
-    function loadReport(type) {
-        currentReportType = type;
-        document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
-        renderReportContent(currentDept, type);
-    }
-    
-    function closeDepartmentReport() {
-        document.getElementById('departmentReportView').classList.add('hidden');
-        document.getElementById('reportDepartmentsGrid').classList.remove('hidden');
-        renderReportDepartmentsGrid();
-    }
-    
-    function exportToPDF() {
-        const element = document.getElementById('reportContent');
-        html2pdf().set({ margin: [0.5,0.5,0.5,0.5], filename: `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4' } }).from(element).save();
-        showToast('PDF downloaded!');
-    }
-    
-    function exportToExcel() {
-        const data = generateReportData(currentDept, currentReportType);
-        let wsData = [[data.title], [data.period || data.date || ''], []];
-        
-        if (currentDept === 'Managers') {
-            wsData.push(['Completed Projects', data.completed], ['In Progress', data.inProgress], ['Approved Projects', data.approved], ['Revenue', data.revenue]);
-        } else if (currentDept === 'Finance') {
-            wsData.push(['Income', data.income], ['Expenses', data.expenses], ['Profit', data.profit]);
-        } else if (currentDept === 'Sales') {
-            wsData.push(['Orders', data.orders], ['Revenue', data.revenue], ['Leads', data.leads], ['Conversions', data.conversions]);
-        } else if (currentDept === 'Secretary') {
-            wsData.push(['Messages', data.messages], ['Appointments', data.appointments]);
-        }
-        wsData.push([], [`Generated: ${new Date().toLocaleString()}`]);
-        const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(wsData);
-        XLSX.utils.book_append_sheet(wb, ws, `${currentDept}_${currentReportType}_Report`);
-        XLSX.writeFile(wb, `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.xlsx`);
-        showToast('Excel downloaded!');
-    }
-    
-    // ==================== MESSAGES CHAT FUNCTIONS ====================
-    function renderMessagesList() {
-        const convDiv = document.getElementById('conversationsList');
-        if(convDiv) {
-            let filtered = messages;
-            if (currentSearchTerm) filtered = messages.filter(m => m.fromDept.toLowerCase().includes(currentSearchTerm) || m.subject.toLowerCase().includes(currentSearchTerm));
-            convDiv.innerHTML = filtered.map(m => `<div class="message-item p-3 rounded-lg ${!m.read ? 'message-unread' : 'hover:bg-gray-50'}" onclick="viewConversation(${m.id})"><div class="flex justify-between"><span class="font-semibold">${m.fromDept} Dept</span><span class="text-xs text-gray-400">${formatTime(m.timestamp)}</span></div><p class="text-sm truncate">${m.subject}</p><p class="text-xs text-gray-400">${m.replies.length} replies</p></div>`).join('');
-            if(filtered.length === 0 && currentSearchTerm) convDiv.innerHTML = '<p class="text-gray-500 text-center py-4">No messages found</p>';
-        }
-    }
-    
-    function viewConversation(id) {
-        const msg = messages.find(m => m.id === id);
-        if(msg) { msg.read = true; renderMessagesList(); updateCounts(); }
-        const detailView = document.getElementById('messageDetailView');
-        let chatHtml = `<div class="mb-4 pb-4 border-b"><div class="flex justify-between items-center mb-3"><div><h3 class="font-bold text-lg">${msg.fromDept} Department</h3><p class="text-sm text-gray-500">${formatTime(msg.timestamp)}</p></div><span class="text-xs bg-gray-100 px-2 py-1 rounded">${msg.subject}</span></div><div class="chat-bubble chat-message"><p>${msg.message}</p></div>`;
-        
-        msg.replies.forEach(reply => { chatHtml += `<div class="chat-bubble chat-reply"><p class="font-semibold text-sm">Admin replied:</p><p>${reply.message}</p><p class="text-xs text-gray-500 mt-1">${reply.timestamp}</p></div>`; });
-        
-        chatHtml += `</div><div class="mt-4"><textarea id="replyText" rows="3" placeholder="Type your reply..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea><div class="flex justify-end mt-3"><button onclick="sendReply(${msg.id})" class="btn-primary text-white px-5 py-2 rounded-lg"><i class="fas fa-paper-plane mr-2"></i>Send Reply</button></div></div>`;
-        detailView.innerHTML = chatHtml;
-    }
-    
-    function sendReply(msgId) {
-        const replyText = document.getElementById('replyText')?.value;
-        if(!replyText || replyText.trim() === '') { alert('Please enter a reply'); return; }
-        const msg = messages.find(m => m.id === msgId);
-        if(msg) { msg.replies.push({ message: replyText, timestamp: new Date().toLocaleString() }); renderMessagesList(); showToast(`Reply sent to ${msg.fromDept} department`); viewConversation(msgId); addActivity(`Replied to message from ${msg.fromDept} department`); }
-    }
-    
-    // ==================== DATA STORES ====================
-    let employees = [
-        { id: 1, name: "John Doe", email: "john@geotraverse.com", phone: "+255 712 345 678", role: "Manager", department: "Management", salary: "2,500,000", status: "Active", password: "password123" },
-        { id: 2, name: "Mary Smith", email: "mary@geotraverse.com", phone: "+255 755 123 456", role: "Accountant", department: "Finance", salary: "1,800,000", status: "Active", password: "password123" },
-        { id: 3, name: "David Kim", email: "david@geotraverse.com", phone: "+255 784 567 890", role: "Sales Executive", department: "Sales & Marketing", salary: "1,500,000", status: "Active", password: "password123" },
-        { id: 4, name: "Sarah Lee", email: "sarah@geotraverse.com", phone: "+255 713 987 654", role: "Secretary", department: "Administration", salary: "1,200,000", status: "Active", password: "password123" },
-        { id: 5, name: "Mark Wilson", email: "mark@geotraverse.com", phone: "+255 768 345 210", role: "Manager", department: "Management", salary: "2,800,000", status: "Active", password: "password123" }
+    // ==================== DEPARTMENTS ====================
+    const departmentsData = [
+        { name: "Managers", displayName: "Managers", color: "purple", icon: "fa-user-tie", website: "/geotraverse/managers/login.html" },
+        { name: "Finance & Accounting", displayName: "Finance", color: "green", icon: "fa-calculator", website: "/geotraverse/finance/login.html" },
+        { name: "Sales & Marketing", displayName: "Sales", color: "orange", icon: "fa-chart-line", website: "/geotraverse/sales/login.html" },
+        { name: "Secretary", displayName: "Secretary", color: "red", icon: "fa-envelope", website: "/geotraverse/secretary/login.html" }
     ];
     
-    let projects = [
-        { id: 1, name: "Modern Villa - Kigamboni", type: "completed", client: "John M.", phone: "+255 712 345 678", description: "Luxury 4 bedroom villa", amount: "180,000,000", image: "https://picsum.photos/id/106/400/300" },
-        { id: 2, name: "Commercial Complex - Pwani", type: "in_progress", client: "Sarah K.", phone: "+255 755 123 456", description: "10 story building", amount: "350,000,000", image: "https://picsum.photos/id/13/400/300" },
-        { id: 3, name: "Land Survey - 15 Acres", type: "approved", client: "James P.", phone: "+255 784 567 890", description: "Agricultural land survey", amount: "3,500,000", image: "https://picsum.photos/id/15/400/300" }
-    ];
+    function renderDepartmentsGrid() {
+        const grid = document.getElementById('departmentsGrid'); if(!grid) return;
+        grid.innerHTML = departmentsData.map(dept => `<div class="dept-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div class="bg-${dept.color}-600 p-4 text-white"><div class="flex items-center justify-between"><i class="fas ${dept.icon} text-3xl"></i><span class="bg-white/20 px-2 py-1 rounded-lg text-sm">${dept.displayName}</span></div><h3 class="text-xl font-bold mt-3">${dept.name}</h3></div><div class="p-4"><div class="flex justify-between mb-3"><span class="text-gray-500 text-sm">Employees</span><span class="text-2xl font-bold">${Math.floor(Math.random() * 10) + 2}</span></div><div class="flex gap-2"><button onclick="openDepartmentDashboard('${dept.displayName}')" class="flex-1 bg-${dept.color}-50 text-${dept.color}-600 py-2 rounded-lg text-sm font-medium hover:bg-${dept.color}-100 transition"><i class="fas fa-chalkboard-user"></i> View Dashboard</button><a href="${dept.website}" target="_blank" class="flex-1 bg-gray-50 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition flex items-center justify-center"><i class="fas fa-external-link-alt mr-1"></i> Visit Website</a></div></div></div>`).join('');
+    }
     
-    let tasks = [
-        { id: 1, title: "Review Q1 Project Reports", description: "Managers need to submit Q1 reports", department: "Managers", completed: false },
-        { id: 2, title: "Process Pending Invoices", description: "Finance - 3 invoices awaiting payment", department: "Finance", completed: false },
-        { id: 3, title: "Follow up on Customer Forms", description: "Sales - 5 new customer inquiries", department: "Sales", completed: true },
-        { id: 4, title: "Schedule Board Meeting", description: "Secretary - Arrange meeting for next week", department: "Secretary", completed: false }
-    ];
+    function openDepartmentDashboard(dept) {
+        document.getElementById('departmentsSection').classList.add('hidden');
+        document.getElementById('managersDashboard').classList.add('hidden'); document.getElementById('financeDashboard').classList.add('hidden');
+        document.getElementById('salesDashboard').classList.add('hidden'); document.getElementById('secretaryDashboard').classList.add('hidden');
+        if(dept === 'Managers') document.getElementById('managersDashboard').classList.remove('hidden');
+        else if(dept === 'Finance') document.getElementById('financeDashboard').classList.remove('hidden');
+        else if(dept === 'Sales') document.getElementById('salesDashboard').classList.remove('hidden');
+        else if(dept === 'Secretary') document.getElementById('secretaryDashboard').classList.remove('hidden');
+    }
+    function goBackToDepartments() { document.getElementById('managersDashboard').classList.add('hidden'); document.getElementById('financeDashboard').classList.add('hidden'); document.getElementById('salesDashboard').classList.add('hidden'); document.getElementById('secretaryDashboard').classList.add('hidden'); document.getElementById('departmentsSection').classList.remove('hidden'); }
     
+    function renderManagersProjects() { document.getElementById('managersProjectsGrid').innerHTML = `<div class="project-card bg-white p-3"><div class="h-32 bg-purple-100 rounded-lg flex items-center justify-center"><i class="fas fa-building text-purple-500 text-3xl"></i></div><p class="font-bold mt-2">Modern Villa - Kigamboni</p><p class="text-sm text-green-600">Completed</p><button onclick="showToast('View Project Details')" class="mt-2 text-purple-600 text-sm">View Details →</button></div><div class="project-card bg-white p-3"><div class="h-32 bg-purple-100 rounded-lg flex items-center justify-center"><i class="fas fa-building text-purple-500 text-3xl"></i></div><p class="font-bold mt-2">Commercial Complex - Pwani</p><p class="text-sm text-orange-600">In Progress</p><button onclick="showToast('View Project Details')" class="mt-2 text-purple-600 text-sm">View Details →</button></div>`; }
+    function renderFinanceInvoices() { document.getElementById('financeInvoicesList').innerHTML = `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><div><p class="font-bold">INV-001 - Modern Villa</p><p class="text-sm">John Doe - TZS 5,000,000</p></div><span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">Pending</span><button onclick="showToast('Pay Now')" class="text-green-600 text-sm">Pay</button></div><div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><div><p class="font-bold">INV-002 - Land Survey</p><p class="text-sm">Mary Smith - TZS 2,500,000</p></div><span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">Pending</span><button onclick="showToast('Pay Now')" class="text-green-600 text-sm">Pay</button></div>`; }
+    function renderSalesOrders() { document.getElementById('salesOrdersList').innerHTML = `<div class="p-3 bg-gray-50 rounded-lg"><p class="font-bold">John Doe - Modern Villa</p><p class="text-sm">Amount: TZS 150,000,000 | Status: Pending</p><button onclick="showToast('Process Order')" class="mt-1 text-orange-600 text-sm">Process →</button></div><div class="p-3 bg-gray-50 rounded-lg"><p class="font-bold">Mary Smith - Land Survey</p><p class="text-sm">Amount: TZS 2,500,000 | Status: Approved</p><button onclick="showToast('View Order')" class="mt-1 text-orange-600 text-sm">View →</button></div>`; }
+    function renderSecretaryMessages() { document.getElementById('secretaryMessagesList').innerHTML = `<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"><div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-user text-blue-600"></i></div><div><p class="font-bold">John Doe (Client)</p><p class="text-sm">Interested in Modern Villa</p></div><button onclick="showToast('Reply')" class="ml-auto text-blue-600 text-sm">Reply</button></div>`; }
+    
+    // ==================== EMPLOYEES ====================
+    let employees = [{ id: 1, name: "John Doe", email: "john@geotraverse.com", phone: "0712345678", role: "Manager", department: "Management", salary: "2,500,000", status: "Active" }, { id: 2, name: "Mary Smith", email: "mary@geotraverse.com", phone: "0755123456", role: "Accountant", department: "Finance", salary: "1,800,000", status: "Active" }, { id: 3, name: "David Kim", email: "david@geotraverse.com", phone: "0784567890", role: "Sales Executive", department: "Sales & Marketing", salary: "1,500,000", status: "Active" }, { id: 4, name: "Sarah Lee", email: "sarah@geotraverse.com", phone: "0713987654", role: "Secretary", department: "Administration", salary: "1,200,000", status: "Active" }];
+    let nextEmpId = 5; let currentSearchTerm = '';
+    
+    function getRoleBadge(role) { const badges = { 'Manager': 'bg-purple-100 text-purple-700', 'Accountant': 'bg-green-100 text-green-700', 'Sales Executive': 'bg-blue-100 text-blue-700', 'Secretary': 'bg-red-100 text-red-700' }; return badges[role] || 'bg-gray-100 text-gray-700'; }
+    
+    function renderEmployeeTable() {
+        const tbody = document.getElementById('employeeTableBody'); if(!tbody) return;
+        let filtered = employees; if(currentSearchTerm) filtered = employees.filter(e => e.name.toLowerCase().includes(currentSearchTerm) || e.email.toLowerCase().includes(currentSearchTerm) || e.phone.includes(currentSearchTerm));
+        tbody.innerHTML = filtered.map(emp => `<tr class="employee-row border-b hover:bg-gray-50 transition"><td class="px-5 py-3 text-sm">${emp.id}</td><td class="px-5 py-3 font-medium text-sm">${emp.name}</td><td class="px-5 py-3 text-sm hidden md:table-cell">${emp.email}</td><td class="px-5 py-3 text-sm hidden lg:table-cell">${emp.phone}</td><td class="px-5 py-3"><span class="px-2 py-1 text-xs rounded-full ${getRoleBadge(emp.role)}">${emp.role}</span></td><td class="px-5 py-3 text-sm hidden xl:table-cell">${emp.department}</td><td class="px-5 py-3 text-sm hidden 2xl:table-cell">TZS ${emp.salary}</td><td class="px-5 py-3"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">${emp.status}</span></td><td class="px-5 py-3"><button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 mr-2"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${emp.id})" class="text-red-600 mr-2"><i class="fas fa-trash"></i></button><button onclick="openChangePwdModal(${emp.id})" class="text-orange-600"><i class="fas fa-key"></i></button></td></tr>`).join('');
+        if(filtered.length === 0 && currentSearchTerm) tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No employees found</td></tr>';
+    }
+    
+    function openAddEmployeeModal() { document.getElementById('employeeModal').classList.remove('hidden'); document.getElementById('employeeModal').classList.add('flex'); }
+    function closeModal() { document.getElementById('employeeModal').classList.add('hidden'); document.getElementById('employeeModal').classList.remove('flex'); document.getElementById('employeeForm').reset(); }
+    function openEditEmployeeModal(id) { const emp = employees.find(e => e.id === id); if(emp) { document.getElementById('editEmpId').value = emp.id; document.getElementById('editEmpName').value = emp.name; document.getElementById('editEmpEmail').value = emp.email; document.getElementById('editEmpPhone').value = emp.phone; document.getElementById('editEmpRole').value = emp.role; document.getElementById('editEmpDepartment').value = emp.department; document.getElementById('editEmpSalary').value = emp.salary.replace(/,/g, ''); document.getElementById('editEmployeeModal').classList.remove('hidden'); document.getElementById('editEmployeeModal').classList.add('flex'); } }
+    function closeEditModal() { document.getElementById('editEmployeeModal').classList.add('hidden'); document.getElementById('editEmployeeModal').classList.remove('flex'); }
+    function deleteEmployee(id) { if(confirm('Are you sure?')) { employees = employees.filter(e => e.id !== id); renderEmployeeTable(); showToast('Employee deleted'); } }
+    function openChangePwdModal(id) { const emp = employees.find(e => e.id === id); if(emp) { document.getElementById('pwdEmpId').value = emp.id; document.getElementById('pwdEmpName').value = emp.name; document.getElementById('changePwdModal').classList.remove('hidden'); document.getElementById('changePwdModal').classList.add('flex'); } }
+    function closePwdModal() { document.getElementById('changePwdModal').classList.add('hidden'); document.getElementById('changePwdModal').classList.remove('flex'); document.getElementById('changePwdForm').reset(); }
+    function changeEmployeePassword() { const newPwd = document.getElementById('newPassword').value; const confirmPwd = document.getElementById('confirmNewPassword').value; if(!newPwd) { showToast('Enter new password', true); return; } if(newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; } showToast('Password changed'); closePwdModal(); }
+    
+    document.getElementById('employeeForm')?.addEventListener('submit', function(e) { e.preventDefault(); const name = document.getElementById('empName').value; if(!name) return; employees.push({ id: nextEmpId++, name, email: document.getElementById('empEmail').value, phone: document.getElementById('empPhone').value, role: document.getElementById('empRole').value, department: document.getElementById('empDepartment').value, salary: document.getElementById('empSalary').value, status: 'Active' }); renderEmployeeTable(); closeModal(); showToast('Employee added'); });
+    document.getElementById('editEmployeeForm')?.addEventListener('submit', function(e) { e.preventDefault(); const id = parseInt(document.getElementById('editEmpId').value); const emp = employees.find(e => e.id === id); if(emp) { emp.name = document.getElementById('editEmpName').value; emp.email = document.getElementById('editEmpEmail').value; emp.phone = document.getElementById('editEmpPhone').value; emp.role = document.getElementById('editEmpRole').value; emp.department = document.getElementById('editEmpDepartment').value; emp.salary = document.getElementById('editEmpSalary').value; renderEmployeeTable(); closeEditModal(); showToast('Employee updated'); } });
+    document.getElementById('changePwdForm')?.addEventListener('submit', function(e) { e.preventDefault(); changeEmployeePassword(); });
+    
+    // ==================== TASKS ====================
+    let tasks = [{ id: 1, title: "Complete Q1 Project Reports", description: "Managers need to submit Q1 reports", department: "Managers", completed: false }, { id: 2, title: "Process Pending Invoices", description: "Finance - 3 invoices awaiting payment", department: "Finance", completed: false }, { id: 3, title: "Follow up on Customer Forms", description: "Sales - 5 new customer inquiries", department: "Sales", completed: true }, { id: 4, title: "Schedule Board Meeting", description: "Secretary - Arrange meeting for next week", department: "Secretary", completed: false }];
+    let nextTaskId = 5;
+    
+    function renderTasks() {
+        const pendingDiv = document.getElementById('pendingTasksList'); const completedDiv = document.getElementById('completedTasksList');
+        let filtered = tasks; if(currentSearchTerm) filtered = tasks.filter(t => t.title.toLowerCase().includes(currentSearchTerm) || t.description.toLowerCase().includes(currentSearchTerm));
+        const pendingCount = filtered.filter(t => !t.completed).length;
+        document.getElementById('pendingTasksBadgeInline') && (document.getElementById('pendingTasksBadgeInline').innerText = pendingCount);
+        if(pendingDiv) pendingDiv.innerHTML = filtered.filter(t => !t.completed).map(t => `<div class="task-item"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm">${t.title}</p><p class="text-xs text-gray-500 mt-1">${t.description}</p><span class="text-xs text-blue-500">${t.department}</span></div><input type="checkbox" onchange="toggleTask(${t.id})" class="w-5 h-5"></div></div>`).join('');
+        if(completedDiv) completedDiv.innerHTML = filtered.filter(t => t.completed).map(t => `<div class="task-item opacity-75"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm line-through text-gray-400">${t.title}</p><p class="text-xs text-gray-400">${t.description}</p></div><i class="fas fa-check-circle text-green-500"></i></div></div>`).join('');
+    }
+    
+    function toggleTask(id) { const task = tasks.find(t => t.id === id); if(task) { task.completed = !task.completed; renderTasks(); updateDashboardCounts(); showToast(task.completed ? 'Task completed!' : 'Task marked incomplete'); } }
+    function openAddTaskModal() { document.getElementById('taskModal').classList.remove('hidden'); document.getElementById('taskModal').classList.add('flex'); }
+    function closeTaskModal() { document.getElementById('taskModal').classList.add('hidden'); document.getElementById('taskModal').classList.remove('flex'); document.getElementById('taskTitle').value = ''; document.getElementById('taskDescription').value = ''; }
+    function addNewTask() { const title = document.getElementById('taskTitle').value; if(!title) { showToast('Enter task title', true); return; } tasks.unshift({ id: nextTaskId++, title, description: document.getElementById('taskDescription').value || 'No description', department: document.getElementById('taskDepartment').value, completed: false }); renderTasks(); updateDashboardCounts(); closeTaskModal(); showToast('Task added'); }
+    
+    // ==================== MESSAGES ====================
     let messages = [
         { id: 1, fromDept: "Managers", subject: "Project Update", message: "We have completed 2 new modern houses this month. The projects are ready for handover.", timestamp: new Date(Date.now() - 2*60*60*1000), read: false, replies: [] },
         { id: 2, fromDept: "Finance", subject: "Invoice Payment", message: "Client John Doe has paid TZS 5,000,000 for the Modern Villa project.", timestamp: new Date(Date.now() - 5*60*60*1000), read: false, replies: [] },
@@ -1054,373 +672,132 @@ document.addEventListener('DOMContentLoaded', function() {
         { id: 4, fromDept: "Secretary", subject: "Meeting Request", message: "Please confirm the board meeting schedule for next week. Proposed date: April 25, 2024 at 10:00 AM.", timestamp: new Date(Date.now() - 2*24*60*60*1000), read: false, replies: [] }
     ];
     
-    let activities = [
-        { message: "Admin added new employee John Doe", time: "5 min ago", icon: "fa-user-plus", color: "green" },
-        { message: "Admin updated Mary Smith's details", time: "20 min ago", icon: "fa-edit", color: "blue" },
-        { message: "Admin deleted employee Mark Wilson", time: "1 hour ago", icon: "fa-user-minus", color: "red" },
-        { message: "New project 'Modern Villa' was added", time: "2 hours ago", icon: "fa-building", color: "purple" },
-        { message: "Invoice INV-001 was paid", time: "3 hours ago", icon: "fa-file-invoice", color: "green" }
-    ];
+    function formatTime(date) { const now = new Date(); const diff = now - date; const minutes = Math.floor(diff / 60000); const hours = Math.floor(diff / 3600000); const days = Math.floor(diff / 86400000); if(minutes < 60) return `${minutes} min ago`; if(hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`; return `${days} day${days > 1 ? 's' : ''} ago`; }
     
-    let nextId = 6;
-    let nextTaskId = 5;
-    let currentDept = '';
-    let currentReportType = 'daily';
-    let currentSearchTerm = '';
-    
-    const departmentMap = { 'Management': 'Managers', 'Finance': 'Finance', 'Sales & Marketing': 'Sales', 'Administration': 'Secretary' };
-    const departmentsData = [
-        { name: "Managers", displayName: "Managers", color: "purple", icon: "fa-user-tie", website: "/managers/login.html" },
-        { name: "Finance & Accounting", displayName: "Finance", color: "green", icon: "fa-calculator", website: "/finance/login.html" },
-        { name: "Sales & Marketing", displayName: "Sales", color: "orange", icon: "fa-chart-line", website: "/sales/login.html" },
-        { name: "Secretary", displayName: "Secretary", color: "red", icon: "fa-envelope", website: "/secretary/login.html" }
-    ];
-    
-    const reportDepartments = [
-        { name: "Managers", displayName: "Managers", color: "purple", icon: "fa-user-tie" },
-        { name: "Finance & Accounting", displayName: "Finance", color: "green", icon: "fa-calculator" },
-        { name: "Sales & Marketing", displayName: "Sales", color: "orange", icon: "fa-chart-line" },
-        { name: "Secretary", displayName: "Secretary", color: "red", icon: "fa-envelope" }
-    ];
-    
-    function getRoleBadge(role) {
-        const badges = { 'Manager': 'bg-purple-100 text-purple-700', 'Accountant': 'bg-green-100 text-green-700', 'Sales Executive': 'bg-blue-100 text-blue-700', 'Secretary': 'bg-red-100 text-red-700' };
-        return badges[role] || 'bg-gray-100 text-gray-700';
+    function renderMessagesList() {
+        const convDiv = document.getElementById('messagesList'); if(!convDiv) return;
+        let filtered = messages; if(currentSearchTerm) filtered = messages.filter(m => m.fromDept.toLowerCase().includes(currentSearchTerm) || m.subject.toLowerCase().includes(currentSearchTerm));
+        convDiv.innerHTML = filtered.map(m => `<div class="message-item p-3 rounded-lg ${!m.read ? 'message-unread' : 'hover:bg-gray-50'}" onclick="viewConversation(${m.id})"><div class="flex justify-between"><span class="font-semibold">${m.fromDept} Dept</span><span class="text-xs text-gray-400">${formatTime(m.timestamp)}</span></div><p class="text-sm truncate">${m.subject}</p><p class="text-xs text-gray-400">${m.replies.length} replies</p></div>`).join('');
+        updateDashboardCounts();
     }
     
-    function addActivity(message) {
-        const newActivity = { message: message, time: "Just now", icon: "fa-bell", color: "blue" };
-        activities.unshift(newActivity);
-        if (activities.length > 10) activities.pop();
-        renderActivities();
+    function viewConversation(id) {
+        const msg = messages.find(m => m.id === id); if(msg) { msg.read = true; renderMessagesList(); updateDashboardCounts(); }
+        const detailView = document.getElementById('messageDetailView');
+        let chatHtml = `<div class="mb-4 pb-4 border-b"><div class="flex justify-between items-center mb-3"><div><h3 class="font-bold text-lg">${msg.fromDept} Department</h3><p class="text-sm text-gray-500">${formatTime(msg.timestamp)}</p></div><span class="text-xs bg-gray-100 px-2 py-1 rounded">${msg.subject}</span></div><div class="chat-bubble chat-message"><p>${msg.message}</p></div>`;
+        msg.replies.forEach(reply => { chatHtml += `<div class="chat-bubble chat-reply"><p class="font-semibold text-sm">Admin replied:</p><p>${reply.message}</p><p class="text-xs text-gray-500 mt-1">${reply.timestamp}</p></div>`; });
+        chatHtml += `</div><div class="mt-4"><textarea id="replyText" rows="3" placeholder="Type your reply..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea><div class="flex justify-end mt-3"><button onclick="sendReply(${msg.id})" class="btn-primary text-white px-5 py-2 rounded-lg"><i class="fas fa-paper-plane mr-2"></i>Send Reply</button></div></div>`;
+        detailView.innerHTML = chatHtml;
     }
     
-    function saveData() { localStorage.setItem('geotraverse_employees', JSON.stringify(employees)); }
+    function sendReply(msgId) { const replyText = document.getElementById('replyText')?.value; if(!replyText || replyText.trim() === '') { showToast('Please enter a reply', true); return; } const msg = messages.find(m => m.id === msgId); if(msg) { msg.replies.push({ message: replyText, timestamp: new Date().toLocaleString() }); renderMessagesList(); showToast(`Reply sent to ${msg.fromDept} department`); viewConversation(msgId); } }
     
-    function loadData() {
-        const stored = localStorage.getItem('geotraverse_employees');
-        if(stored) employees = JSON.parse(stored);
-        renderEmployeeTable(); updateCounts(); renderTasks(); renderMessagesList(); renderActivities();
-        renderDepartmentsGrid(); renderReportDepartmentsGrid(); renderManagersProjects();
-        renderFinanceInvoices(); renderSalesOrders(); renderSecretaryMessages();
-    }
+    // ==================== PROJECTS ====================
+    let projects = [{ id: 1, name: "Modern Villa - Kigamboni", status: "Completed", progress: 100, client: "John M.", amount: "TZS 180M" }, { id: 2, name: "Commercial Complex - Pwani", status: "In Progress", progress: 65, client: "Sarah K.", amount: "TZS 350M" }, { id: 3, name: "Land Survey - 15 Acres", status: "Approved", progress: 30, client: "James P.", amount: "TZS 3.5M" }];
+    function renderProjects() { const projectsGrid = document.getElementById('projectsGrid'); if(!projectsGrid) return; projectsGrid.innerHTML = projects.map(p => `<div class="bg-white border rounded-xl overflow-hidden hover:shadow-lg cursor-pointer" onclick="showProjectDetails(${p.id})"><div class="h-32 bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><i class="fas fa-building text-white text-4xl"></i></div><div class="p-4"><h4 class="font-bold">${p.name}</h4><p class="text-sm text-gray-500">Client: ${p.client}</p><p class="text-sm font-semibold text-blue-600">${p.amount}</p><div class="mt-3"><div class="flex justify-between text-xs"><span>Progress</span><span>${p.progress}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${p.progress}%"></div></div></div><span class="inline-block mt-2 text-xs px-2 py-1 rounded-full ${p.status === 'Completed' ? 'bg-green-100 text-green-700' : (p.status === 'In Progress' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700')}">${p.status}</span></div></div>`).join(''); }
+    function showProjectDetails(id) { const project = projects.find(p => p.id === id); if(project) alert(`Project: ${project.name}\nClient: ${project.client}\nAmount: ${project.amount}\nStatus: ${project.status}\nProgress: ${project.progress}%`); }
     
-    function renderActivities() {
-        const feed = document.getElementById('activityFeed');
-        if(feed) feed.innerHTML = activities.slice(0,5).map(a => `<div class="activity-item flex items-start space-x-3"><div class="w-2 h-2 bg-${a.color}-500 rounded-full mt-2"></div><div class="flex-1"><p class="text-sm text-gray-700">${a.message}</p><p class="text-xs text-gray-400">${a.time}</p></div><i class="fas ${a.icon} text-${a.color}-500"></i></div>`).join('');
-    }
+    // ==================== REPORTS ====================
+    let currentDept = ''; let currentReportType = 'daily';
+    const reportDepartments = [{ name: "Managers", displayName: "Managers", color: "purple", icon: "fa-user-tie" }, { name: "Finance & Accounting", displayName: "Finance", color: "green", icon: "fa-calculator" }, { name: "Sales & Marketing", displayName: "Sales", color: "orange", icon: "fa-chart-line" }, { name: "Secretary", displayName: "Secretary", color: "red", icon: "fa-envelope" }];
+    function renderReportDepartmentsGrid() { const grid = document.getElementById('reportDepartmentsGrid'); if(grid) grid.innerHTML = reportDepartments.map(dept => `<div class="bg-white rounded-xl shadow-sm border-l-4 border-${dept.color}-500 p-5 cursor-pointer hover:shadow-lg transition" onclick="openDepartmentReports('${dept.displayName}')"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-${dept.color}-100 rounded-full flex items-center justify-center"><i class="fas ${dept.icon} text-${dept.color}-600 text-xl"></i></div><div><h3 class="font-bold text-lg">${dept.name}</h3><p class="text-sm text-gray-500">Department Reports</p></div></div><div class="mt-3 flex justify-between"><span class="text-gray-500 text-sm">Reports Available</span><span class="font-semibold bg-${dept.color}-100 px-2 py-1 rounded text-xs">4 Types</span></div></div>`).join(''); }
+    function generateReportData(dept, type) { const today = new Date(); const weekStart = new Date(today); weekStart.setDate(today.getDate() - today.getDay()); const monthStart = new Date(today.getFullYear(), today.getMonth(), 1); const yearStart = new Date(today.getFullYear(), 0, 1); let data = { daily: { title: "Daily Report", date: today.toDateString(), completed: 1, inProgress: 2, approved: 1, revenue: "TZS 2,500,000", income: "TZS 2,500,000", expenses: "TZS 1,200,000", profit: "TZS 1,300,000", orders: 3, leads: 5, conversions: 2, messages: 8, appointments: 3 }, weekly: { title: "Weekly Report", period: `${weekStart.toDateString()} - ${today.toDateString()}`, completed: 5, inProgress: 3, approved: 2, revenue: "TZS 15,500,000", income: "TZS 8,750,000", expenses: "TZS 4,250,000", profit: "TZS 4,500,000", orders: 12, leads: 18, conversions: 8, messages: 35, appointments: 12 }, monthly: { title: "Monthly Report", period: `${monthStart.toDateString()} - ${today.toDateString()}`, completed: 18, inProgress: 10, approved: 7, revenue: "TZS 45,000,000", income: "TZS 28,750,000", expenses: "TZS 18,250,000", profit: "TZS 10,500,000", orders: 28, leads: 45, conversions: 22, messages: 120, appointments: 28 }, annual: { title: "Annual Report", period: `${yearStart.toDateString()} - ${today.toDateString()}`, completed: 156, inProgress: 25, approved: 30, revenue: "TZS 350,000,000", income: "TZS 125,000,000", expenses: "TZS 85,000,000", profit: "TZS 40,000,000", orders: 156, leads: 220, conversions: 98, messages: 450, appointments: 98 } }; return data[type]; }
+    function renderReportContent(dept, type) { const data = generateReportData(dept, type); let html = `<div class="mb-6"><h2 class="text-xl font-bold">${data.title}</h2><p class="text-gray-500">${data.period || data.date || ''}</p></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">`; if(dept === 'Managers') html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Completed Projects</p><p class="text-2xl font-bold text-green-600">${data.completed}</p></div><div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">In Progress</p><p class="text-2xl font-bold text-orange-600">${data.inProgress}</p></div><div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Approved</p><p class="text-2xl font-bold text-blue-600">${data.approved}</p></div><div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Revenue</p><p class="text-2xl font-bold text-purple-600">${data.revenue}</p></div>`; else if(dept === 'Finance') html += `<div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Income</p><p class="text-2xl font-bold text-green-600">${data.income}</p></div><div class="bg-red-50 p-4 rounded-xl"><p class="text-sm">Expenses</p><p class="text-2xl font-bold text-red-600">${data.expenses}</p></div><div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Profit</p><p class="text-2xl font-bold text-blue-600">${data.profit}</p></div><div class="bg-yellow-50 p-4 rounded-xl"><p class="text-sm">Pending Invoices</p><p class="text-2xl font-bold text-yellow-600">${Math.floor(Math.random() * 10) + 1}</p></div>`; else if(dept === 'Sales') html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Orders</p><p class="text-2xl font-bold text-blue-600">${data.orders}</p></div><div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Revenue</p><p class="text-2xl font-bold text-green-600">${data.revenue}</p></div><div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Leads</p><p class="text-2xl font-bold text-purple-600">${data.leads}</p></div><div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">Conversions</p><p class="text-2xl font-bold text-orange-600">${data.conversions}</p></div>`; else if(dept === 'Secretary') html += `<div class="bg-blue-50 p-4 rounded-xl"><p class="text-sm">Messages</p><p class="text-2xl font-bold text-blue-600">${data.messages}</p></div><div class="bg-green-50 p-4 rounded-xl"><p class="text-sm">Appointments</p><p class="text-2xl font-bold text-green-600">${data.appointments}</p></div><div class="bg-purple-50 p-4 rounded-xl"><p class="text-sm">Documents</p><p class="text-2xl font-bold text-purple-600">${Math.floor(Math.random() * 50) + 20}</p></div><div class="bg-orange-50 p-4 rounded-xl"><p class="text-sm">Pending Tasks</p><p class="text-2xl font-bold text-orange-600">${Math.floor(Math.random() * 15) + 5}</p></div>`; html += `</div><div class="border-t pt-4"><p class="text-gray-600">This ${type} report shows the performance of the ${dept} department.</p><p class="text-gray-500 text-sm mt-2">Generated on: ${new Date().toLocaleString()}</p></div>`; document.getElementById('reportContent').innerHTML = html; }
+    function openDepartmentReports(dept) { currentDept = dept; document.getElementById('reportDeptTitle').innerText = `${dept} Department Reports`; document.getElementById('reportDeptDesc').innerText = `${dept} department performance reports`; document.getElementById('departmentReportView').classList.remove('hidden'); document.getElementById('reportDepartmentsGrid').classList.add('hidden'); loadReport('daily'); }
+    function loadReport(type) { currentReportType = type; document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active')); document.getElementById(`tab${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active'); renderReportContent(currentDept, type); }
+    function closeDepartmentReport() { document.getElementById('departmentReportView').classList.add('hidden'); document.getElementById('reportDepartmentsGrid').classList.remove('hidden'); renderReportDepartmentsGrid(); }
     
-    function updateCounts() {
-        const mgmt = employees.filter(e => e.department === 'Management').length;
-        const finance = employees.filter(e => e.department === 'Finance').length;
-        const sales = employees.filter(e => e.department === 'Sales & Marketing').length;
-        const secretary = employees.filter(e => e.department === 'Administration').length;
-        document.getElementById('mgmtCount').innerText = mgmt;
-        document.getElementById('financeCount').innerText = finance;
-        document.getElementById('salesCount').innerText = sales;
-        document.getElementById('secretaryCount').innerText = secretary;
-        document.getElementById('totalEmployees').innerText = employees.length;
-        document.getElementById('pendingTasksCount').innerText = tasks.filter(t => !t.completed).length;
-        document.getElementById('pendingTasksBadge').innerText = tasks.filter(t => !t.completed).length;
-        document.getElementById('unreadMessagesCount').innerText = messages.filter(m => !m.read).length;
-        document.getElementById('unreadMessagesBadge').innerText = messages.filter(m => !m.read).length;
-    }
+    // ==================== EXPORT FUNCTIONS (PDF na Excel) ====================
+    function exportToPDF() { const element = document.getElementById('reportContent'); if(element) { html2pdf().set({ margin: 0.5, filename: `${currentDept}_${currentReportType}_report.pdf` }).from(element).save(); showToast('PDF downloaded'); } }
     
-    function renderEmployeeTable() {
-        const tbody = document.getElementById('employeeTableBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        let filtered = employees;
-        if (currentSearchTerm) filtered = employees.filter(emp => emp.name.toLowerCase().includes(currentSearchTerm) || emp.email.toLowerCase().includes(currentSearchTerm) || emp.phone.includes(currentSearchTerm));
-        filtered.forEach(emp => {
-            tbody.innerHTML += `<tr class="employee-row border-b"><td class="px-5 py-3">${emp.id}</td><td class="px-5 py-3 font-medium">${emp.name}</td><td class="px-5 py-3">${emp.email}</td><td class="px-5 py-3">${emp.phone}</td><td class="px-5 py-3"><span class="px-2 py-1 text-xs rounded-full ${getRoleBadge(emp.role)}">${emp.role}</span></td><td class="px-5 py-3">${departmentMap[emp.department]}</td><td class="px-5 py-3">TZS ${emp.salary}</td><td class="px-5 py-3"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">${emp.status}</span></td><td class="px-5 py-3 space-x-2"><button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button> <button onclick="deleteEmployee(${emp.id})" class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button> <button onclick="openChangePwdModal(${emp.id})" class="text-orange-600 hover:text-orange-800"><i class="fas fa-key"></i></button></td></tr>`;
-        });
-        if(filtered.length === 0 && currentSearchTerm) tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No employees found matching your search</td></tr>';
-        saveData();
-    }
-    
-    function renderDepartmentsGrid() {
-        const grid = document.getElementById('departmentsGrid');
-        if(!grid) return;
-        grid.innerHTML = '';
-        let filtered = departmentsData;
-        if (currentSearchTerm) filtered = departmentsData.filter(dept => dept.name.toLowerCase().includes(currentSearchTerm));
-        filtered.forEach(dept => {
-            const empCount = employees.filter(e => departmentMap[e.department] === dept.displayName).length;
-            grid.innerHTML += `<div class="dept-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div class="bg-${dept.color}-600 p-4 text-white"><div class="flex items-center justify-between"><i class="fas ${dept.icon} text-3xl"></i><span class="bg-white/20 px-2 py-1 rounded-lg text-sm">${dept.displayName}</span></div><h3 class="text-xl font-bold mt-3">${dept.name}</h3></div><div class="p-4"><div class="flex justify-between mb-3"><span class="text-gray-500 text-sm">Employees</span><span class="text-2xl font-bold">${empCount}</span></div><button onclick="openDepartmentDashboard('${dept.displayName}')" class="w-full bg-${dept.color}-50 text-${dept.color}-600 py-2 rounded-lg text-sm font-medium hover:bg-${dept.color}-100 transition"><i class="fas fa-chalkboard-user"></i> View Dashboard</button><a href="${dept.website}" target="_blank" class="w-full mt-2 bg-gray-50 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition flex items-center justify-center space-x-1"><i class="fas fa-external-link-alt"></i><span>Visit Website</span></a></div></div>`;
-        });
-        if(filtered.length === 0 && currentSearchTerm) grid.innerHTML = '<div class="col-span-4 text-center py-10 text-gray-500">No departments found</div>';
-    }
-    
-    function renderReportDepartmentsGrid() {
-        const grid = document.getElementById('reportDepartmentsGrid');
-        if(grid) grid.innerHTML = reportDepartments.map(dept => `<div class="bg-white rounded-xl shadow-sm border-l-4 border-${dept.color}-500 p-5 cursor-pointer hover:shadow-lg transition" onclick="openDepartmentReports('${dept.displayName}')"><div class="flex items-center space-x-3"><div class="w-12 h-12 bg-${dept.color}-100 rounded-full flex items-center justify-center"><i class="fas ${dept.icon} text-${dept.color}-600 text-xl"></i></div><div><h3 class="font-bold text-lg">${dept.name}</h3><p class="text-sm text-gray-500">Department Reports</p></div></div><div class="mt-3 flex justify-between text-sm"><span class="text-gray-500">Reports Available</span><span class="font-semibold bg-${dept.color}-100 px-2 py-1 rounded">4 Types</span></div></div>`).join('');
-    }
-    
-    function renderManagersProjects() {
-        const grid = document.getElementById('managersProjectsGrid');
-        if(grid) grid.innerHTML = projects.map(p => `<div class="project-card bg-white p-3"><img src="${p.image}" class="w-full h-32 object-cover rounded-lg mb-2"><p class="font-bold">${p.name}</p><p class="text-sm ${p.type === 'completed' ? 'text-green-600' : (p.type === 'in_progress' ? 'text-orange-600' : 'text-blue-600')}">${p.type === 'completed' ? 'Completed' : (p.type === 'in_progress' ? 'In Progress' : 'Approved')}</p><button onclick="showToast('View Project Details')" class="mt-2 text-purple-600 text-sm">View Details →</button></div>`).join('');
-    }
-    
-    function renderFinanceInvoices() {
-        const div = document.getElementById('financeInvoicesList');
-        if(div) div.innerHTML = `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><div><p class="font-bold">INV-001 - Modern Villa</p><p class="text-sm">John Doe - TZS 5,000,000</p></div><span class="status-pending">Pending</span><button onclick="showToast('Pay Now')" class="text-green-600 text-sm">Pay</button></div><div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"><div><p class="font-bold">INV-002 - Land Survey</p><p class="text-sm">Mary Smith - TZS 2,500,000</p></div><span class="status-pending">Pending</span><button onclick="showToast('Pay Now')" class="text-green-600 text-sm">Pay</button></div>`;
-    }
-    
-    function renderSalesOrders() {
-        const div = document.getElementById('salesOrdersList');
-        if(div) div.innerHTML = `<div class="p-3 bg-gray-50 rounded-lg"><p class="font-bold">John Doe - Modern Villa</p><p class="text-sm">Amount: TZS 150,000,000 | Status: Pending</p><button onclick="showToast('Process Order')" class="mt-1 text-orange-600 text-sm">Process →</button></div><div class="p-3 bg-gray-50 rounded-lg"><p class="font-bold">Mary Smith - Land Survey</p><p class="text-sm">Amount: TZS 2,500,000 | Status: Approved</p><button onclick="showToast('View Order')" class="mt-1 text-orange-600 text-sm">View →</button></div>`;
-    }
-    
-    function renderSecretaryMessages() {
-        const div = document.getElementById('secretaryMessagesList');
-        if(div) div.innerHTML = `<div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg"><div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-user text-blue-600"></i></div><div><p class="font-bold">John Doe (Client)</p><p class="text-sm">Interested in Modern Villa</p></div><button onclick="showToast('Reply')" class="ml-auto text-blue-600 text-sm">Reply</button></div>`;
-    }
-    
-    function renderTasks() {
-        const incompleteDiv = document.getElementById('incompleteTasksList');
-        const completedDiv = document.getElementById('completedTasksList');
-        if(incompleteDiv) {
-            let filtered = tasks;
-            if (currentSearchTerm) filtered = tasks.filter(t => t.title.toLowerCase().includes(currentSearchTerm) || t.description.toLowerCase().includes(currentSearchTerm));
-            incompleteDiv.innerHTML = filtered.filter(t => !t.completed).map(t => `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"><div><input type="checkbox" class="mr-3" onchange="toggleTask(${t.id})"><span>${t.title}</span><p class="text-xs text-gray-500 mt-1">${t.description}</p></div></div>`).join('');
-            completedDiv.innerHTML = filtered.filter(t => t.completed).map(t => `<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"><div><input type="checkbox" class="mr-3" checked disabled><span class="line-through text-gray-400">${t.title}</span><p class="text-xs text-gray-500 mt-1">${t.description}</p></div></div>`).join('');
-            if(filtered.length === 0 && currentSearchTerm) incompleteDiv.innerHTML = '<div class="text-center py-8 text-gray-500">No tasks found</div>';
+    function exportToExcel() {
+        const data = generateReportData(currentDept, currentReportType);
+        let wsData = [];
+        
+        // Header
+        wsData.push([`${currentDept} Department - ${data.title}`]);
+        wsData.push([`Period: ${data.period || data.date || ''}`]);
+        wsData.push([]);
+        
+        // Data based on department
+        if(currentDept === 'Managers') {
+            wsData.push(['Metric', 'Value']);
+            wsData.push(['Completed Projects', data.completed]);
+            wsData.push(['In Progress', data.inProgress]);
+            wsData.push(['Approved Projects', data.approved]);
+            wsData.push(['Revenue', data.revenue]);
+        } else if(currentDept === 'Finance') {
+            wsData.push(['Metric', 'Value']);
+            wsData.push(['Income', data.income]);
+            wsData.push(['Expenses', data.expenses]);
+            wsData.push(['Profit', data.profit]);
+            wsData.push(['Pending Invoices', Math.floor(Math.random() * 10) + 1]);
+        } else if(currentDept === 'Sales') {
+            wsData.push(['Metric', 'Value']);
+            wsData.push(['Orders', data.orders]);
+            wsData.push(['Revenue', data.revenue]);
+            wsData.push(['Leads', data.leads]);
+            wsData.push(['Conversions', data.conversions]);
+        } else if(currentDept === 'Secretary') {
+            wsData.push(['Metric', 'Value']);
+            wsData.push(['Messages', data.messages]);
+            wsData.push(['Appointments', data.appointments]);
+            wsData.push(['Documents Processed', Math.floor(Math.random() * 50) + 20]);
+            wsData.push(['Pending Tasks', Math.floor(Math.random() * 15) + 5]);
         }
+        
+        wsData.push([]);
+        wsData.push([`Generated on: ${new Date().toLocaleString()}`]);
+        
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        XLSX.utils.book_append_sheet(wb, ws, `${currentDept}_${currentReportType}_Report`);
+        XLSX.writeFile(wb, `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.xlsx`);
+        showToast('Excel report downloaded successfully!');
     }
     
-    function formatTime(date) {
-        const now = new Date();
-        const diff = now - date;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
-        if (minutes < 60) return `${minutes} min ago`;
-        if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-        return `${days} day${days > 1 ? 's' : ''} ago`;
-    }
+    // ==================== SETTINGS FUNCTIONS ====================
+    function togglePassword(inputId, element) { const input = document.getElementById(inputId); if(input.type === 'password') { input.type = 'text'; element.classList.remove('fa-eye'); element.classList.add('fa-eye-slash'); } else { input.type = 'password'; element.classList.remove('fa-eye-slash'); element.classList.add('fa-eye'); } }
+    function changeAdminPassword() { const currentPwd = document.getElementById('currentPassword').value; const newPwd = document.getElementById('newAdminPassword').value; const confirmPwd = document.getElementById('confirmAdminPassword').value; if(!currentPwd) { showToast('Enter current password', true); return; } if(!newPwd) { showToast('Enter new password', true); return; } if(newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; } showToast('Password changed successfully'); document.getElementById('currentPassword').value = ''; document.getElementById('newAdminPassword').value = ''; document.getElementById('confirmAdminPassword').value = ''; }
+    function changeSidebarColor(color, element) { const sidebar = document.getElementById('mainSidebar'); sidebar.style.background = color; sidebar.style.backgroundImage = 'none'; document.querySelectorAll('.color-option').forEach(opt => { opt.classList.remove('selected'); opt.style.transform = 'scale(1)'; }); if(element) { element.classList.add('selected'); element.style.transform = 'scale(1.05)'; } localStorage.setItem('sidebar_color', color); showToast('Sidebar color changed'); }
+    function loadSavedSidebarColor() { const savedColor = localStorage.getItem('sidebar_color'); const sidebar = document.getElementById('mainSidebar'); if(savedColor && sidebar) { sidebar.style.background = savedColor; sidebar.style.backgroundImage = 'none'; } }
+    function createBackup() { const backup = { employees, tasks, messages, projects, timestamp: new Date().toISOString() }; localStorage.setItem('geotraverse_backup', JSON.stringify(backup)); showToast('Backup created successfully'); }
+    function restoreBackup() { const backup = localStorage.getItem('geotraverse_backup'); if(backup) { const data = JSON.parse(backup); if(data.employees) employees = data.employees; if(data.tasks) tasks = data.tasks; if(data.messages) messages = data.messages; if(data.projects) projects = data.projects; renderEmployeeTable(); renderTasks(); renderMessagesList(); renderProjects(); updateDashboardCounts(); showToast('Backup restored successfully'); } else { showToast('No backup found', true); } }
+    let activityLogs = [{ action: "Admin logged in", time: "2024-01-15 09:30:00" }, { action: "Added new employee: John Doe", time: "2024-01-14 14:20:00" }, { action: "Updated project status", time: "2024-01-14 11:45:00" }];
+    function renderSystemLogs() { const logsDiv = document.getElementById('systemLogsList'); if(logsDiv) logsDiv.innerHTML = activityLogs.map(log => `<div class="flex justify-between items-center p-2 border-b"><span class="text-xs">${log.action}</span><span class="text-xs text-gray-400">${log.time}</span></div>`).join(''); }
+    function clearAllLogs() { if(confirm('Clear all logs?')) { activityLogs = []; renderSystemLogs(); showToast('Logs cleared'); } }
+    function saveGeneralSettings() { showToast('General settings saved'); }
+    function saveEmailConfig() { showToast('Email configuration saved'); }
+    function updateDashboardCounts() { const pendingTasks = tasks.filter(t => !t.completed).length; const unreadMessages = messages.filter(m => !m.read).length; document.getElementById('pendingTasksCount') && (document.getElementById('pendingTasksCount').innerText = pendingTasks); document.getElementById('unreadMessagesCount') && (document.getElementById('unreadMessagesCount').innerText = unreadMessages); document.getElementById('pendingTasksBadge') && (document.getElementById('pendingTasksBadge').innerText = pendingTasks); document.getElementById('unreadMessagesBadge') && (document.getElementById('unreadMessagesBadge').innerText = unreadMessages); }
     
-    function toggleTask(id) {
-        const task = tasks.find(t => t.id === id);
-        if(task) { task.completed = !task.completed; renderTasks(); updateCounts(); showToast(task.completed ? 'Task completed!' : 'Task marked incomplete'); }
-    }
+    // ==================== SEARCH FUNCTION ====================
+    function performSearch() { const searchTerm = document.getElementById('searchInput').value.toLowerCase(); currentSearchTerm = searchTerm; const activeSection = document.querySelector('.nav-item.active')?.getAttribute('data-section'); if(activeSection === 'employees') renderEmployeeTable(); else if(activeSection === 'tasks') renderTasks(); else if(activeSection === 'messages') renderMessagesList(); if(searchTerm === '') { currentSearchTerm = ''; renderEmployeeTable(); renderTasks(); renderMessagesList(); } }
     
-    function openDepartmentDashboard(dept) {
-        document.getElementById('departmentsSection').classList.add('hidden');
-        document.getElementById('employeeSection').classList.add('hidden');
-        document.getElementById('dashboardSection').classList.add('hidden');
-        document.getElementById('tasksSection').classList.add('hidden');
-        document.getElementById('messagesSection').classList.add('hidden');
-        document.getElementById('settingsSection').classList.add('hidden');
-        document.getElementById('reportsSection').classList.add('hidden');
-        document.getElementById('managersDashboard').classList.add('hidden');
-        document.getElementById('financeDashboard').classList.add('hidden');
-        document.getElementById('salesDashboard').classList.add('hidden');
-        document.getElementById('secretaryDashboard').classList.add('hidden');
-        if(dept === 'Managers') document.getElementById('managersDashboard').classList.remove('hidden');
-        else if(dept === 'Finance') document.getElementById('financeDashboard').classList.remove('hidden');
-        else if(dept === 'Sales') document.getElementById('salesDashboard').classList.remove('hidden');
-        else if(dept === 'Secretary') document.getElementById('secretaryDashboard').classList.remove('hidden');
-    }
+    // ==================== NAVIGATION ====================
+    const sections = { dashboard: 'dashboardSection', employees: 'employeeSection', departments: 'departmentsSection', reports: 'reportsSection', tasks: 'tasksSection', messages: 'messagesSection', settings: 'settingsSection' };
+    function showSection(sectionId) { Object.values(sections).forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); document.getElementById(sectionId).classList.remove('hidden'); if(sectionId === 'employees') renderEmployeeTable(); if(sectionId === 'tasks') renderTasks(); if(sectionId === 'messages') renderMessagesList(); if(sectionId === 'projects') renderProjects(); if(sectionId === 'departments') renderDepartmentsGrid(); if(sectionId === 'reports') renderReportDepartmentsGrid(); if(sectionId === 'settings') { renderSystemLogs(); } closeMobileSidebar(); }
+    document.querySelectorAll('.nav-item').forEach(item => { item.addEventListener('click', (e) => { e.preventDefault(); const section = item.getAttribute('data-section'); if(section && sections[section]) { showSection(sections[section]); document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); item.classList.add('active'); } }); });
+    document.getElementById('homeButton')?.addEventListener('click', () => { showSection('dashboardSection'); document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); document.querySelector('.nav-item[data-section="dashboard"]')?.classList.add('active'); });
     
-    function goBackToDepartments() {
-        document.getElementById('managersDashboard').classList.add('hidden');
-        document.getElementById('financeDashboard').classList.add('hidden');
-        document.getElementById('salesDashboard').classList.add('hidden');
-        document.getElementById('secretaryDashboard').classList.add('hidden');
-        document.getElementById('departmentsSection').classList.remove('hidden');
-        renderDepartmentsGrid();
-    }
+    // ==================== MOBILE SIDEBAR ====================
+    function openMobileSidebar() { document.getElementById('mainSidebar')?.classList.add('mobile-open'); document.getElementById('mobileMenuOverlay')?.classList.add('open'); }
+    function closeMobileSidebar() { document.getElementById('mainSidebar')?.classList.remove('mobile-open'); document.getElementById('mobileMenuOverlay')?.classList.remove('open'); }
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', openMobileSidebar);
     
-    function openEditEmployeeModal(id) {
-        const emp = employees.find(e => e.id === id);
-        if(emp) {
-            document.getElementById('editEmpId').value = emp.id;
-            document.getElementById('editEmpName').value = emp.name;
-            document.getElementById('editEmpEmail').value = emp.email;
-            document.getElementById('editEmpPhone').value = emp.phone;
-            document.getElementById('editEmpRole').value = emp.role;
-            document.getElementById('editEmpDepartment').value = emp.department;
-            document.getElementById('editEmpSalary').value = emp.salary.replace(/,/g, '');
-            document.getElementById('editEmployeeModal').classList.remove('hidden');
-            document.getElementById('editEmployeeModal').classList.add('flex');
-        }
-    }
+    // ==================== DARK MODE ====================
+    let isDark = false; document.getElementById('darkModeToggle')?.addEventListener('click', () => { isDark = !isDark; document.body.classList.toggle('dark-mode', isDark); const icon = document.getElementById('darkModeIcon'); if(icon) { icon.classList.toggle('fa-sun', isDark); icon.classList.toggle('fa-moon', !isDark); } localStorage.setItem('dark_mode', isDark); });
+    function loadDarkMode() { const saved = localStorage.getItem('dark_mode'); if(saved === 'true') { isDark = true; document.body.classList.add('dark-mode'); const icon = document.getElementById('darkModeIcon'); if(icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); } } }
     
-    function deleteEmployee(id) {
-        if(confirm('Delete employee?')) { employees = employees.filter(e => e.id !== id); renderEmployeeTable(); updateCounts(); showToast('Employee deleted'); addActivity(`Deleted employee ID ${id}`); }
-    }
+    // ==================== SCROLL TO TOP ====================
+    window.addEventListener('scroll', () => { const scrollBtn = document.getElementById('scrollTopBtn'); if(scrollBtn) scrollBtn.classList.toggle('visible', window.scrollY > 300); });
+    document.getElementById('scrollTopBtn')?.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
     
-    function openChangePwdModal(id) {
-        const emp = employees.find(e => e.id === id);
-        if(emp) {
-            document.getElementById('pwdEmpId').value = emp.id;
-            document.getElementById('pwdEmpName').value = emp.name;
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmNewPassword').value = '';
-            document.getElementById('changePwdModal').classList.remove('hidden');
-            document.getElementById('changePwdModal').classList.add('flex');
-        }
-    }
+    // ==================== INITIALIZATION ====================
+    function init() { loadDashboardData(); renderEmployeeTable(); renderTasks(); renderMessagesList(); renderProjects(); renderDepartmentsGrid(); renderReportDepartmentsGrid(); renderManagersProjects(); renderFinanceInvoices(); renderSalesOrders(); renderSecretaryMessages(); updateDashboardCounts(); loadSavedSidebarColor(); loadDarkMode(); showSection('dashboardSection'); document.getElementById('searchInput')?.addEventListener('input', performSearch); console.log('Dashboard initialized'); }
+    init();
     
-    function changeEmployeePassword() {
-        const id = parseInt(document.getElementById('pwdEmpId').value);
-        const newPwd = document.getElementById('newPassword').value;
-        const confirmPwd = document.getElementById('confirmNewPassword').value;
-        if(!newPwd || newPwd !== confirmPwd) { alert('Passwords do not match'); return; }
-        const emp = employees.find(e => e.id === id);
-        if(emp) { emp.password = newPwd; saveData(); showToast(`Password changed for ${emp.name}`); closePwdModal(); addActivity(`Changed password for ${emp.name}`); }
-    }
-    
-    function openAddEmployeeModal() { document.getElementById('employeeModal').classList.remove('hidden'); document.getElementById('employeeModal').classList.add('flex'); }
-    function closeModal() { document.getElementById('employeeModal').classList.add('hidden'); document.getElementById('employeeModal').classList.remove('flex'); }
-    function closeEditModal() { document.getElementById('editEmployeeModal').classList.add('hidden'); document.getElementById('editEmployeeModal').classList.remove('flex'); }
-    function closePwdModal() { document.getElementById('changePwdModal').classList.add('hidden'); document.getElementById('changePwdModal').classList.remove('flex'); }
-    function openAddTaskModal() { document.getElementById('addTaskModal').classList.remove('hidden'); document.getElementById('addTaskModal').classList.add('flex'); }
-    function closeTaskModal() { document.getElementById('addTaskModal').classList.add('hidden'); document.getElementById('addTaskModal').classList.remove('flex'); }
-    
-    function addNewTask() {
-        const title = document.getElementById('taskTitle')?.value;
-        if(!title) return;
-        tasks.push({ id: nextTaskId++, title: title, description: document.getElementById('taskDescription')?.value, department: document.getElementById('taskDepartment')?.value, completed: false });
-        renderTasks(); updateCounts(); showToast('Task added'); closeTaskModal(); addActivity(`Added new task: ${title}`);
-    }
-    
-    document.getElementById('employeeForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('empName')?.value;
-        if(!name) return;
-        employees.push({ id: nextId++, name: name, email: document.getElementById('empEmail')?.value, phone: document.getElementById('empPhone')?.value, role: document.getElementById('empRole')?.value, department: document.getElementById('empDepartment')?.value, salary: document.getElementById('empSalary')?.value, status: 'Active', password: 'default123' });
-        renderEmployeeTable(); updateCounts(); closeModal(); showToast('Employee added'); addActivity(`Added new employee: ${name}`);
-    });
-    
-    document.getElementById('editEmployeeForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const id = parseInt(document.getElementById('editEmpId').value);
-        const emp = employees.find(e => e.id === id);
-        if(emp) {
-            const oldName = emp.name;
-            emp.name = document.getElementById('editEmpName').value;
-            emp.email = document.getElementById('editEmpEmail').value;
-            emp.phone = document.getElementById('editEmpPhone').value;
-            emp.role = document.getElementById('editEmpRole').value;
-            emp.department = document.getElementById('editEmpDepartment').value;
-            emp.salary = parseInt(document.getElementById('editEmpSalary').value).toLocaleString();
-            renderEmployeeTable(); showToast('Employee updated'); closeEditModal(); addActivity(`Updated employee: ${oldName} → ${emp.name}`);
-        }
-    });
-    
-    document.getElementById('changePwdForm')?.addEventListener('submit', function(e) { e.preventDefault(); changeEmployeePassword(); });
-    
-    function showToast(msg) { const t = document.createElement('div'); t.className = 'toast-notification'; t.innerHTML = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
-    
-    function performSearch() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        currentSearchTerm = searchTerm;
-        const activeSection = document.querySelector('.nav-item.active')?.getAttribute('data-section');
-        if (activeSection === 'employees') renderEmployeeTable();
-        else if (activeSection === 'tasks') renderTasks();
-        else if (activeSection === 'messages') renderMessagesList();
-        else if (activeSection === 'departments') renderDepartmentsGrid();
-        if (searchTerm === '') { currentSearchTerm = ''; renderEmployeeTable(); renderTasks(); renderMessagesList(); renderDepartmentsGrid(); }
-    }
-    
-    // Dark mode
-    let isDark = false;
-    document.getElementById('darkModeToggle')?.addEventListener('click', () => { isDark = !isDark; document.body.classList.toggle('dark-mode', isDark); document.getElementById('darkModeIcon').classList.toggle('fa-sun', isDark); document.getElementById('darkModeIcon').classList.toggle('fa-moon', !isDark); });
-    
-    // Navigation
-    const sections = ['dashboardSection', 'departmentsSection', 'employeeSection', 'reportsSection', 'tasksSection', 'messagesSection', 'settingsSection'];
-    function showSection(sectionId) { sections.forEach(s => document.getElementById(s).classList.add('hidden')); document.getElementById(sectionId).classList.remove('hidden'); }
-    
-    document.getElementById('homeButton')?.addEventListener('click', () => showSection('dashboardSection'));
-    document.getElementById('departmentsLink')?.addEventListener('click', (e) => { e.preventDefault(); showSection('departmentsSection'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); e.target.closest('.nav-item').classList.add('active'); renderDepartmentsGrid(); });
-    document.getElementById('employeeTableLink')?.addEventListener('click', (e) => { e.preventDefault(); showSection('employeeSection'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); e.target.closest('.nav-item').classList.add('active'); renderEmployeeTable(); });
-    document.getElementById('reportsLink')?.addEventListener('click', (e) => { e.preventDefault(); showSection('reportsSection'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); e.target.closest('.nav-item').classList.add('active'); renderReportDepartmentsGrid(); });
-    document.getElementById('tasksLink')?.addEventListener('click', (e) => { e.preventDefault(); showSection('tasksSection'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); e.target.closest('.nav-item').classList.add('active'); renderTasks(); });
-    document.getElementById('messagesLink')?.addEventListener('click', (e) => { e.preventDefault(); showSection('messagesSection'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); e.target.closest('.nav-item').classList.add('active'); renderMessagesList(); });
-    document.getElementById('settingsLink')?.addEventListener('click', (e) => { e.preventDefault(); showSection('settingsSection'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); e.target.closest('.nav-item').classList.add('active'); });
-    
-    document.getElementById('searchInput')?.addEventListener('input', performSearch);
-    
-    // Charts
-    new Chart(document.getElementById('revenueChart'), { type: 'line', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Revenue', data: [10, 18, 22, 25, 28, 30], borderColor: '#0f74ba', backgroundColor: 'rgba(15,116,186,0.1)', fill: true, tension: 0.4 }, { label: 'Expenses', data: [8, 12, 15, 18, 20, 22], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.05)', fill: true, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
-    new Chart(document.getElementById('pieChart'), { type: 'doughnut', data: { labels: ['Managers', 'Finance', 'Sales', 'Secretary'], datasets: [{ data: [2, 1, 1, 1], backgroundColor: ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444'], borderWidth: 0 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
-    
-    loadData();
-
-// ============================================
-// TOGGLE PASSWORD FOR SETTINGS
-// ============================================
-function togglePasswordField(inputId, button) {
-    const input = document.getElementById(inputId);
-    const icon = button.querySelector('i');
-    
-    if (!input) return;
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-}
-
-// ============================================
-// LOGOUT FUNCTION - TAYARI KUFANYA KAZI
-// ============================================
-(function setupLogout() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Futa data zote za session
-            localStorage.clear();
-            sessionStorage.clear();
-            
-            // Ficha dashboard
-            const dashboard = document.getElementById('dashboardApp');
-            if (dashboard) dashboard.style.display = 'none';
-            
-            // Onyesha login
-            const loginPage = document.getElementById('loginPage');
-            if (loginPage) loginPage.style.display = 'flex';
-            
-            // Safisha form
-            const emailInput = document.getElementById('loginEmail');
-            const passwordInput = document.getElementById('loginPassword');
-            if (emailInput) emailInput.value = '';
-            if (passwordInput) {
-                passwordInput.value = '';
-                passwordInput.type = 'password';
-            }
-            
-            // Ficha error
-            const errorDiv = document.getElementById('loginError');
-            if (errorDiv) errorDiv.classList.add('hidden');
-            
-            // Rudisha icon ya eye
-            const eyeIcon = document.querySelector('#loginPage .relative button i, #loginPage .toggle-password i');
-            if (eyeIcon) {
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            }
-            
-            // Ujumbe
-            alert('Logged out successfully!');
-            console.log('Logout successful at: ' + new Date().toLocaleTimeString());
-        });
-        console.log('Logout button found and ready!');
-    } else {
-        console.error('Logout button with id "logoutBtn" not found!');
-    }
-})();
+    // Expose global functions
+    window.openAddEmployeeModal = openAddEmployeeModal; window.closeModal = closeModal; window.openEditEmployeeModal = openEditEmployeeModal; window.closeEditModal = closeEditModal; window.deleteEmployee = deleteEmployee; window.openChangePwdModal = openChangePwdModal; window.closePwdModal = closePwdModal; window.toggleTask = toggleTask; window.openAddTaskModal = openAddTaskModal; window.closeTaskModal = closeTaskModal; window.addNewTask = addNewTask; window.viewConversation = viewConversation; window.sendReply = sendReply; window.showProjectDetails = showProjectDetails; window.showToast = showToast; window.openDepartmentDashboard = openDepartmentDashboard; window.goBackToDepartments = goBackToDepartments; window.openDepartmentReports = openDepartmentReports; window.loadReport = loadReport; window.closeDepartmentReport = closeDepartmentReport; window.exportToPDF = exportToPDF; window.exportToExcel = exportToExcel; window.changeAdminPassword = changeAdminPassword; window.changeSidebarColor = changeSidebarColor; window.createBackup = createBackup; window.restoreBackup = restoreBackup; window.clearAllLogs = clearAllLogs; window.saveGeneralSettings = saveGeneralSettings; window.saveEmailConfig = saveEmailConfig; window.togglePassword = togglePassword;
 </script>
 </body>
 </html>
