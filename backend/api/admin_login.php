@@ -27,12 +27,11 @@ try {
         sendError('Invalid email or password', 401);
     }
     
-    // Verify password (supports both bcrypt and plain text for demo)
+    // Verify password (supports bcrypt and plain text for demo)
     $validPassword = false;
     if (password_verify($password, $user['password_hash'])) {
         $validPassword = true;
     } elseif ($password === '1234') {
-        // For demo, also accept plain text 1234
         $validPassword = true;
     }
     
