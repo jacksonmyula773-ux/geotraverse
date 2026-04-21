@@ -110,11 +110,26 @@
         .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; }
         .password-toggle:hover { color: #0f74ba; }
         
+        .search-highlight {
+            background-color: rgba(15, 116, 186, 0.2);
+            border-radius: 4px;
+            padding: 0 2px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
         @media (max-width: 768px) {
             .sidebar { position: fixed; left: -100%; transition: left 0.3s; z-index: 100; width: 80%; }
             .sidebar.mobile-open { left: 0; }
             .mobile-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
             .mobile-menu-overlay.open { display: block; }
+            .employee-table-container { overflow-x: auto; }
+            .employee-table { min-width: 800px; }
         }
     </style>
 </head>
@@ -199,7 +214,7 @@
                         <i class="fas fa-home text-xl"></i>
                     </button>
                     <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
-                    <a href="/index.html" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1 text-sm">
+                    <a href="/geotraverse/index.html" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1 text-sm">
                         <i class="fas fa-external-link-alt text-sm"></i><span>Main Website</span>
                     </a>
                 </div>
@@ -296,10 +311,21 @@
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
+                    <div class="overflow-x-auto employee-table-container">
+                        <table class="w-full employee-table">
                             <thead class="bg-gray-50 border-b">
-                                <tr><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Email</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Phone</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden xl:table-cell">Department</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden 2xl:table-cell">Salary</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th><th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th></tr></thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Email</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Phone</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Department</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Salary</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                </tr>
+                            </thead>
                             <tbody id="employeeTableBody"></tbody>
                         </table>
                     </div>
@@ -398,12 +424,12 @@
                     <h3 class="text-lg font-semibold mb-4"><i class="fas fa-envelope mr-2 text-blue-500"></i>Messages from Departments</h3>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-1 border-r pr-4">
-                            <div class="space-y-2" id="messagesList"></div>
+                            <div id="messagesList" class="space-y-2"></div>
                         </div>
                         <div class="lg:col-span-2">
                             <div id="messageDetailView" class="text-center py-12 text-gray-400">
                                 <i class="fas fa-envelope-open-text text-5xl mb-3"></i>
-                                <p>Select a message to view and reply</p>
+                                <p>Select a message to view, reply or delete</p>
                             </div>
                         </div>
                     </div>
@@ -601,9 +627,14 @@
     // ==================== DASHBOARD API ====================
     async function loadDashboardFromAPI() {
         try {
+            const employeesResult = await apiCall('employees.php');
+            if (employeesResult.success && employeesResult.data) {
+                const totalEmployees = employeesResult.data.length;
+                document.getElementById('totalEmployees').innerText = totalEmployees;
+            }
+            
             const result = await apiCall('admin_dashboard.php');
             if (result.success && result.data) {
-                document.getElementById('totalEmployees').innerText = result.data.stats?.total_employees || 0;
                 document.getElementById('pendingTasksCount').innerText = result.data.stats?.pending_tasks || 0;
                 document.getElementById('unreadMessagesCount').innerText = result.data.stats?.unread_messages || 0;
                 document.getElementById('totalProjects').innerText = result.data.stats?.total_projects || 0;
@@ -625,11 +656,12 @@
                             </div>
                         </div>
                     `).join('');
+                } else {
+                    document.getElementById('activityFeed').innerHTML = '<div class="text-center text-gray-400 py-4">No recent activity</div>';
                 }
             }
         } catch (error) {
             console.error('Error loading dashboard:', error);
-            showToast('Failed to load dashboard data from backend', true);
         }
     }
     
@@ -658,10 +690,14 @@
                 showToast('Employee added successfully');
                 await loadEmployeesFromAPI();
                 await loadDashboardFromAPI();
+                renderDepartmentsGrid();
                 return true;
+            } else {
+                showToast(result.message || 'Failed to add employee', true);
+                return false;
             }
         } catch (error) {
-            showToast('Failed to add employee', true);
+            showToast('Failed to add employee: ' + error.message, true);
             return false;
         }
     }
@@ -674,9 +710,12 @@
                 await loadEmployeesFromAPI();
                 await loadDashboardFromAPI();
                 return true;
+            } else {
+                showToast(result.message || 'Failed to update employee', true);
+                return false;
             }
         } catch (error) {
-            showToast('Failed to update employee', true);
+            showToast('Failed to update employee: ' + error.message, true);
             return false;
         }
     }
@@ -688,10 +727,14 @@
                 showToast('Employee deleted successfully');
                 await loadEmployeesFromAPI();
                 await loadDashboardFromAPI();
+                renderDepartmentsGrid();
                 return true;
+            } else {
+                showToast(result.message || 'Failed to delete employee', true);
+                return false;
             }
         } catch (error) {
-            showToast('Failed to delete employee', true);
+            showToast('Failed to delete employee: ' + error.message, true);
             return false;
         }
     }
@@ -777,6 +820,31 @@
         }
     }
     
+    async function deleteMessageFromAPI(messageId) {
+        try {
+            const result = await apiCall(`messages.php?id=${messageId}`, { method: 'DELETE' });
+            if (result.success) {
+                showToast('Message deleted successfully');
+                await loadMessagesFromAPI();
+                updateDashboardCounts();
+                const detailView = document.getElementById('messageDetailView');
+                if (detailView) {
+                    detailView.innerHTML = `
+                        <i class="fas fa-envelope-open-text text-5xl mb-3"></i>
+                        <p>Select a message to view, reply or delete</p>
+                    `;
+                }
+                return true;
+            } else {
+                showToast(result.message || 'Failed to delete message', true);
+                return false;
+            }
+        } catch (error) {
+            showToast('Failed to delete message: ' + error.message, true);
+            return false;
+        }
+    }
+    
     // ==================== PROJECTS API ====================
     let projects = [];
     
@@ -811,23 +879,72 @@
     // ==================== HELPER FUNCTIONS ====================
     function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
     
-    // ==================== ACTIVITY LOGS ====================
+    // ==================== ACTIVITY LOGS (Clear logs inafanya kazi vizuri) ====================
     let activityLogs = [];
     
     function loadActivityLogs() {
         const savedLogs = localStorage.getItem('geotraverse_activity_logs');
         if (savedLogs) { activityLogs = JSON.parse(savedLogs); } 
-        else { activityLogs = [{ action: "Admin logged in", time: new Date().toLocaleString() }, { action: "System initialized", time: new Date().toLocaleString() }]; saveActivityLogs(); }
+        else { 
+            activityLogs = []; 
+            saveActivityLogs(); 
+        }
         renderSystemLogs();
+        renderActivityFeed();
     }
     
     function saveActivityLogs() { localStorage.setItem('geotraverse_activity_logs', JSON.stringify(activityLogs)); }
     
-    function addActivityLog(action) { const newLog = { action, time: new Date().toLocaleString() }; activityLogs.unshift(newLog); if (activityLogs.length > 50) activityLogs.pop(); saveActivityLogs(); renderSystemLogs(); }
+    function addActivityLog(action) { 
+        const newLog = { action, time: new Date().toLocaleString() }; 
+        activityLogs.unshift(newLog); 
+        if (activityLogs.length > 50) activityLogs.pop(); 
+        saveActivityLogs(); 
+        renderSystemLogs(); 
+        renderActivityFeed();
+    }
     
-    function renderSystemLogs() { const logsDiv = document.getElementById('systemLogsList'); if(logsDiv) { if (activityLogs.length === 0) { logsDiv.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm"><i class="fas fa-inbox mr-1"></i> No logs available</div>'; } else { logsDiv.innerHTML = activityLogs.map(log => `<div class="flex justify-between items-center p-2 border-b"><span class="text-xs">${log.action}</span><span class="text-xs text-gray-400">${log.time}</span></div>`).join(''); } } }
+    function renderSystemLogs() { 
+        const logsDiv = document.getElementById('systemLogsList'); 
+        if(logsDiv) { 
+            if (activityLogs.length === 0) { 
+                logsDiv.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm"><i class="fas fa-inbox mr-1"></i> No logs available</div>'; 
+            } else { 
+                logsDiv.innerHTML = activityLogs.map(log => `<div class="flex justify-between items-center p-2 border-b"><span class="text-xs">${log.action}</span><span class="text-xs text-gray-400">${log.time}</span></div>`).join(''); 
+            } 
+        } 
+    }
     
-    function clearAllLogs() { if(confirm('Are you sure you want to clear ALL system logs?')) { activityLogs = []; saveActivityLogs(); renderSystemLogs(); showToast('✅ All logs cleared successfully'); addActivityLog('System logs cleared by admin'); } }
+    function renderActivityFeed() {
+        const feedDiv = document.getElementById('activityFeed');
+        if (!feedDiv) return;
+        
+        if (activityLogs.length === 0) {
+            feedDiv.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm"><i class="fas fa-inbox mr-1"></i> No recent activity</div>';
+            return;
+        }
+        
+        const recentLogs = activityLogs.slice(0, 5);
+        feedDiv.innerHTML = recentLogs.map(log => `
+            <div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                <i class="fas fa-circle text-blue-500 text-xs mt-1"></i>
+                <div class="flex-1">
+                    <p class="text-sm">${escapeHtml(log.action)}</p>
+                    <p class="text-xs text-gray-400">${log.time}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function clearAllLogs() { 
+        if(confirm('Are you sure you want to clear ALL system logs and activity history?')) { 
+            activityLogs = []; 
+            saveActivityLogs(); 
+            renderSystemLogs(); 
+            renderActivityFeed();
+            showToast('✅ All logs cleared successfully'); 
+        } 
+    }
     
     // ==================== DASHBOARD CHART ====================
     let revenueChart = null;
@@ -912,15 +1029,64 @@
     }
     
     // ==================== EMPLOYEES RENDER ====================
-    function getRoleBadge(role) { const badges = { 'Manager': 'bg-purple-100 text-purple-700', 'Accountant': 'bg-green-100 text-green-700', 'Sales Executive': 'bg-blue-100 text-blue-700', 'Secretary': 'bg-red-100 text-red-700' }; return badges[role] || 'bg-gray-100 text-gray-700'; }
+    function getRoleBadge(role) { 
+        const badges = { 
+            'Manager': 'bg-purple-100 text-purple-700', 
+            'Accountant': 'bg-green-100 text-green-700', 
+            'Sales Executive': 'bg-blue-100 text-blue-700', 
+            'Secretary': 'bg-red-100 text-red-700' 
+        }; 
+        return badges[role] || 'bg-gray-100 text-gray-700'; 
+    }
     
     function renderEmployeeTable() {
-        const tbody = document.getElementById('employeeTableBody'); if(!tbody) return;
-        if(employees.length === 0) {
+        const tbody = document.getElementById('employeeTableBody'); 
+        if(!tbody) return;
+        
+        let filteredEmployees = employees;
+        if (currentSearchTerm && currentSearchTerm !== '') {
+            filteredEmployees = employees.filter(emp => 
+                emp.name?.toLowerCase().includes(currentSearchTerm) ||
+                emp.email?.toLowerCase().includes(currentSearchTerm) ||
+                emp.phone?.includes(currentSearchTerm) ||
+                emp.role?.toLowerCase().includes(currentSearchTerm) ||
+                emp.department?.toLowerCase().includes(currentSearchTerm)
+            );
+        }
+        
+        if(filteredEmployees.length === 0 && currentSearchTerm && currentSearchTerm !== '') {
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-gray-500">No employees found matching "${currentSearchTerm}"</td></td>`;
+            return;
+        }
+        
+        if(filteredEmployees.length === 0) {
             tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No employees found. Click "Add Employee" to add one.</td></tr>';
             return;
         }
-        tbody.innerHTML = employees.map(emp => `<tr class="employee-row border-b hover:bg-gray-50 transition"><td class="px-5 py-3 text-sm">${emp.id}</td><td class="px-5 py-3 font-medium text-sm">${escapeHtml(emp.name)}</td><td class="px-5 py-3 text-sm hidden md:table-cell">${escapeHtml(emp.email)}</td><td class="px-5 py-3 text-sm hidden lg:table-cell">${emp.phone || '-'}</td><td class="px-5 py-3"><span class="px-2 py-1 text-xs rounded-full ${getRoleBadge(emp.role)}">${emp.role}</span></td><td class="px-5 py-3 text-sm hidden xl:table-cell">${emp.department}</td><td class="px-5 py-3 text-sm hidden 2xl:table-cell">TZS ${parseFloat(emp.salary).toLocaleString()}</td><td class="px-5 py-3"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">${emp.status || 'Active'}</span></td><td class="px-5 py-3"><button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 mr-2"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${emp.id})" class="text-red-600 mr-2"><i class="fas fa-trash"></i></button><button onclick="openChangePwdModal(${emp.id})" class="text-orange-600"><i class="fas fa-key"></i></button></td></tr>`).join('');
+        
+        tbody.innerHTML = filteredEmployees.map(emp => `
+            <tr class="employee-row border-b hover:bg-gray-50 transition">
+                <td class="px-4 py-3 text-sm">${emp.id}</td>
+                <td class="px-4 py-3 font-medium text-sm">${escapeHtml(emp.name)}</td>
+                <td class="px-4 py-3 text-sm hidden sm:table-cell">${escapeHtml(emp.email)}</td>
+                <td class="px-4 py-3 text-sm hidden md:table-cell">${emp.phone || '-'}</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full ${getRoleBadge(emp.role)}">${emp.role}</span></td>
+                <td class="px-4 py-3 text-sm hidden lg:table-cell">${emp.department}</td>
+                <td class="px-4 py-3 text-sm font-semibold text-green-600">TZS ${parseFloat(emp.salary).toLocaleString()}</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">${emp.status || 'Active'}</span></td>
+                <td class="px-4 py-3">
+                    <button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 hover:text-blue-800 mr-2 transition" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteEmployee(${emp.id})" class="text-red-600 hover:text-red-800 mr-2 transition" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button onclick="openChangePwdModal(${emp.id})" class="text-orange-600 hover:text-orange-800 transition" title="Change Password">
+                        <i class="fas fa-key"></i>
+                    </button>
+                 </td>
+              </tr>
+        `).join('');
     }
     
     // ==================== EXPORT EMPLOYEES TO EXCEL ====================
@@ -935,7 +1101,7 @@
             [`Generated on: ${new Date().toLocaleString()}`],
             [`Total Employees: ${employees.length}`],
             [],
-            ['ID', 'Name', 'Email', 'Phone', 'Role', 'Department', 'Salary', 'Status']
+            ['ID', 'Name', 'Email', 'Phone', 'Role', 'Department', 'Salary (TZS)', 'Status']
         ];
         
         employees.forEach(emp => {
@@ -946,7 +1112,7 @@
                 emp.phone || '-',
                 emp.role,
                 emp.department,
-                `TZS ${parseFloat(emp.salary).toLocaleString()}`,
+                parseFloat(emp.salary).toLocaleString(),
                 emp.status || 'Active'
             ]);
         });
@@ -968,82 +1134,355 @@
     
     function openAddEmployeeModal() { document.getElementById('employeeModal').classList.remove('hidden'); document.getElementById('employeeModal').classList.add('flex'); }
     function closeModal() { document.getElementById('employeeModal').classList.add('hidden'); document.getElementById('employeeModal').classList.remove('flex'); document.getElementById('employeeForm').reset(); }
-    function openEditEmployeeModal(id) { const emp = employees.find(e => e.id === id); if(emp) { document.getElementById('editEmpId').value = emp.id; document.getElementById('editEmpName').value = emp.name; document.getElementById('editEmpEmail').value = emp.email; document.getElementById('editEmpPhone').value = emp.phone || ''; document.getElementById('editEmpRole').value = emp.role; document.getElementById('editEmpDepartment').value = emp.department; document.getElementById('editEmpSalary').value = emp.salary; document.getElementById('editEmployeeModal').classList.remove('hidden'); document.getElementById('editEmployeeModal').classList.add('flex'); } }
+    
+    function openEditEmployeeModal(id) { 
+        const emp = employees.find(e => e.id === id); 
+        if(emp) { 
+            document.getElementById('editEmpId').value = emp.id; 
+            document.getElementById('editEmpName').value = emp.name; 
+            document.getElementById('editEmpEmail').value = emp.email; 
+            document.getElementById('editEmpPhone').value = emp.phone || ''; 
+            document.getElementById('editEmpRole').value = emp.role; 
+            document.getElementById('editEmpDepartment').value = emp.department; 
+            document.getElementById('editEmpSalary').value = emp.salary; 
+            document.getElementById('editEmployeeModal').classList.remove('hidden'); 
+            document.getElementById('editEmployeeModal').classList.add('flex'); 
+        } 
+    }
     function closeEditModal() { document.getElementById('editEmployeeModal').classList.add('hidden'); document.getElementById('editEmployeeModal').classList.remove('flex'); }
-    async function deleteEmployee(id) { if(confirm('Are you sure?')) { await deleteEmployeeFromAPI(id); addActivityLog(`Deleted employee ID ${id}`); } }
-    function openChangePwdModal(id) { const emp = employees.find(e => e.id === id); if(emp) { document.getElementById('pwdEmpId').value = emp.id; document.getElementById('pwdEmpName').value = emp.name; document.getElementById('changePwdModal').classList.remove('hidden'); document.getElementById('changePwdModal').classList.add('flex'); } }
+    
+    async function deleteEmployee(id) { 
+        if(confirm('Are you sure you want to delete this employee?')) { 
+            await deleteEmployeeFromAPI(id); 
+            addActivityLog(`Deleted employee ID ${id}`); 
+        } 
+    }
+    
+    function openChangePwdModal(id) { 
+        const emp = employees.find(e => e.id === id); 
+        if(emp) { 
+            document.getElementById('pwdEmpId').value = emp.id; 
+            document.getElementById('pwdEmpName').value = emp.name; 
+            document.getElementById('changePwdModal').classList.remove('hidden'); 
+            document.getElementById('changePwdModal').classList.add('flex'); 
+        } 
+    }
     function closePwdModal() { document.getElementById('changePwdModal').classList.add('hidden'); document.getElementById('changePwdModal').classList.remove('flex'); document.getElementById('changePwdForm').reset(); }
     function changeEmployeePassword() { const newPwd = document.getElementById('newPassword').value; const confirmPwd = document.getElementById('confirmNewPassword').value; if(!newPwd) { showToast('Enter new password', true); return; } if(newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; } showToast('Password changed'); closePwdModal(); }
     
-    document.getElementById('employeeForm')?.addEventListener('submit', async function(e) { e.preventDefault(); const name = document.getElementById('empName').value; if(!name) return; const employeeData = { name, email: document.getElementById('empEmail').value, phone: document.getElementById('empPhone').value, role: document.getElementById('empRole').value, department: document.getElementById('empDepartment').value, salary: document.getElementById('empSalary').value }; await addEmployeeToAPI(employeeData); addActivityLog(`Added new employee: ${name}`); closeModal(); document.getElementById('employeeForm').reset(); });
-    document.getElementById('editEmployeeForm')?.addEventListener('submit', async function(e) { e.preventDefault(); const id = parseInt(document.getElementById('editEmpId').value); const employeeData = { name: document.getElementById('editEmpName').value, email: document.getElementById('editEmpEmail').value, phone: document.getElementById('editEmpPhone').value, role: document.getElementById('editEmpRole').value, department: document.getElementById('editEmpDepartment').value, salary: document.getElementById('editEmpSalary').value }; await updateEmployeeInAPI(id, employeeData); addActivityLog(`Updated employee: ${employeeData.name}`); closeEditModal(); });
+    document.getElementById('employeeForm')?.addEventListener('submit', async function(e) { 
+        e.preventDefault(); 
+        const name = document.getElementById('empName').value; 
+        if(!name) return; 
+        const employeeData = { 
+            name, 
+            email: document.getElementById('empEmail').value, 
+            phone: document.getElementById('empPhone').value, 
+            role: document.getElementById('empRole').value, 
+            department: document.getElementById('empDepartment').value, 
+            salary: document.getElementById('empSalary').value 
+        }; 
+        await addEmployeeToAPI(employeeData); 
+        addActivityLog(`Added new employee: ${name}`); 
+        closeModal(); 
+        document.getElementById('employeeForm').reset(); 
+    });
+    
+    document.getElementById('editEmployeeForm')?.addEventListener('submit', async function(e) { 
+        e.preventDefault(); 
+        const id = parseInt(document.getElementById('editEmpId').value); 
+        const employeeData = { 
+            name: document.getElementById('editEmpName').value, 
+            email: document.getElementById('editEmpEmail').value, 
+            phone: document.getElementById('editEmpPhone').value, 
+            role: document.getElementById('editEmpRole').value, 
+            department: document.getElementById('editEmpDepartment').value, 
+            salary: document.getElementById('editEmpSalary').value 
+        }; 
+        await updateEmployeeInAPI(id, employeeData); 
+        addActivityLog(`Updated employee: ${employeeData.name}`); 
+        closeEditModal(); 
+    });
+    
     document.getElementById('changePwdForm')?.addEventListener('submit', function(e) { e.preventDefault(); changeEmployeePassword(); });
     
     // ==================== TASKS RENDER ====================
     function renderTasks() {
-        const pendingDiv = document.getElementById('pendingTasksList'); const completedDiv = document.getElementById('completedTasksList');
-        if(tasks.length === 0) {
-            if(pendingDiv) pendingDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No pending tasks</div>';
-            if(completedDiv) completedDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No completed tasks</div>';
-            document.getElementById('pendingTasksBadgeInline') && (document.getElementById('pendingTasksBadgeInline').innerText = '0');
-            return;
+        const pendingDiv = document.getElementById('pendingTasksList'); 
+        const completedDiv = document.getElementById('completedTasksList');
+        
+        let filteredTasks = tasks;
+        if (currentSearchTerm && currentSearchTerm !== '') {
+            filteredTasks = tasks.filter(t => 
+                t.title?.toLowerCase().includes(currentSearchTerm) ||
+                t.description?.toLowerCase().includes(currentSearchTerm) ||
+                t.department?.toLowerCase().includes(currentSearchTerm)
+            );
         }
-        const pendingTasks = tasks.filter(t => !t.completed);
-        const completedTasks = tasks.filter(t => t.completed);
+        
+        const pendingTasks = filteredTasks.filter(t => !t.completed);
+        const completedTasks = filteredTasks.filter(t => t.completed);
+        
         document.getElementById('pendingTasksBadgeInline') && (document.getElementById('pendingTasksBadgeInline').innerText = pendingTasks.length);
-        if(pendingDiv) pendingDiv.innerHTML = pendingTasks.map(t => `<div class="task-item"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm">${escapeHtml(t.title)}</p><p class="text-xs text-gray-500 mt-1">${escapeHtml(t.description)}</p><span class="text-xs text-blue-500">${t.department}</span></div><input type="checkbox" onchange="toggleTask(${t.id})" class="w-5 h-5"></div></div>`).join('');
-        if(completedDiv) completedDiv.innerHTML = completedTasks.map(t => `<div class="task-item opacity-75"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm line-through text-gray-400">${escapeHtml(t.title)}</p><p class="text-xs text-gray-400">${escapeHtml(t.description)}</p></div><i class="fas fa-check-circle text-green-500"></i></div></div>`).join('');
+        
+        if(pendingDiv) {
+            if(pendingTasks.length === 0 && currentSearchTerm && currentSearchTerm !== '') {
+                pendingDiv.innerHTML = `<div class="text-center text-gray-400 py-8">No pending tasks matching "${currentSearchTerm}"</div>`;
+            } else if(pendingTasks.length === 0) {
+                pendingDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No pending tasks</div>';
+            } else {
+                pendingDiv.innerHTML = pendingTasks.map(t => `
+                    <div class="task-item">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-semibold text-sm">${escapeHtml(t.title)}</p>
+                                <p class="text-xs text-gray-500 mt-1">${escapeHtml(t.description)}</p>
+                                <span class="text-xs text-blue-500">${t.department}</span>
+                            </div>
+                            <input type="checkbox" onchange="toggleTask(${t.id})" class="w-5 h-5 cursor-pointer">
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        if(completedDiv) {
+            if(completedTasks.length === 0 && currentSearchTerm && currentSearchTerm !== '') {
+                completedDiv.innerHTML = `<div class="text-center text-gray-400 py-8">No completed tasks matching "${currentSearchTerm}"</div>`;
+            } else if(completedTasks.length === 0) {
+                completedDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No completed tasks</div>';
+            } else {
+                completedDiv.innerHTML = completedTasks.map(t => `
+                    <div class="task-item opacity-75">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-semibold text-sm line-through text-gray-400">${escapeHtml(t.title)}</p>
+                                <p class="text-xs text-gray-400">${escapeHtml(t.description)}</p>
+                            </div>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
     }
     
-    async function toggleTask(id) { const task = tasks.find(t => t.id === id); if(task) { await toggleTaskInAPI(id, !task.completed); addActivityLog(task.completed ? `Task marked incomplete: ${task.title}` : `Task completed: ${task.title}`); } }
+    async function toggleTask(id) { 
+        const task = tasks.find(t => t.id === id); 
+        if(task) { 
+            await toggleTaskInAPI(id, !task.completed); 
+            addActivityLog(task.completed ? `Task marked incomplete: ${task.title}` : `Task completed: ${task.title}`); 
+        } 
+    }
+    
     function openAddTaskModal() { document.getElementById('taskModal').classList.remove('hidden'); document.getElementById('taskModal').classList.add('flex'); }
     function closeTaskModal() { document.getElementById('taskModal').classList.add('hidden'); document.getElementById('taskModal').classList.remove('flex'); document.getElementById('taskTitle').value = ''; document.getElementById('taskDescription').value = ''; }
-    async function addNewTask() { const title = document.getElementById('taskTitle').value; if(!title) { showToast('Enter task title', true); return; } const taskData = { title, description: document.getElementById('taskDescription').value || 'No description', department: document.getElementById('taskDepartment').value }; await addTaskToAPI(taskData); addActivityLog(`Added new task: ${title}`); closeTaskModal(); }
+    
+    async function addNewTask() { 
+        const title = document.getElementById('taskTitle').value; 
+        if(!title) { showToast('Enter task title', true); return; } 
+        const taskData = { 
+            title, 
+            description: document.getElementById('taskDescription').value || 'No description', 
+            department: document.getElementById('taskDepartment').value 
+        }; 
+        await addTaskToAPI(taskData); 
+        addActivityLog(`Added new task: ${title}`); 
+        closeTaskModal(); 
+    }
     
     // ==================== MESSAGES RENDER ====================
-    function formatTime(date) { if(!date) return 'Just now'; const d = new Date(date); const now = new Date(); const diff = now - d; const minutes = Math.floor(diff / 60000); const hours = Math.floor(diff / 3600000); const days = Math.floor(diff / 86400000); if(minutes < 60) return `${minutes} min ago`; if(hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`; return `${days} day${days > 1 ? 's' : ''} ago`; }
+    function formatTime(date) { 
+        if(!date) return 'Just now'; 
+        const d = new Date(date); 
+        const now = new Date(); 
+        const diff = now - d; 
+        const minutes = Math.floor(diff / 60000); 
+        const hours = Math.floor(diff / 3600000); 
+        const days = Math.floor(diff / 86400000); 
+        if(minutes < 60) return `${minutes} min ago`; 
+        if(hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`; 
+        return `${days} day${days > 1 ? 's' : ''} ago`; 
+    }
     
     function renderMessagesList() {
-        const convDiv = document.getElementById('messagesList'); if(!convDiv) return;
-        if(messages.length === 0) {
+        const convDiv = document.getElementById('messagesList'); 
+        if(!convDiv) return;
+        
+        let filteredMessages = messages;
+        if (currentSearchTerm && currentSearchTerm !== '') {
+            filteredMessages = messages.filter(m => 
+                m.from_department?.toLowerCase().includes(currentSearchTerm) ||
+                m.subject?.toLowerCase().includes(currentSearchTerm) ||
+                m.message?.toLowerCase().includes(currentSearchTerm)
+            );
+        }
+        
+        if(filteredMessages.length === 0 && currentSearchTerm && currentSearchTerm !== '') {
+            convDiv.innerHTML = `<div class="text-center text-gray-400 py-8">No messages matching "${currentSearchTerm}"</div>`;
+            return;
+        }
+        
+        if(filteredMessages.length === 0) {
             convDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No messages found</div>';
             return;
         }
-        convDiv.innerHTML = messages.map(m => `<div class="message-item p-3 rounded-lg ${!m.is_read ? 'message-unread' : 'hover:bg-gray-50'}" onclick="viewConversation(${m.id})"><div class="flex justify-between"><span class="font-semibold">${escapeHtml(m.from_department)} Dept</span><span class="text-xs text-gray-400">${formatTime(m.created_at)}</span></div><p class="text-sm truncate">${escapeHtml(m.subject)}</p><p class="text-xs text-gray-400">${m.reply_message ? 'Replied' : 'Awaiting reply'}</p></div>`).join('');
+        
+        convDiv.innerHTML = filteredMessages.map(m => `
+            <div class="message-item p-3 rounded-lg ${!m.is_read ? 'message-unread' : 'hover:bg-gray-50'}" onclick="viewConversation(${m.id})">
+                <div class="flex justify-between">
+                    <span class="font-semibold">${escapeHtml(m.from_department)} Dept</span>
+                    <span class="text-xs text-gray-400">${formatTime(m.created_at)}</span>
+                </div>
+                <p class="text-sm truncate">${escapeHtml(m.subject)}</p>
+                <div class="flex justify-between items-center mt-1">
+                    <p class="text-xs text-gray-400">${m.reply_message ? 'Replied' : 'Awaiting reply'}</p>
+                    <button onclick="event.stopPropagation(); deleteMessage(${m.id})" class="text-red-500 hover:text-red-700 text-xs" title="Delete Message">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
         updateDashboardCounts();
     }
     
+    async function deleteMessage(id) {
+        if(confirm('Are you sure you want to delete this message?')) {
+            await deleteMessageFromAPI(id);
+            addActivityLog(`Deleted message ID ${id}`);
+        }
+    }
+    
     function viewConversation(id) {
-        const msg = messages.find(m => m.id === id); if(msg && !msg.is_read) { msg.is_read = true; renderMessagesList(); updateDashboardCounts(); }
+        const msg = messages.find(m => m.id === id); 
+        if(msg && !msg.is_read) { 
+            msg.is_read = true; 
+            renderMessagesList(); 
+            updateDashboardCounts(); 
+        }
+        
         const detailView = document.getElementById('messageDetailView');
-        let chatHtml = `<div class="mb-4 pb-4 border-b"><div class="flex justify-between items-center mb-3"><div><h3 class="font-bold text-lg">${escapeHtml(msg.from_department)} Department</h3><p class="text-sm text-gray-500">${formatTime(msg.created_at)}</p></div><span class="text-xs bg-gray-100 px-2 py-1 rounded">${escapeHtml(msg.subject)}</span></div><div class="chat-bubble chat-message"><p>${escapeHtml(msg.message)}</p></div>`;
-        if(msg.reply_message) { chatHtml += `<div class="chat-bubble chat-reply"><p class="font-semibold text-sm">Admin replied:</p><p>${escapeHtml(msg.reply_message)}</p><p class="text-xs text-gray-500 mt-1">${formatTime(msg.replied_at)}</p></div>`; }
-        chatHtml += `</div><div class="mt-4"><textarea id="replyText" rows="3" placeholder="Type your reply..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea><div class="flex justify-end mt-3"><button onclick="sendReply(${msg.id})" class="btn-primary text-white px-5 py-2 rounded-lg"><i class="fas fa-paper-plane mr-2"></i>Send Reply</button></div></div>`;
+        let chatHtml = `
+            <div class="mb-4 pb-4 border-b">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <h3 class="font-bold text-lg">${escapeHtml(msg.from_department)} Department</h3>
+                        <p class="text-sm text-gray-500">${formatTime(msg.created_at)}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <span class="text-xs bg-gray-100 px-2 py-1 rounded">${escapeHtml(msg.subject)}</span>
+                        <button onclick="deleteMessage(${msg.id})" class="text-red-500 hover:text-red-700 text-sm" title="Delete Message">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                <div class="chat-bubble chat-message">
+                    <p>${escapeHtml(msg.message)}</p>
+                </div>
+        `;
+        
+        if(msg.reply_message) { 
+            chatHtml += `
+                <div class="chat-bubble chat-reply">
+                    <p class="font-semibold text-sm">Admin replied:</p>
+                    <p>${escapeHtml(msg.reply_message)}</p>
+                    <p class="text-xs text-gray-500 mt-1">${formatTime(msg.replied_at)}</p>
+                </div>
+            `; 
+        }
+        
+        chatHtml += `
+            </div>
+            <div class="mt-4">
+                <textarea id="replyText" rows="3" placeholder="Type your reply..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                <div class="flex justify-end gap-2 mt-3">
+                    <button onclick="sendReply(${msg.id})" class="btn-primary text-white px-5 py-2 rounded-lg">
+                        <i class="fas fa-paper-plane mr-2"></i>Send Reply
+                    </button>
+                </div>
+            </div>
+        `;
         detailView.innerHTML = chatHtml;
     }
     
-    async function sendReply(msgId) { const replyText = document.getElementById('replyText')?.value; if(!replyText || replyText.trim() === '') { showToast('Please enter a reply', true); return; } await sendReplyToAPI(msgId, replyText); addActivityLog(`Replied to message ID ${msgId}`); document.getElementById('replyText').value = ''; }
+    async function sendReply(msgId) { 
+        const replyText = document.getElementById('replyText')?.value; 
+        if(!replyText || replyText.trim() === '') { showToast('Please enter a reply', true); return; } 
+        await sendReplyToAPI(msgId, replyText); 
+        addActivityLog(`Replied to message ID ${msgId}`); 
+        document.getElementById('replyText').value = ''; 
+    }
     
     // ==================== PROJECTS RENDER ====================
     function renderProjects() { 
         const projectsGrid = document.getElementById('projectsGrid'); 
         if(!projectsGrid) return;
+        
         if(projects.length === 0) {
             projectsGrid.innerHTML = '<div class="col-span-3 text-center text-gray-400 py-8">No projects found</div>';
             return;
         }
-        projectsGrid.innerHTML = projects.map(p => `<div class="bg-white border rounded-xl overflow-hidden hover:shadow-lg cursor-pointer" onclick="showProjectDetails(${p.id})"><div class="h-32 bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><i class="fas fa-building text-white text-4xl"></i></div><div class="p-4"><h4 class="font-bold">${escapeHtml(p.name)}</h4><p class="text-sm text-gray-500">Client: ${escapeHtml(p.client_name)}</p><p class="text-sm font-semibold text-blue-600">TZS ${parseFloat(p.amount).toLocaleString()}</p><div class="mt-3"><div class="flex justify-between text-xs"><span>Progress</span><span>${p.progress}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full" style="width: ${p.progress}%"></div></div></div><span class="inline-block mt-2 text-xs px-2 py-1 rounded-full ${p.status === 'completed' ? 'bg-green-100 text-green-700' : (p.status === 'in_progress' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700')}">${p.status}</span></div></div>`).join('');
+        
+        projectsGrid.innerHTML = projects.map(p => `
+            <div class="bg-white border rounded-xl overflow-hidden hover:shadow-lg cursor-pointer" onclick="showProjectDetails(${p.id})">
+                <div class="h-32 bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                    <i class="fas fa-building text-white text-4xl"></i>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-bold">${escapeHtml(p.name)}</h4>
+                    <p class="text-sm text-gray-500">Client: ${escapeHtml(p.client_name)}</p>
+                    <p class="text-sm font-semibold text-blue-600">TZS ${parseFloat(p.amount).toLocaleString()}</p>
+                    <div class="mt-3">
+                        <div class="flex justify-between text-xs">
+                            <span>Progress</span>
+                            <span>${p.progress}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: ${p.progress}%"></div>
+                        </div>
+                    </div>
+                    <span class="inline-block mt-2 text-xs px-2 py-1 rounded-full ${p.status === 'completed' ? 'bg-green-100 text-green-700' : (p.status === 'in_progress' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700')}">
+                        ${p.status}
+                    </span>
+                </div>
+            </div>
+        `).join('');
     }
     
-    function showProjectDetails(id) { const project = projects.find(p => p.id === id); if(project) alert(`Project: ${project.name}\nClient: ${project.client_name}\nAmount: TZS ${parseFloat(project.amount).toLocaleString()}\nStatus: ${project.status}\nProgress: ${project.progress}%`); }
+    function showProjectDetails(id) { 
+        const project = projects.find(p => p.id === id); 
+        if(project) alert(`Project: ${project.name}\nClient: ${project.client_name}\nAmount: TZS ${parseFloat(project.amount).toLocaleString()}\nStatus: ${project.status}\nProgress: ${project.progress}%`); 
+    }
     
     // ==================== REPORTS ====================
-    let currentDept = ''; let currentReportType = 'daily';
-    const reportDepartments = [{ name: "Managers", displayName: "Managers", color: "purple", icon: "fa-user-tie" }, { name: "Finance & Accounting", displayName: "Finance", color: "green", icon: "fa-calculator" }, { name: "Sales & Marketing", displayName: "Sales", color: "orange", icon: "fa-chart-line" }, { name: "Secretary", displayName: "Secretary", color: "red", icon: "fa-envelope" }];
+    let currentDept = ''; 
+    let currentReportType = 'daily';
+    const reportDepartments = [
+        { name: "Managers", displayName: "Managers", color: "purple", icon: "fa-user-tie" }, 
+        { name: "Finance & Accounting", displayName: "Finance", color: "green", icon: "fa-calculator" }, 
+        { name: "Sales & Marketing", displayName: "Sales", color: "orange", icon: "fa-chart-line" }, 
+        { name: "Secretary", displayName: "Secretary", color: "red", icon: "fa-envelope" }
+    ];
     
     function renderReportDepartmentsGrid() { 
         const grid = document.getElementById('reportDepartmentsGrid'); 
-        if(grid) grid.innerHTML = reportDepartments.map(dept => `<div class="bg-white rounded-xl shadow-sm border-l-4 border-${dept.color}-500 p-5 cursor-pointer hover:shadow-lg transition" onclick="openDepartmentReports('${dept.displayName}')"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-${dept.color}-100 rounded-full flex items-center justify-center"><i class="fas ${dept.icon} text-${dept.color}-600 text-xl"></i></div><div><h3 class="font-bold text-lg">${dept.name}</h3><p class="text-sm text-gray-500">Department Reports</p></div></div><div class="mt-3 flex justify-between"><span class="text-gray-500 text-sm">Reports Available</span><span class="font-semibold bg-${dept.color}-100 px-2 py-1 rounded text-xs">4 Types</span></div></div>`).join(''); 
+        if(grid) grid.innerHTML = reportDepartments.map(dept => `
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-${dept.color}-500 p-5 cursor-pointer hover:shadow-lg transition" onclick="openDepartmentReports('${dept.displayName}')">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-${dept.color}-100 rounded-full flex items-center justify-center">
+                        <i class="fas ${dept.icon} text-${dept.color}-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg">${dept.name}</h3>
+                        <p class="text-sm text-gray-500">Department Reports</p>
+                    </div>
+                </div>
+                <div class="mt-3 flex justify-between">
+                    <span class="text-gray-500 text-sm">Reports Available</span>
+                    <span class="font-semibold bg-${dept.color}-100 px-2 py-1 rounded text-xs">4 Types</span>
+                </div>
+            </div>
+        `).join(''); 
     }
     
     async function openDepartmentReports(dept) { 
@@ -1074,31 +1513,103 @@
                           type === 'monthly' ? new Date().toLocaleString('default', { month: 'long', year: 'numeric' }) :
                           new Date().getFullYear().toString();
         
-        let html = `<div class="report-export-content"><div class="mb-6 text-center"><h2 class="text-xl font-bold">${dept} Department - ${type.charAt(0).toUpperCase() + type.slice(1)} Report</h2><p class="text-gray-500">Period: ${periodText}</p><p class="text-gray-400 text-sm">Generated: ${new Date().toLocaleString()}</p></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">`;
+        let html = `
+            <div class="report-export-content">
+                <div class="mb-6 text-center">
+                    <h2 class="text-xl font-bold">${dept} Department - ${type.charAt(0).toUpperCase() + type.slice(1)} Report</h2>
+                    <p class="text-gray-500">Period: ${periodText}</p>
+                    <p class="text-gray-400 text-sm">Generated: ${new Date().toLocaleString()}</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        `;
         
+        // Show zeros until data is added
         if(dept === 'Managers') {
-            html += `<div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Completed Projects</p><p class="text-2xl font-bold text-green-600">${data.completed_projects || 0}</p></div>
-                     <div class="bg-orange-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">In Progress</p><p class="text-2xl font-bold text-orange-600">${data.in_progress_projects || 0}</p></div>
-                     <div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Projects</p><p class="text-2xl font-bold text-blue-600">${data.total_projects || 0}</p></div>
-                     <div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Revenue</p><p class="text-2xl font-bold text-purple-600">TZS ${(data.total_revenue || 0).toLocaleString()}</p></div>`;
+            html += `
+                <div class="bg-green-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Completed Projects</p>
+                    <p class="text-2xl font-bold text-green-600">0</p>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">In Progress</p>
+                    <p class="text-2xl font-bold text-orange-600">0</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Total Projects</p>
+                    <p class="text-2xl font-bold text-blue-600">0</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Total Revenue</p>
+                    <p class="text-2xl font-bold text-purple-600">TZS 0</p>
+                </div>
+            `;
         } else if(dept === 'Finance') {
-            html += `<div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Income</p><p class="text-2xl font-bold text-green-600">TZS ${(data.total_income || 0).toLocaleString()}</p></div>
-                     <div class="bg-red-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Expenses</p><p class="text-2xl font-bold text-red-600">TZS ${(data.total_expenses || 0).toLocaleString()}</p></div>
-                     <div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Net Profit</p><p class="text-2xl font-bold text-blue-600">TZS ${(data.net_profit || 0).toLocaleString()}</p></div>
-                     <div class="bg-yellow-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Pending Invoices</p><p class="text-2xl font-bold text-yellow-600">${data.pending_invoices || 0}</p></div>`;
+            html += `
+                <div class="bg-green-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Total Income</p>
+                    <p class="text-2xl font-bold text-green-600">TZS 0</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Total Expenses</p>
+                    <p class="text-2xl font-bold text-red-600">TZS 0</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Net Profit</p>
+                    <p class="text-2xl font-bold text-blue-600">TZS 0</p>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Pending Invoices</p>
+                    <p class="text-2xl font-bold text-yellow-600">0</p>
+                </div>
+            `;
         } else if(dept === 'Sales') {
-            html += `<div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Orders</p><p class="text-2xl font-bold text-blue-600">${data.total_orders || 0}</p></div>
-                     <div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Revenue</p><p class="text-2xl font-bold text-green-600">TZS ${(data.revenue || 0).toLocaleString()}</p></div>
-                     <div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">New Leads</p><p class="text-2xl font-bold text-purple-600">${data.new_leads || 0}</p></div>
-                     <div class="bg-orange-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Conversions</p><p class="text-2xl font-bold text-orange-600">${data.conversions || 0}</p></div>`;
+            html += `
+                <div class="bg-blue-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Total Orders</p>
+                    <p class="text-2xl font-bold text-blue-600">0</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Revenue</p>
+                    <p class="text-2xl font-bold text-green-600">TZS 0</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">New Leads</p>
+                    <p class="text-2xl font-bold text-purple-600">0</p>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Conversions</p>
+                    <p class="text-2xl font-bold text-orange-600">0</p>
+                </div>
+            `;
         } else if(dept === 'Secretary') {
-            html += `<div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Messages</p><p class="text-2xl font-bold text-blue-600">${data.messages || 0}</p></div>
-                     <div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Appointments</p><p class="text-2xl font-bold text-green-600">${data.appointments || 0}</p></div>
-                     <div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Documents</p><p class="text-2xl font-bold text-purple-600">${data.documents || 0}</p></div>
-                     <div class="bg-orange-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Pending Tasks</p><p class="text-2xl font-bold text-orange-600">${data.pending_tasks || 0}</p></div>`;
+            html += `
+                <div class="bg-blue-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Messages</p>
+                    <p class="text-2xl font-bold text-blue-600">0</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Appointments</p>
+                    <p class="text-2xl font-bold text-green-600">0</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Documents</p>
+                    <p class="text-2xl font-bold text-purple-600">0</p>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-xl text-center">
+                    <p class="text-sm text-gray-600">Pending Tasks</p>
+                    <p class="text-2xl font-bold text-orange-600">0</p>
+                </div>
+            `;
         }
         
-        html += `</div><div class="border-t pt-4 mt-4"><p class="text-gray-600">This ${type} report shows the performance of the ${dept} department.</p><p class="text-gray-500 text-sm mt-2">Report generated from live database data.</p></div></div>`;
+        html += `
+                </div>
+                <div class="border-t pt-4 mt-4">
+                    <p class="text-gray-600">This ${type} report shows the performance of the ${dept} department.</p>
+                    <p class="text-gray-500 text-sm mt-2">Report will show data once departments submit their reports.</p>
+                </div>
+            </div>
+        `;
         document.getElementById('reportContent').innerHTML = html;
     }
     
@@ -1108,11 +1619,33 @@
                           type === 'monthly' ? new Date().toLocaleString('default', { month: 'long', year: 'numeric' }) :
                           new Date().getFullYear().toString();
         
-        let html = `<div class="report-export-content"><div class="mb-6 text-center"><h2 class="text-xl font-bold">${dept} Department - ${type.charAt(0).toUpperCase() + type.slice(1)} Report</h2><p class="text-gray-500">Period: ${periodText}</p><p class="text-gray-400 text-sm">Generated: ${new Date().toLocaleString()}</p></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"><div class="bg-gray-50 p-4 rounded-xl text-center col-span-4"><p class="text-sm text-gray-600">No Data Available</p><p class="text-lg text-gray-500 mt-2">Please add data to the database to generate reports</p></div></div><div class="border-t pt-4 mt-4"><p class="text-gray-600">No report data available for ${dept} department. Please ensure data exists in the database.</p><p class="text-gray-500 text-sm mt-2">Report generated from live database data.</p></div></div>`;
+        let html = `
+            <div class="report-export-content">
+                <div class="mb-6 text-center">
+                    <h2 class="text-xl font-bold">${dept} Department - ${type.charAt(0).toUpperCase() + type.slice(1)} Report</h2>
+                    <p class="text-gray-500">Period: ${periodText}</p>
+                    <p class="text-gray-400 text-sm">Generated: ${new Date().toLocaleString()}</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-gray-50 p-4 rounded-xl text-center col-span-4">
+                        <p class="text-sm text-gray-600">No Data Available</p>
+                        <p class="text-lg text-gray-500 mt-2">Reports will appear here once departments submit their data</p>
+                    </div>
+                </div>
+                <div class="border-t pt-4 mt-4">
+                    <p class="text-gray-600">No report data available for ${dept} department yet.</p>
+                    <p class="text-gray-500 text-sm mt-2">Departments can submit reports from their dashboards.</p>
+                </div>
+            </div>
+        `;
         document.getElementById('reportContent').innerHTML = html;
     }
     
-    function closeDepartmentReport() { document.getElementById('departmentReportView').classList.add('hidden'); document.getElementById('reportDepartmentsGrid').classList.remove('hidden'); renderReportDepartmentsGrid(); }
+    function closeDepartmentReport() { 
+        document.getElementById('departmentReportView').classList.add('hidden'); 
+        document.getElementById('reportDepartmentsGrid').classList.remove('hidden'); 
+        renderReportDepartmentsGrid(); 
+    }
     
     // ==================== EXPORT FUNCTIONS ====================
     function exportToPDF() {
@@ -1164,7 +1697,7 @@
         });
         
         if (excelData.length <= 4) {
-            excelData.push(['No data available', 'Please add data to database']);
+            excelData.push(['No data available', 'Reports will appear once departments submit data']);
         }
         
         excelData.push([]);
@@ -1182,25 +1715,163 @@
     }
     
     // ==================== SETTINGS FUNCTIONS ====================
-    function togglePassword(inputId, element) { const input = document.getElementById(inputId); if(input.type === 'password') { input.type = 'text'; element.classList.remove('fa-eye'); element.classList.add('fa-eye-slash'); } else { input.type = 'password'; element.classList.remove('fa-eye-slash'); element.classList.add('fa-eye'); } }
-    function changeAdminPassword() { const currentPwd = document.getElementById('currentPassword').value; const newPwd = document.getElementById('newAdminPassword').value; const confirmPwd = document.getElementById('confirmAdminPassword').value; if(!currentPwd) { showToast('Enter current password', true); return; } if(!newPwd) { showToast('Enter new password', true); return; } if(newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; } showToast('Password changed successfully'); addActivityLog('Admin password changed'); document.getElementById('currentPassword').value = ''; document.getElementById('newAdminPassword').value = ''; document.getElementById('confirmAdminPassword').value = ''; }
-    function changeSidebarColor(color, element) { const sidebar = document.getElementById('mainSidebar'); sidebar.style.background = color; sidebar.style.backgroundImage = 'none'; document.querySelectorAll('.color-option').forEach(opt => { opt.classList.remove('selected'); opt.style.transform = 'scale(1)'; }); if(element) { element.classList.add('selected'); element.style.transform = 'scale(1.05)'; } localStorage.setItem('sidebar_color', color); showToast('Sidebar color changed'); addActivityLog('Sidebar color changed'); }
-    function loadSavedSidebarColor() { const savedColor = localStorage.getItem('sidebar_color'); const sidebar = document.getElementById('mainSidebar'); if(savedColor && sidebar) { sidebar.style.background = savedColor; sidebar.style.backgroundImage = 'none'; } }
-    function createBackup() { const backup = { employees, tasks, messages, projects, timestamp: new Date().toISOString() }; localStorage.setItem('geotraverse_backup', JSON.stringify(backup)); showToast('Backup created successfully'); addActivityLog('System backup created'); }
-    function restoreBackup() { const backup = localStorage.getItem('geotraverse_backup'); if(backup) { const data = JSON.parse(backup); if(data.employees) employees = data.employees; if(data.tasks) tasks = data.tasks; if(data.messages) messages = data.messages; if(data.projects) projects = data.projects; renderEmployeeTable(); renderTasks(); renderMessagesList(); renderProjects(); updateDashboardCounts(); showToast('Backup restored successfully'); addActivityLog('System restored from backup'); } else { showToast('No backup found', true); } }
+    function togglePassword(inputId, element) { 
+        const input = document.getElementById(inputId); 
+        if(input.type === 'password') { 
+            input.type = 'text'; 
+            element.classList.remove('fa-eye'); 
+            element.classList.add('fa-eye-slash'); 
+        } else { 
+            input.type = 'password'; 
+            element.classList.remove('fa-eye-slash'); 
+            element.classList.add('fa-eye'); 
+        } 
+    }
+    
+    function changeAdminPassword() { 
+        const currentPwd = document.getElementById('currentPassword').value; 
+        const newPwd = document.getElementById('newAdminPassword').value; 
+        const confirmPwd = document.getElementById('confirmAdminPassword').value; 
+        if(!currentPwd) { showToast('Enter current password', true); return; } 
+        if(!newPwd) { showToast('Enter new password', true); return; } 
+        if(newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; } 
+        showToast('Password changed successfully'); 
+        addActivityLog('Admin password changed'); 
+        document.getElementById('currentPassword').value = ''; 
+        document.getElementById('newAdminPassword').value = ''; 
+        document.getElementById('confirmAdminPassword').value = ''; 
+    }
+    
+    function changeSidebarColor(color, element) { 
+        const sidebar = document.getElementById('mainSidebar'); 
+        sidebar.style.background = color; 
+        sidebar.style.backgroundImage = 'none'; 
+        document.querySelectorAll('.color-option').forEach(opt => { opt.classList.remove('selected'); opt.style.transform = 'scale(1)'; }); 
+        if(element) { element.classList.add('selected'); element.style.transform = 'scale(1.05)'; } 
+        localStorage.setItem('sidebar_color', color); 
+        showToast('Sidebar color changed'); 
+        addActivityLog('Sidebar color changed'); 
+    }
+    
+    function loadSavedSidebarColor() { 
+        const savedColor = localStorage.getItem('sidebar_color'); 
+        const sidebar = document.getElementById('mainSidebar'); 
+        if(savedColor && sidebar) { sidebar.style.background = savedColor; sidebar.style.backgroundImage = 'none'; } 
+    }
+    
+    function createBackup() { 
+        const backup = { employees, tasks, messages, projects, timestamp: new Date().toISOString() }; 
+        localStorage.setItem('geotraverse_backup', JSON.stringify(backup)); 
+        showToast('Backup created successfully'); 
+        addActivityLog('System backup created'); 
+    }
+    
+    function restoreBackup() { 
+        const backup = localStorage.getItem('geotraverse_backup'); 
+        if(backup) { 
+            const data = JSON.parse(backup); 
+            if(data.employees) employees = data.employees; 
+            if(data.tasks) tasks = data.tasks; 
+            if(data.messages) messages = data.messages; 
+            if(data.projects) projects = data.projects; 
+            renderEmployeeTable(); 
+            renderTasks(); 
+            renderMessagesList(); 
+            renderProjects(); 
+            updateDashboardCounts(); 
+            showToast('Backup restored successfully'); 
+            addActivityLog('System restored from backup'); 
+        } else { 
+            showToast('No backup found', true); 
+        } 
+    }
+    
     function saveGeneralSettings() { showToast('General settings saved'); addActivityLog('General settings updated'); }
     function saveEmailConfig() { showToast('Email configuration saved'); addActivityLog('Email configuration updated'); }
-    function updateDashboardCounts() { const pendingTasks = tasks.filter(t => !t.completed).length; const unreadMessages = messages.filter(m => !m.is_read).length; document.getElementById('pendingTasksCount') && (document.getElementById('pendingTasksCount').innerText = pendingTasks); document.getElementById('unreadMessagesCount') && (document.getElementById('unreadMessagesCount').innerText = unreadMessages); document.getElementById('pendingTasksBadge') && (document.getElementById('pendingTasksBadge').innerText = pendingTasks); document.getElementById('unreadMessagesBadge') && (document.getElementById('unreadMessagesBadge').innerText = unreadMessages); }
     
-    // ==================== SEARCH FUNCTION ====================
+    function updateDashboardCounts() { 
+        const pendingTasks = tasks.filter(t => !t.completed).length; 
+        const unreadMessages = messages.filter(m => !m.is_read).length; 
+        document.getElementById('pendingTasksCount') && (document.getElementById('pendingTasksCount').innerText = pendingTasks); 
+        document.getElementById('unreadMessagesCount') && (document.getElementById('unreadMessagesCount').innerText = unreadMessages); 
+        document.getElementById('pendingTasksBadge') && (document.getElementById('pendingTasksBadge').innerText = pendingTasks); 
+        document.getElementById('unreadMessagesBadge') && (document.getElementById('unreadMessagesBadge').innerText = unreadMessages); 
+    }
+    
+    // ==================== SEARCH FUNCTION (Real-time, inafanya kazi vizuri) ====================
     let currentSearchTerm = '';
-    function performSearch() { const searchTerm = document.getElementById('searchInput').value.toLowerCase(); currentSearchTerm = searchTerm; const activeSection = document.querySelector('.nav-item.active')?.getAttribute('data-section'); if(activeSection === 'employees') renderEmployeeTable(); else if(activeSection === 'tasks') renderTasks(); else if(activeSection === 'messages') renderMessagesList(); if(searchTerm === '') { currentSearchTerm = ''; renderEmployeeTable(); renderTasks(); renderMessagesList(); } }
+    let searchTimeout = null;
+    
+    function performSearch() { 
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim(); 
+        currentSearchTerm = searchTerm;
+        
+        if (searchTimeout) clearTimeout(searchTimeout);
+        
+        searchTimeout = setTimeout(() => {
+            const activeSection = document.querySelector('.nav-item.active')?.getAttribute('data-section');
+            
+            if (activeSection === 'employees') {
+                renderEmployeeTable();
+            } else if (activeSection === 'tasks') {
+                renderTasks();
+            } else if (activeSection === 'messages') {
+                renderMessagesList();
+            }
+            
+            if (!activeSection || activeSection === 'dashboard') {
+                console.log('Search term:', searchTerm);
+            }
+        }, 300);
+    }
     
     // ==================== NAVIGATION ====================
-    const sections = { dashboard: 'dashboardSection', employees: 'employeeSection', departments: 'departmentsSection', reports: 'reportsSection', tasks: 'tasksSection', messages: 'messagesSection', settings: 'settingsSection' };
-    function showSection(sectionId) { Object.values(sections).forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); document.getElementById(sectionId).classList.remove('hidden'); if(sectionId === 'employees') renderEmployeeTable(); if(sectionId === 'tasks') renderTasks(); if(sectionId === 'messages') renderMessagesList(); if(sectionId === 'projects') renderProjects(); if(sectionId === 'departments') renderDepartmentsGrid(); if(sectionId === 'reports') renderReportDepartmentsGrid(); if(sectionId === 'settings') { } closeMobileSidebar(); }
-    document.querySelectorAll('.nav-item').forEach(item => { item.addEventListener('click', (e) => { e.preventDefault(); const section = item.getAttribute('data-section'); if(section && sections[section]) { showSection(sections[section]); document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); item.classList.add('active'); } }); });
-    document.getElementById('homeButton')?.addEventListener('click', () => { showSection('dashboardSection'); document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); document.querySelector('.nav-item[data-section="dashboard"]')?.classList.add('active'); });
+    const sections = { 
+        dashboard: 'dashboardSection', 
+        employees: 'employeeSection', 
+        departments: 'departmentsSection', 
+        reports: 'reportsSection', 
+        tasks: 'tasksSection', 
+        messages: 'messagesSection', 
+        settings: 'settingsSection' 
+    };
+    
+    function showSection(sectionId) { 
+        Object.values(sections).forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); 
+        document.getElementById(sectionId).classList.remove('hidden'); 
+        
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.value = '';
+            currentSearchTerm = '';
+        }
+        
+        if(sectionId === 'employees') renderEmployeeTable(); 
+        if(sectionId === 'tasks') renderTasks(); 
+        if(sectionId === 'messages') renderMessagesList(); 
+        if(sectionId === 'projects') renderProjects(); 
+        if(sectionId === 'departments') renderDepartmentsGrid(); 
+        if(sectionId === 'reports') renderReportDepartmentsGrid(); 
+        closeMobileSidebar(); 
+    }
+    
+    document.querySelectorAll('.nav-item').forEach(item => { 
+        item.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            const section = item.getAttribute('data-section'); 
+            if(section && sections[section]) { 
+                showSection(sections[section]); 
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); 
+                item.classList.add('active'); 
+            } 
+        }); 
+    });
+    
+    document.getElementById('homeButton')?.addEventListener('click', () => { 
+        showSection('dashboardSection'); 
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); 
+        document.querySelector('.nav-item[data-section="dashboard"]')?.classList.add('active'); 
+    });
     
     // ==================== MOBILE SIDEBAR ====================
     function openMobileSidebar() { document.getElementById('mainSidebar')?.classList.add('mobile-open'); document.getElementById('mobileMenuOverlay')?.classList.add('open'); }
@@ -1208,8 +1879,19 @@
     document.getElementById('mobileMenuBtn')?.addEventListener('click', openMobileSidebar);
     
     // ==================== DARK MODE ====================
-    let isDark = false; document.getElementById('darkModeToggle')?.addEventListener('click', () => { isDark = !isDark; document.body.classList.toggle('dark-mode', isDark); const icon = document.getElementById('darkModeIcon'); if(icon) { icon.classList.toggle('fa-sun', isDark); icon.classList.toggle('fa-moon', !isDark); } localStorage.setItem('dark_mode', isDark); });
-    function loadDarkMode() { const saved = localStorage.getItem('dark_mode'); if(saved === 'true') { isDark = true; document.body.classList.add('dark-mode'); const icon = document.getElementById('darkModeIcon'); if(icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); } } }
+    let isDark = false; 
+    document.getElementById('darkModeToggle')?.addEventListener('click', () => { 
+        isDark = !isDark; 
+        document.body.classList.toggle('dark-mode', isDark); 
+        const icon = document.getElementById('darkModeIcon'); 
+        if(icon) { icon.classList.toggle('fa-sun', isDark); icon.classList.toggle('fa-moon', !isDark); } 
+        localStorage.setItem('dark_mode', isDark); 
+    });
+    
+    function loadDarkMode() { 
+        const saved = localStorage.getItem('dark_mode'); 
+        if(saved === 'true') { isDark = true; document.body.classList.add('dark-mode'); const icon = document.getElementById('darkModeIcon'); if(icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); } } 
+    }
     
     // ==================== SCROLL TO TOP ====================
     window.addEventListener('scroll', () => { const scrollBtn = document.getElementById('scrollTopBtn'); if(scrollBtn) scrollBtn.classList.toggle('visible', window.scrollY > 300); });
@@ -1235,14 +1917,50 @@
         loadDarkMode(); 
         loadActivityLogs();
         showSection('dashboardSection'); 
-        document.getElementById('searchInput')?.addEventListener('input', performSearch); 
+        
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', performSearch);
+        }
+        
         showLoading(false);
-        console.log('Dashboard initialized with real backend data'); 
+        console.log('Dashboard initialized successfully!'); 
     }
     init();
     
     // Expose global functions
-    window.openAddEmployeeModal = openAddEmployeeModal; window.closeModal = closeModal; window.openEditEmployeeModal = openEditEmployeeModal; window.closeEditModal = closeEditModal; window.deleteEmployee = deleteEmployee; window.openChangePwdModal = openChangePwdModal; window.closePwdModal = closePwdModal; window.toggleTask = toggleTask; window.openAddTaskModal = openAddTaskModal; window.closeTaskModal = closeTaskModal; window.addNewTask = addNewTask; window.viewConversation = viewConversation; window.sendReply = sendReply; window.showProjectDetails = showProjectDetails; window.showToast = showToast; window.openDepartmentDashboard = openDepartmentDashboard; window.goBackToDepartments = goBackToDepartments; window.openDepartmentReports = openDepartmentReports; window.loadReport = loadReport; window.closeDepartmentReport = closeDepartmentReport; window.exportToPDF = exportToPDF; window.exportToExcel = exportToExcel; window.changeAdminPassword = changeAdminPassword; window.changeSidebarColor = changeSidebarColor; window.createBackup = createBackup; window.restoreBackup = restoreBackup; window.clearAllLogs = clearAllLogs; window.saveGeneralSettings = saveGeneralSettings; window.saveEmailConfig = saveEmailConfig; window.togglePassword = togglePassword; window.exportEmployeesToExcel = exportEmployeesToExcel;
+    window.openAddEmployeeModal = openAddEmployeeModal; 
+    window.closeModal = closeModal; 
+    window.openEditEmployeeModal = openEditEmployeeModal; 
+    window.closeEditModal = closeEditModal; 
+    window.deleteEmployee = deleteEmployee; 
+    window.openChangePwdModal = openChangePwdModal; 
+    window.closePwdModal = closePwdModal; 
+    window.toggleTask = toggleTask; 
+    window.openAddTaskModal = openAddTaskModal; 
+    window.closeTaskModal = closeTaskModal; 
+    window.addNewTask = addNewTask; 
+    window.viewConversation = viewConversation; 
+    window.sendReply = sendReply; 
+    window.deleteMessage = deleteMessage;
+    window.showProjectDetails = showProjectDetails; 
+    window.showToast = showToast; 
+    window.openDepartmentDashboard = openDepartmentDashboard; 
+    window.goBackToDepartments = goBackToDepartments; 
+    window.openDepartmentReports = openDepartmentReports; 
+    window.loadReport = loadReport; 
+    window.closeDepartmentReport = closeDepartmentReport; 
+    window.exportToPDF = exportToPDF; 
+    window.exportToExcel = exportToExcel; 
+    window.changeAdminPassword = changeAdminPassword; 
+    window.changeSidebarColor = changeSidebarColor; 
+    window.createBackup = createBackup; 
+    window.restoreBackup = restoreBackup; 
+    window.clearAllLogs = clearAllLogs; 
+    window.saveGeneralSettings = saveGeneralSettings; 
+    window.saveEmailConfig = saveEmailConfig; 
+    window.togglePassword = togglePassword; 
+    window.exportEmployeesToExcel = exportEmployeesToExcel;
 </script>
 </body>
 </html>

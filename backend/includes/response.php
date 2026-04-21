@@ -1,24 +1,45 @@
 <?php
-// backend/includes/response.php
+// Call this at the beginning of your API files
+require_once __DIR__ . '/../includes/response.php';
 
-function sendSuccess($data = null, $message = "Success", $statusCode = 200) {
-    http_response_code($statusCode);
-    echo json_encode([
-        "success" => true,
-        "message" => $message,
-        "data" => $data,
-        "timestamp" => date('Y-m-d H:i:s')
-    ]);
-    exit();
+// Set headers
+setJsonHeader();
+setCorsHeaders();
+
+// Your code here...
+
+// Send success response
+sendSuccess($data, "Operation successful");
+
+// Send error response
+sendError("Something went wrong", 400);
+
+// Send validation error
+sendValidationError(['email' => 'Email is required'], 'Validation failed');
+
+// Send not found
+sendNotFound("Employee");
+
+// Send unauthorized
+sendUnauthorized();
+
+// Send forbidden
+sendForbidden();
+
+// Log activity
+logActivity($db, "User performed action", $userEmail);
+
+// Sanitize input
+$cleanName = sanitizeInput($_POST['name']);
+
+// Validate email
+if (isValidEmail($email)) {
+    // Email is valid
 }
 
-function sendError($message = "Error", $statusCode = 400) {
-    http_response_code($statusCode);
-    echo json_encode([
-        "success" => false,
-        "message" => $message,
-        "timestamp" => date('Y-m-d H:i:s')
-    ]);
-    exit();
-}
+// Generate token
+$token = generateToken();
+
+// Get JSON input
+$data = getJsonInput();
 ?>

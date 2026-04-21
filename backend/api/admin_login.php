@@ -1,6 +1,6 @@
 <?php
 // backend/api/admin_login.php
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 require_once '../includes/response.php';
 
 $data = json_decode(file_get_contents('php://input'), true);

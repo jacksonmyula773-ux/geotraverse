@@ -1,7 +1,29 @@
 <?php
 // backend/api/employees.php
-require_once '../config/database.php';
-require_once '../includes/response.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// Include database connection
+require_once __DIR__ . '/../config/database.php';
+
+function sendResponse($success, $message, $data = null, $code = 200) {
+    http_response_code($code);
+    echo json_encode([
+        'success' => $success,
+        'message' => $message,
+        'data' => $data
+    ]);
+    exit();
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -11,48 +33,71 @@ try {
     // GET - Fetch all employees
     if ($method === 'GET') {
         $stmt = $db->query("SELECT * FROM employees ORDER BY id DESC");
-        $employees = $stmt->fetchAll();
-        sendSuccess($employees);
+        $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        sendResponse(true, 'Employees fetched successfully', $employees);
     }
     
     // POST - Create new employee
     elseif ($method === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
         
-        if (empty($data['name']) || empty($data['email']) || empty($data['role']) || empty($data['department'])) {
-            sendError('Name, email, role and department are required', 400);
+        if (!$data) {
+            sendResponse(false, 'Invalid JSON data', null, 400);
+        }
+        
+        $name = trim($data['name'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $phone = trim($data['phone'] ?? '');
+        $role = trim($data['role'] ?? '');
+        $department = trim($data['department'] ?? '');
+        $salary = floatval($data['salary'] ?? 0);
+        
+        if (empty($name) || empty($email) || empty($role) || empty($department)) {
+            sendResponse(false, 'Name, email, role and department are required', null, 400);
         }
         
         // Check if email exists
         $check = $db->prepare("SELECT id FROM employees WHERE email = :email");
-        $check->execute([':email' => $data['email']]);
+        $check->execute([':email' => $email]);
         if ($check->fetch()) {
-            sendError('Employee with this email already exists', 400);
+            sendResponse(false, 'Employee with this email already exists', null, 400);
         }
         
         $stmt = $db->prepare("INSERT INTO employees (name, email, phone, role, department, salary, status) VALUES (:name, :email, :phone, :role, :department, :salary, 'active')");
-        $stmt->execute([
-            ':name' => $data['name'],
-            ':email' => $data['email'],
-            ':phone' => $data['phone'] ?? '',
-            ':role' => $data['role'],
-            ':department' => $data['department'],
-            ':salary' => $data['salary'] ?? 0
+        $result = $stmt->execute([
+            ':name' => $name,
+            ':email' => $email,
+            ':phone' => $phone,
+            ':role' => $role,
+            ':department' => $department,
+            ':salary' => $salary
         ]);
         
-        // Log activity
-        $log = $db->prepare("INSERT INTO activity_logs (action, user_email) VALUES ('Added new employee: " . $data['name'] . "', 'admin')");
-        $log->execute();
-        
-        sendSuccess(['id' => $db->lastInsertId()], 'Employee created successfully', 201);
+        if ($result) {
+            $newId = $db->lastInsertId();
+            
+            // Log activity
+            try {
+                $log = $db->prepare("INSERT INTO activity_logs (action, user_email) VALUES (:action, 'admin')");
+                $log->execute([':action' => "Added new employee: $name"]);
+            } catch(Exception $e) {
+                // Ignore log errors
+            }
+            
+            sendResponse(true, 'Employee created successfully', ['id' => $newId], 201);
+        } else {
+            sendResponse(false, 'Failed to create employee', null, 500);
+        }
     }
     
     // PUT - Update employee
     elseif ($method === 'PUT') {
-        $data = json_decode(file_get_contents('php://input'), true);
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
         
-        if (empty($data['id'])) {
-            sendError('Employee ID is required', 400);
+        if (!$data || empty($data['id'])) {
+            sendResponse(false, 'Employee ID is required', null, 400);
         }
         
         $stmt = $db->prepare("UPDATE employees SET name = :name, email = :email, phone = :phone, role = :role, department = :department, salary = :salary WHERE id = :id");
@@ -66,7 +111,7 @@ try {
             ':salary' => $data['salary'] ?? 0
         ]);
         
-        sendSuccess(null, 'Employee updated successfully');
+        sendResponse(true, 'Employee updated successfully');
     }
     
     // DELETE - Delete employee
@@ -74,7 +119,7 @@ try {
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         
         if (!$id) {
-            sendError('Employee ID is required', 400);
+            sendResponse(false, 'Employee ID is required', null, 400);
         }
         
         // Get employee name for log
@@ -86,14 +131,24 @@ try {
         $stmt->execute([':id' => $id]);
         
         if ($employee) {
-            $log = $db->prepare("INSERT INTO activity_logs (action, user_email) VALUES ('Deleted employee: " . $employee['name'] . "', 'admin')");
-            $log->execute();
+            try {
+                $log = $db->prepare("INSERT INTO activity_logs (action, user_email) VALUES (:action, 'admin')");
+                $log->execute([':action' => "Deleted employee: " . $employee['name']]);
+            } catch(Exception $e) {
+                // Ignore
+            }
         }
         
-        sendSuccess(null, 'Employee deleted successfully');
+        sendResponse(true, 'Employee deleted successfully');
+    }
+    
+    else {
+        sendResponse(false, 'Method not allowed', null, 405);
     }
     
 } catch(PDOException $e) {
-    sendError('Database error: ' . $e->getMessage(), 500);
+    sendResponse(false, 'Database error: ' . $e->getMessage(), null, 500);
+} catch(Exception $e) {
+    sendResponse(false, 'Server error: ' . $e->getMessage(), null, 500);
 }
 ?>
