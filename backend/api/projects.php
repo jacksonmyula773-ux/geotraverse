@@ -1,72 +1,114 @@
 <?php
 // backend/api/projects.php
-require_once __DIR__ . '/../config/database.php';
-require_once '../includes/response.php';
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+require_once '../config/database.php';
+
+function sendResponse($success, $message, $data = null, $code = 200) {
+    http_response_code($code);
+    echo json_encode(['success' => $success, 'message' => $message, 'data' => $data]);
+    exit();
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 try {
     $db = getDB();
     
+    // GET - Fetch all projects
     if ($method === 'GET') {
         $stmt = $db->query("SELECT * FROM projects ORDER BY id DESC");
-        $projects = $stmt->fetchAll();
-        sendSuccess($projects);
+        $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        sendResponse(true, 'Projects fetched successfully', $projects);
     }
     
+    // POST - Create new project
     elseif ($method === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
         
-        if (empty($data['name'])) {
-            sendError('Project name is required', 400);
+        if (!$data || empty($data['name'])) {
+            sendResponse(false, 'Project name is required', 400);
         }
         
-        $stmt = $db->prepare("INSERT INTO projects (name, client_name, amount, status, progress) VALUES (:name, :client, :amount, :status, :progress)");
+        $stmt = $db->prepare("INSERT INTO projects (name, client_name, client_phone, client_email, description, amount, status, progress, image_url, location, start_date, end_date) 
+                              VALUES (:name, :client_name, :client_phone, :client_email, :description, :amount, :status, :progress, :image_url, :location, :start_date, :end_date)");
+        
         $stmt->execute([
             ':name' => $data['name'],
-            ':client' => $data['client_name'] ?? '',
+            ':client_name' => $data['client_name'] ?? '',
+            ':client_phone' => $data['client_phone'] ?? '',
+            ':client_email' => $data['client_email'] ?? '',
+            ':description' => $data['description'] ?? '',
             ':amount' => $data['amount'] ?? 0,
             ':status' => $data['status'] ?? 'pending',
-            ':progress' => $data['progress'] ?? 0
+            ':progress' => $data['progress'] ?? 0,
+            ':image_url' => $data['image_url'] ?? '',
+            ':location' => $data['location'] ?? '',
+            ':start_date' => $data['start_date'] ?? null,
+            ':end_date' => $data['end_date'] ?? null
         ]);
         
-        sendSuccess(['id' => $db->lastInsertId()], 'Project created successfully', 201);
+        sendResponse(true, 'Project created successfully', ['id' => $db->lastInsertId()], 201);
     }
     
+    // PUT - Update project
     elseif ($method === 'PUT') {
-        $data = json_decode(file_get_contents('php://input'), true);
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
         
-        if (empty($data['id'])) {
-            sendError('Project ID is required', 400);
+        if (!$data || empty($data['id'])) {
+            sendResponse(false, 'Project ID is required', 400);
         }
         
-        $stmt = $db->prepare("UPDATE projects SET name = :name, client_name = :client, amount = :amount, status = :status, progress = :progress WHERE id = :id");
+        $stmt = $db->prepare("UPDATE projects SET name = :name, client_name = :client_name, client_phone = :client_phone, client_email = :client_email, description = :description, amount = :amount, status = :status, progress = :progress, image_url = :image_url, location = :location, start_date = :start_date, end_date = :end_date WHERE id = :id");
+        
         $stmt->execute([
             ':id' => $data['id'],
             ':name' => $data['name'],
-            ':client' => $data['client_name'] ?? '',
+            ':client_name' => $data['client_name'] ?? '',
+            ':client_phone' => $data['client_phone'] ?? '',
+            ':client_email' => $data['client_email'] ?? '',
+            ':description' => $data['description'] ?? '',
             ':amount' => $data['amount'] ?? 0,
             ':status' => $data['status'] ?? 'pending',
-            ':progress' => $data['progress'] ?? 0
+            ':progress' => $data['progress'] ?? 0,
+            ':image_url' => $data['image_url'] ?? '',
+            ':location' => $data['location'] ?? '',
+            ':start_date' => $data['start_date'] ?? null,
+            ':end_date' => $data['end_date'] ?? null
         ]);
         
-        sendSuccess(null, 'Project updated successfully');
+        sendResponse(true, 'Project updated successfully');
     }
     
+    // DELETE - Delete project
     elseif ($method === 'DELETE') {
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         
         if (!$id) {
-            sendError('Project ID is required', 400);
+            sendResponse(false, 'Project ID is required', 400);
         }
         
         $stmt = $db->prepare("DELETE FROM projects WHERE id = :id");
         $stmt->execute([':id' => $id]);
         
-        sendSuccess(null, 'Project deleted successfully');
+        sendResponse(true, 'Project deleted successfully');
+    }
+    
+    else {
+        sendResponse(false, 'Method not allowed', 405);
     }
     
 } catch(PDOException $e) {
-    sendError('Database error: ' . $e->getMessage(), 500);
+    sendResponse(false, 'Database error: ' . $e->getMessage(), 500);
 }
 ?>
