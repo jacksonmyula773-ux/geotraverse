@@ -14,7 +14,6 @@
     <style>
         * { font-family: 'Inter', sans-serif; }
         
-        /* Theme color variables */
         :root {
             --primary-color: #0f74ba;
             --primary-dark: #0a5a8e;
@@ -50,15 +49,40 @@
             .section-title { font-size: 1.5rem !important; }
         }
         
-        /* Floating Buttons */
-        .floating-sms {
+        /* Floating Buttons - 3 tu (WhatsApp, SMS, Call) */
+        .floating-wa {
             position: fixed;
-            bottom: 80px;
+            bottom: 100px;
             left: 15px;
             z-index: 100;
             animation: pulse 2s infinite;
-            width: 38px;
-            height: 38px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #25D366;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .floating-wa:hover {
+            background: #128C7E;
+            transform: scale(1.05);
+        }
+        
+        .floating-sms {
+            position: fixed;
+            bottom: 50px;
+            left: 15px;
+            z-index: 100;
+            animation: pulse 2s infinite;
+            animation-delay: 0.3s;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -67,6 +91,7 @@
             color: white;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         .floating-sms:hover {
             background: #4b5563;
@@ -75,13 +100,13 @@
         
         .floating-call {
             position: fixed;
-            bottom: 20px;
+            bottom: 150px;
             left: 15px;
             z-index: 100;
             animation: pulse 2s infinite;
-            animation-delay: 0.5s;
-            width: 38px;
-            height: 38px;
+            animation-delay: 0.6s;
+            width: 42px;
+            height: 42px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -96,33 +121,9 @@
             transform: scale(1.05);
         }
         
-        .floating-msg {
-            position: fixed;
-            bottom: 140px;
-            left: 15px;
-            z-index: 100;
-            animation: pulse 2s infinite;
-            animation-delay: 1s;
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: #10b981;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-        }
-        .floating-msg:hover {
-            background: #059669;
-            transform: scale(1.05);
-        }
-        
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.08); }
         }
         
         .service-card, .project-card, .product-item {
@@ -134,8 +135,7 @@
             box-shadow: 0 20px 30px -12px rgba(0,0,0,0.15);
         }
         
-        /* Icon styles */
-        .call-icon, .sms-icon, .message-icon {
+        .call-icon, .sms-icon, .wa-icon {
             cursor: pointer;
             transition: all 0.2s ease;
             display: inline-flex;
@@ -164,12 +164,12 @@
             color: white;
         }
         
-        .message-icon {
-            background: rgba(15, 116, 186, 0.1);
-            color: var(--primary-color);
+        .wa-icon {
+            background: rgba(37, 211, 102, 0.1);
+            color: #25D366;
         }
-        .message-icon:hover {
-            background: var(--primary-color);
+        .wa-icon:hover {
+            background: #25D366;
             color: white;
         }
         
@@ -270,7 +270,7 @@
         
         .scroll-top {
             position: fixed;
-            bottom: 150px;
+            bottom: 210px;
             right: 15px;
             z-index: 100;
             background: var(--primary-color);
@@ -456,7 +456,7 @@
             color: #e2e8f0 !important;
         }
         
-        /* Color Options - 5 colors */
+        /* 6 Color Options */
         .color-option {
             width: 35px;
             height: 35px;
@@ -474,7 +474,6 @@
             box-shadow: 0 0 0 2px #333;
         }
         
-        /* Mobile responsive color options */
         @media (max-width: 640px) {
             .color-option {
                 width: 30px;
@@ -491,7 +490,6 @@
             }
         }
         
-        /* Mobile menu improvements */
         #mobileMenu {
             transition: all 0.3s ease;
             max-height: 0;
@@ -503,7 +501,6 @@
             padding: 1rem 1rem;
         }
         
-        /* Navbar color transition */
         .bg-white, .bg-gray-900, .bg-gray-800, .bg-blue-600, .bg-blue-700 {
             transition: background-color 0.3s ease;
         }
@@ -512,12 +509,10 @@
             transition: background-color 0.3s ease;
         }
         
-        /* Floating icons smaller */
-        .floating-sms i, .floating-call i, .floating-msg i {
-            font-size: 16px;
+        .floating-sms i, .floating-call i, .floating-wa i {
+            font-size: 18px;
         }
         
-        /* Settings button mobile */
         .settings-dropdown {
             position: relative;
         }
@@ -528,35 +523,56 @@
                 transform: translateX(0);
             }
         }
+        
+        /* Dark mode toggle on top bar */
+        .dark-mode-toggle {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+        .dark-mode-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
     </style>
 </head>
 <body class="bg-gray-50">
 
     <!-- Top Bar -->
     <div class="top-bar">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center flex-wrap gap-2">
             <div class="flex items-center gap-4">
                 <span><i class="fas fa-phone-alt mr-1"></i> 0719 336 667</span>
                 <span><i class="fas fa-envelope mr-1"></i> info@geotraverse.com</span>
             </div>
-            <div class="flex items-center gap-2">
-                <i class="fas fa-globe"></i>
-                <span id="currentLangDisplay">Kiswahili</span>
+            <div class="flex items-center gap-3">
+                <i class="fas fa-globe text-xs"></i>
+                <span id="currentLangDisplay" class="text-xs">Kiswahili</span>
+                <div class="dark-mode-toggle" onclick="toggleDarkModeGlobal()">
+                    <i id="topDarkIcon" class="fas fa-moon text-xs"></i>
+                    <span id="topDarkText" class="text-xs">Dark</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Floating Buttons (SMS + Call) -->
+    <!-- Floating Buttons (3 tu: WhatsApp, SMS, Call) -->
+    <a href="https://wa.me/255719336667?text=Halo%2C%20nina%20swali%20kuhusu%20huduma%20zenu." target="_blank" class="floating-wa flex items-center justify-center">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    
     <div class="floating-sms cursor-pointer" onclick="sendSMSQuick()">
         <i class="fas fa-sms"></i>
     </div>
+    
     <a href="tel:+255719336667" class="floating-call flex items-center justify-center">
         <i class="fas fa-phone-alt"></i>
     </a>
-    
-    <div class="floating-msg cursor-pointer" onclick="scrollToContact()">
-        <i class="fas fa-envelope"></i>
-    </div>
 
     <div class="scroll-top" id="scrollTopBtn"><i class="fas fa-arrow-up text-white text-sm"></i></div>
 
@@ -602,7 +618,7 @@
                 <a href="#about" class="hover:text-blue-600 transition text-xs nav-link" data-sw="Kuhusu" data-en="About">Kuhusu</a>
                 <a href="#contact" class="hover:text-blue-600 transition text-xs nav-link" data-sw="Mawasiliano" data-en="Contact">Mawasiliano</a>
                 
-                <!-- Settings Dropdown with 5 Colors -->
+                <!-- Settings Dropdown with 6 Colors -->
                 <div class="settings-dropdown" id="settingsDropdown">
                     <button id="settingsDropdownBtn" class="text-gray-600 hover:text-blue-600 transition">
                         <i class="fas fa-cog text-sm"></i>
@@ -610,22 +626,15 @@
                     <div class="settings-dropdown-content">
                         <div class="font-semibold text-xs text-gray-500 px-3 py-2 border-b text-center">Rangi za Website</div>
                         <div class="flex gap-2 px-3 py-2 flex-wrap justify-center">
-                            <!-- 5 Colors -->
                             <div class="color-option" style="background-color: #0f74ba;" onclick="changeWebsiteColor('#0f74ba', '#0a5a8e', this)" title="Blue"></div>
                             <div class="color-option" style="background-color: #059669;" onclick="changeWebsiteColor('#059669', '#047857', this)" title="Green"></div>
                             <div class="color-option" style="background-color: #7c3aed;" onclick="changeWebsiteColor('#7c3aed', '#5b21b6', this)" title="Purple"></div>
                             <div class="color-option" style="background-color: #dc2626;" onclick="changeWebsiteColor('#dc2626', '#b91c1c', this)" title="Red"></div>
                             <div class="color-option" style="background-color: #d97706;" onclick="changeWebsiteColor('#d97706', '#b45309', this)" title="Orange"></div>
-                        </div>
-                        <div class="border-t mt-1 pt-1">
-                            <div onclick="toggleDarkModeGlobal()" class="flex items-center gap-2 justify-center">
-                                <i class="fas fa-moon text-xs"></i> <span id="darkModeText" class="text-xs">Dark Mode</span>
-                            </div>
+                            <div class="color-option" style="background-color: #ec4899;" onclick="changeWebsiteColor('#ec4899', '#db2777', this)" title="Pink"></div>
                         </div>
                     </div>
                 </div>
-                
-                <button id="darkModeToggle" class="text-gray-600 hidden"><i id="darkModeIcon" class="fas fa-moon"></i></button>
             </div>
             
             <button id="mobileMenuBtn" class="md:hidden text-gray-600"><i class="fas fa-bars text-lg"></i></button>
@@ -647,9 +656,9 @@
                         <div class="color-option w-8 h-8" style="background-color: #7c3aed;" onclick="changeWebsiteColor('#7c3aed', '#5b21b6', this)"></div>
                         <div class="color-option w-8 h-8" style="background-color: #dc2626;" onclick="changeWebsiteColor('#dc2626', '#b91c1c', this)"></div>
                         <div class="color-option w-8 h-8" style="background-color: #d97706;" onclick="changeWebsiteColor('#d97706', '#b45309', this)"></div>
+                        <div class="color-option w-8 h-8" style="background-color: #ec4899;" onclick="changeWebsiteColor('#ec4899', '#db2777', this)"></div>
                     </div>
                 </div>
-                <button id="mobileDarkToggle" class="py-1 text-xs text-gray-700 w-full text-left"><i class="fas fa-moon mr-2"></i> Dark Mode</button>
             </div>
         </div>
     </nav>
@@ -707,11 +716,11 @@
                     <tbody>
                         <tr><td class="text-sm" id="bricksWithDelivery">Tofali na usafiri</td>
                         <td class="font-bold text-orange-600 text-sm">1,100</td>
-                        <td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Tofali na usafiri')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td>
+                        <td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="wa-icon" onclick="sendWhatsApp('Ninaomba bei ya Tofali na usafiri')"><i class="fab fa-whatsapp text-xs"></i><span class="hidden sm:inline text-xs">WhatsApp</span></span><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Tofali na usafiri')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td>
                     </tr>
                     <tr><td class="text-sm" id="bricksWithoutDelivery">Tofali bila usafiri</td>
                         <td class="font-bold text-orange-600 text-sm">950</td>
-                        <td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Tofali bila usafiri')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td>
+                        <td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="wa-icon" onclick="sendWhatsApp('Ninaomba bei ya Tofali bila usafiri')"><i class="fab fa-whatsapp text-xs"></i><span class="hidden sm:inline text-xs">WhatsApp</span></span><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Tofali bila usafiri')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td>
                     </tr>
                     </tbody>
                 </table>
@@ -726,11 +735,11 @@
                     <thead>
                         <tr><th class="text-xs" id="timberSizeHeader">Ukubwa (Size)</th><th class="text-xs" id="timberPriceHeader">Bei (Tsh)</th><th class="w-28"></th></thead>
                     <tbody>
-                        <tr><td class="text-sm">1 × 4 inchi</td><td class="font-bold text-green-600 text-sm">2,500</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 1x4 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
-                        <tr><td class="text-sm">1 × 6 inchi</td><td class="font-bold text-green-600 text-sm">5,000</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 1x6 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
-                        <tr><td class="text-sm">2 × 3 inchi</td><td class="font-bold text-green-600 text-sm">2,500</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 2x3 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
-                        <tr><td class="text-sm">2 × 4 inchi</td><td class="font-bold text-green-600 text-sm">4,500</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 2x4 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
-                        <tr><td class="text-sm">1 × 8 inchi</td><td class="font-bold text-green-600 text-sm">10,000</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 1x8 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
+                        <tr><td class="text-sm">1 × 4 inchi</td><td class="font-bold text-green-600 text-sm">2,500</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="wa-icon" onclick="sendWhatsApp('Ninaomba bei ya Mbao 1x4 inchi')"><i class="fab fa-whatsapp text-xs"></i><span class="hidden sm:inline text-xs">WhatsApp</span></span><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 1x4 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
+                        <tr><td class="text-sm">1 × 6 inchi</td><td class="font-bold text-green-600 text-sm">5,000</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="wa-icon" onclick="sendWhatsApp('Ninaomba bei ya Mbao 1x6 inchi')"><i class="fab fa-whatsapp text-xs"></i><span class="hidden sm:inline text-xs">WhatsApp</span></span><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 1x6 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
+                        <tr><td class="text-sm">2 × 3 inchi</td><td class="font-bold text-green-600 text-sm">2,500</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="wa-icon" onclick="sendWhatsApp('Ninaomba bei ya Mbao 2x3 inchi')"><i class="fab fa-whatsapp text-xs"></i><span class="hidden sm:inline text-xs">WhatsApp</span></span><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 2x3 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
+                        <tr><td class="text-sm">2 × 4 inchi</td><td class="font-bold text-green-600 text-sm">4,500</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="wa-icon" onclick="sendWhatsApp('Ninaomba bei ya Mbao 2x4 inchi')"><i class="fab fa-whatsapp text-xs"></i><span class="hidden sm:inline text-xs">WhatsApp</span></span><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 2x4 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
+                        <tr><td class="text-sm">1 × 8 inchi</td><td class="font-bold text-green-600 text-sm">10,000</td><td class="text-center"><div class="flex gap-1 justify-center flex-wrap"><span class="wa-icon" onclick="sendWhatsApp('Ninaomba bei ya Mbao 1x8 inchi')"><i class="fab fa-whatsapp text-xs"></i><span class="hidden sm:inline text-xs">WhatsApp</span></span><span class="sms-icon" onclick="sendSMS('Ninaomba bei ya Mbao 1x8 inchi')"><i class="fas fa-sms text-xs"></i><span class="hidden sm:inline text-xs">SMS</span></span><span class="call-icon" onclick="makeCall()"><i class="fas fa-phone-alt text-xs"></i><span class="hidden sm:inline text-xs">Simu</span></span></div></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -811,6 +820,7 @@
                     <div class="flex items-start gap-3 p-2.5 bg-gray-50 rounded-lg"><i class="fas fa-map-marker-alt text-blue-600 text-sm"></i><div><h3 class="font-semibold text-xs" id="officeTitle">Ofisi</h3><p class="text-xs">Bara bara ya 9, Dodoma</p></div></div>
                     <div class="flex items-start gap-3 p-2.5 bg-gray-50 rounded-lg"><i class="fas fa-phone text-blue-600 text-sm"></i><div><h3 class="font-semibold text-xs" id="phoneTitle">Simu</h3><a href="tel:+255719336667" class="text-xs hover:text-blue-600">0719 336 667</a></div></div>
                     <div class="flex items-start gap-3 p-2.5 bg-gray-50 rounded-lg"><i class="fas fa-envelope text-blue-600 text-sm"></i><div><h3 class="font-semibold text-xs" id="emailTitle">Barua pepe</h3><p class="text-xs">info@geotraverse.com</p></div></div>
+                    <div class="flex items-start gap-3 p-2.5 bg-gray-50 rounded-lg"><i class="fab fa-whatsapp text-green-500 text-sm"></i><div><h3 class="font-semibold text-xs">WhatsApp</h3><a href="https://wa.me/255719336667" target="_blank" class="text-xs hover:text-green-600">0719 336 667</a></div></div>
                 </div>
                 <div class="flex-1">
                     <div class="bg-gray-50 rounded-xl p-5">
@@ -831,9 +841,9 @@
     <footer class="bg-gray-900 text-gray-400 py-8">
         <div class="max-w-7xl mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div><img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" class="w-10 h-10 mb-2 opacity-75"><p class="text-white font-semibold text-sm">GeoTraverse Group</p><p class="text-xs mt-1" id="footerTagline">Building Tomorrow's Legacy Today</p><div class="flex gap-3 mt-3"><a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-facebook-f text-sm"></i></a><a href="#" class="text-gray-400 hover:text-pink-400"><i class="fab fa-instagram text-sm"></i></a><a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-linkedin-in text-sm"></i></a></div></div>
+                <div><img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" class="w-10 h-10 mb-2 opacity-75"><p class="text-white font-semibold text-sm">GeoTraverse Group</p><p class="text-xs mt-1" id="footerTagline">Building Tomorrow's Legacy Today</p><div class="flex gap-3 mt-3"><a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-facebook-f text-sm"></i></a><a href="#" class="text-gray-400 hover:text-pink-400"><i class="fab fa-instagram text-sm"></i></a><a href="#" class="text-gray-400 hover:text-blue-400"><i class="fab fa-linkedin-in text-sm"></i></a><a href="https://wa.me/255719336667" target="_blank" class="text-gray-400 hover:text-green-400"><i class="fab fa-whatsapp text-sm"></i></a></div></div>
                 <div><h4 class="text-white font-semibold mb-2 text-xs" id="footerQuickLinks">Quick Links</h4><ul class="space-y-1 text-xs"><li><a href="#home" class="hover:text-white transition" data-sw="Nyumbani" data-en="Home">Nyumbani</a></li><li><a href="#services" class="hover:text-white transition" data-sw="Huduma" data-en="Services">Huduma</a></li><li><a href="#products" class="hover:text-white transition" data-sw="Vifaa" data-en="Products">Vifaa</a></li><li><a href="#projects" class="hover:text-white transition" data-sw="Miradi" data-en="Projects">Miradi</a></li><li><a href="#about" class="hover:text-white transition" data-sw="Kuhusu" data-en="About">Kuhusu</a></li><li><a href="#contact" class="hover:text-white transition" data-sw="Mawasiliano" data-en="Contact">Mawasiliano</a></li></ul></div>
-                <div><h4 class="text-white font-semibold mb-2 text-xs" id="footerContact">Mawasiliano</h4><ul class="space-y-1 text-xs"><li><a href="tel:+255719336667" class="footer-contact-link"><i class="fas fa-phone mr-2 text-blue-400 text-xs"></i> 0719 336 667</a></li><li><a href="mailto:info@geotraverse.com" class="footer-contact-link"><i class="fas fa-envelope mr-2 text-blue-400 text-xs"></i> info@geotraverse.com</a></li><li><i class="fas fa-map-marker-alt mr-2 text-blue-400 text-xs"></i> Bara bara ya 9, Dodoma</li></ul></div>
+                <div><h4 class="text-white font-semibold mb-2 text-xs" id="footerContact">Mawasiliano</h4><ul class="space-y-1 text-xs"><li><a href="tel:+255719336667" class="footer-contact-link"><i class="fas fa-phone mr-2 text-blue-400 text-xs"></i> 0719 336 667</a></li><li><a href="https://wa.me/255719336667" target="_blank" class="footer-contact-link"><i class="fab fa-whatsapp mr-2 text-green-400 text-xs"></i> 0719 336 667 (WhatsApp)</a></li><li><a href="mailto:info@geotraverse.com" class="footer-contact-link"><i class="fas fa-envelope mr-2 text-blue-400 text-xs"></i> info@geotraverse.com</a></li><li><i class="fas fa-map-marker-alt mr-2 text-blue-400 text-xs"></i> Bara bara ya 9, Dodoma</li></ul></div>
                 <div><h4 class="text-white font-semibold mb-2 text-xs" id="footerHours">Saa za Kufungua</h4><ul class="space-y-1 text-xs"><li><i class="fas fa-clock mr-2 text-blue-400 text-xs"></i> <span id="hoursMonFri">Jumatatu - Ijumaa: 8:00 AM - 5:00 PM</span></li><li><i class="fas fa-clock mr-2 text-blue-400 text-xs"></i> <span id="hoursSat">Jumamosi: 9:00 AM - 1:00 PM</span></li><li><i class="fas fa-clock mr-2 text-blue-400 text-xs"></i> <span id="hoursSun">Jumapili: Imefungwa</span></li><li class="mt-1"><i class="fas fa-map-pin mr-2 text-blue-400 text-xs"></i> Dar es Salaam, Tanzania</li></ul></div>
             </div>
             <div class="flex justify-center mt-6"><div class="staff-dropdown" id="staffDropdown"><button id="staffDropdownBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg font-semibold flex items-center gap-2 transition text-xs"><i class="fas fa-users text-xs"></i> Staff Access <i class="fas fa-chevron-down text-xs"></i></button><div class="staff-dropdown-content"><a href="admin/login.html" target="_self"><i class="fas fa-user-shield text-blue-600 w-4 text-xs"></i> Admin Dashboard</a><a href="/managers/login.html" target="_blank"><i class="fas fa-user-tie text-purple-600 w-4 text-xs"></i> Managers Department</a><a href="/finance/login.html" target="_blank"><i class="fas fa-calculator text-green-600 w-4 text-xs"></i> Finance Department</a><a href="/sales/login.html" target="_blank"><i class="fas fa-chart-line text-orange-600 w-4 text-xs"></i> Sales Department</a><a href="/secretary/login.html" target="_blank"><i class="fas fa-envelope text-red-600 w-4 text-xs"></i> Secretary Department</a></div></div></div>
@@ -846,6 +856,12 @@
         
         // ==================== CONTACT FUNCTIONS ====================
         const COMPANY_PHONE = "255719336667";
+        const WHATSAPP_NUMBER = "255719336667";
+        
+        function sendWhatsApp(message) {
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
+        }
         
         function sendSMSQuick() {
             const message = "Halo, nina swali kuhusu huduma zenu. Tafadhali nisaidie.";
@@ -884,58 +900,28 @@
             }
         }
         
-        // ==================== WEBSITE COLOR CHANGE (5 Colors) ====================
+        // ==================== WEBSITE COLOR CHANGE (6 Colors) ====================
         function changeWebsiteColor(primaryColor, darkColor, element) {
             document.documentElement.style.setProperty('--primary-color', primaryColor);
             document.documentElement.style.setProperty('--primary-dark', darkColor);
             
-            // Update top bar
-            document.querySelectorAll('.top-bar').forEach(el => {
-                el.style.backgroundColor = darkColor;
-            });
+            document.querySelectorAll('.top-bar').forEach(el => { el.style.backgroundColor = darkColor; });
+            document.querySelectorAll('.floating-call, .scroll-top, .about-stats').forEach(el => { el.style.backgroundColor = primaryColor; });
+            document.querySelectorAll('.bg-blue-600, .btn-primary, #orderBtn, #sendBtn, #staffDropdownBtn').forEach(el => { el.style.backgroundColor = primaryColor; });
+            document.querySelectorAll('.call-icon').forEach(el => { el.style.color = primaryColor; });
+            document.querySelectorAll('.lang-btn.active').forEach(el => { el.style.backgroundColor = primaryColor; });
             
-            // Update floating call button and scroll top
-            document.querySelectorAll('.floating-call, .scroll-top, .about-stats').forEach(el => {
-                el.style.backgroundColor = primaryColor;
-            });
-            
-            // Update buttons
-            document.querySelectorAll('.bg-blue-600, .btn-primary, #orderBtn, #sendBtn, #staffDropdownBtn').forEach(el => {
-                el.style.backgroundColor = primaryColor;
-            });
-            
-            document.querySelectorAll('.bg-blue-700, .floating-call:hover, .scroll-top:hover, #orderBtn:hover, #sendBtn:hover, #staffDropdownBtn:hover').forEach(el => {
-                el.style.backgroundColor = darkColor;
-            });
-            
-            // Update call icons
-            document.querySelectorAll('.call-icon').forEach(el => {
-                el.style.color = primaryColor;
-            });
-            document.querySelectorAll('.call-icon:hover').forEach(el => {
-                el.style.backgroundColor = primaryColor;
-                el.style.color = 'white';
-            });
-            
-            // Update language buttons active state
-            document.querySelectorAll('.lang-btn.active').forEach(el => {
-                el.style.backgroundColor = primaryColor;
-            });
-            
-            // Update hero background (keeping the gradient with new color)
-            document.querySelectorAll('.hero-bg').forEach(el => {
-                el.style.background = `linear-gradient(rgba(15, 116, 186, 0.88), rgba(10, 90, 142, 0.92)), url('https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=600')`;
-            });
-            
-            // Save to localStorage
             localStorage.setItem('website_primary_color', primaryColor);
             localStorage.setItem('website_dark_color', darkColor);
             
-            // Update selected style
             document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
             if (element) element.classList.add('selected');
             
             showToast('Rangi ya website imebadilishwa!');
+            
+            // Close dropdown after color selection (mobile fix)
+            const dropdown = document.getElementById('settingsDropdown');
+            if (dropdown) dropdown.classList.remove('show');
         }
         
         function loadSavedWebsiteColor() {
@@ -945,15 +931,13 @@
                 document.documentElement.style.setProperty('--primary-color', primaryColor);
                 document.documentElement.style.setProperty('--primary-dark', darkColor);
                 
-                // Update UI elements
                 document.querySelectorAll('.top-bar').forEach(el => { el.style.backgroundColor = darkColor; });
                 document.querySelectorAll('.floating-call, .scroll-top, .about-stats').forEach(el => { el.style.backgroundColor = primaryColor; });
                 document.querySelectorAll('.bg-blue-600, .btn-primary, #orderBtn, #sendBtn, #staffDropdownBtn').forEach(el => { el.style.backgroundColor = primaryColor; });
                 document.querySelectorAll('.call-icon').forEach(el => { el.style.color = primaryColor; });
                 document.querySelectorAll('.lang-btn.active').forEach(el => { el.style.backgroundColor = primaryColor; });
                 
-                // Mark selected color
-                const colors = ['#0f74ba', '#059669', '#7c3aed', '#dc2626', '#d97706'];
+                const colors = ['#0f74ba', '#059669', '#7c3aed', '#dc2626', '#d97706', '#ec4899'];
                 const selectedIndex = colors.indexOf(primaryColor);
                 if (selectedIndex !== -1) {
                     const colorOptions = document.querySelectorAll('.color-option');
@@ -962,18 +946,18 @@
             }
         }
         
-        // ==================== DARK MODE GLOBAL ====================
+        // ==================== DARK MODE ====================
         let isDarkGlobal = false;
         function toggleDarkModeGlobal() {
             isDarkGlobal = !isDarkGlobal;
             if (isDarkGlobal) {
                 document.body.classList.add('dark-mode');
-                document.getElementById('darkModeText') && (document.getElementById('darkModeText').innerText = 'Light Mode');
-                document.getElementById('darkModeIcon') && document.getElementById('darkModeIcon').classList.replace('fa-moon', 'fa-sun');
+                document.getElementById('topDarkText') && (document.getElementById('topDarkText').innerText = 'Light');
+                document.getElementById('topDarkIcon') && document.getElementById('topDarkIcon').classList.replace('fa-moon', 'fa-sun');
             } else {
                 document.body.classList.remove('dark-mode');
-                document.getElementById('darkModeText') && (document.getElementById('darkModeText').innerText = 'Dark Mode');
-                document.getElementById('darkModeIcon') && document.getElementById('darkModeIcon').classList.replace('fa-sun', 'fa-moon');
+                document.getElementById('topDarkText') && (document.getElementById('topDarkText').innerText = 'Dark');
+                document.getElementById('topDarkIcon') && document.getElementById('topDarkIcon').classList.replace('fa-sun', 'fa-moon');
             }
             localStorage.setItem('website_dark_mode', isDarkGlobal);
         }
@@ -983,7 +967,8 @@
             if (saved === 'true') {
                 isDarkGlobal = true;
                 document.body.classList.add('dark-mode');
-                document.getElementById('darkModeText') && (document.getElementById('darkModeText').innerText = 'Light Mode');
+                document.getElementById('topDarkText') && (document.getElementById('topDarkText').innerText = 'Light');
+                document.getElementById('topDarkIcon') && document.getElementById('topDarkIcon').classList.replace('fa-moon', 'fa-sun');
             }
         }
         
@@ -1005,8 +990,27 @@
         }
         if (mobileMenuBtn) { mobileMenuBtn.addEventListener('click', toggleMobileMenu); }
         document.querySelectorAll('.mobile-nav-link').forEach(link => { link.addEventListener('click', function() { closeMobileMenu(); }); });
-        const mobileDarkToggle = document.getElementById('mobileDarkToggle');
-        if (mobileDarkToggle) { mobileDarkToggle.addEventListener('click', function() { toggleDarkModeGlobal(); setTimeout(closeMobileMenu, 300); }); }
+        
+        // Settings Dropdown close on click outside
+        const settingsDropdown = document.getElementById('settingsDropdown');
+        const settingsBtn = document.getElementById('settingsDropdownBtn');
+        if(settingsBtn && settingsDropdown) {
+            settingsBtn.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                settingsDropdown.classList.toggle('show'); 
+            });
+            document.addEventListener('click', () => { 
+                settingsDropdown.classList.remove('show'); 
+            });
+        }
+        
+        // Staff Dropdown
+        const staffDropdown = document.getElementById('staffDropdown');
+        const staffBtn = document.getElementById('staffDropdownBtn');
+        if(staffBtn && staffDropdown) {
+            staffBtn.addEventListener('click', (e) => { e.stopPropagation(); staffDropdown.classList.toggle('show'); });
+            document.addEventListener('click', () => staffDropdown.classList.remove('show'));
+        }
         
         // Service Details
         const serviceFullDetails = {
@@ -1154,6 +1158,9 @@
                         <p class="text-xs text-gray-600 dark:text-gray-400"><i class="fas fa-phone mr-2 text-blue-600"></i> 0719 336 667</p>
                         <p class="text-xs text-gray-600 dark:text-gray-400"><i class="fas fa-envelope mr-2 text-blue-600"></i> info@geotraverse.com</p>
                         <div class="mt-3 flex gap-2 flex-wrap">
+                            <span class="wa-icon inline-flex" onclick="closeServiceModal(); sendWhatsApp('Nina swali kuhusu ${title}')">
+                                <i class="fab fa-whatsapp text-xs"></i> <span class="text-xs">WhatsApp</span>
+                            </span>
                             <span class="sms-icon inline-flex" onclick="closeServiceModal(); sendSMS('Nina swali kuhusu ${title}')">
                                 <i class="fas fa-sms text-xs"></i> <span class="text-xs">SMS</span>
                             </span>
@@ -1341,22 +1348,6 @@
             setTimeout(() => toast.remove(), 2500);
         }
         
-        // Staff Dropdown
-        const staffDropdown = document.getElementById('staffDropdown');
-        const staffBtn = document.getElementById('staffDropdownBtn');
-        if(staffBtn && staffDropdown) {
-            staffBtn.addEventListener('click', (e) => { e.stopPropagation(); staffDropdown.classList.toggle('show'); });
-            document.addEventListener('click', () => staffDropdown.classList.remove('show'));
-        }
-        
-        // Settings Dropdown
-        const settingsDropdown = document.getElementById('settingsDropdown');
-        const settingsBtn = document.getElementById('settingsDropdownBtn');
-        if(settingsBtn && settingsDropdown) {
-            settingsBtn.addEventListener('click', (e) => { e.stopPropagation(); settingsDropdown.classList.toggle('show'); });
-            document.addEventListener('click', () => settingsDropdown.classList.remove('show'));
-        }
-        
         // Contact Form
         document.getElementById('contactForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -1372,12 +1363,6 @@
                 showToast(currentLang === 'sw' ? 'Tafadhali jaza nyanja zote (Jina, Simu, Ujumbe)' : 'Please fill all fields (Name, Phone, Message)', true);
             }
         });
-        
-        // Dark Mode
-        let isDark = false;
-        const darkToggle = document.getElementById('darkModeToggle');
-        const darkIcon = document.getElementById('darkModeIcon');
-        if(darkToggle) { darkToggle.addEventListener('click', toggleDarkModeGlobal); }
         
         // Scroll to top
         window.addEventListener('scroll', () => {
@@ -1412,6 +1397,7 @@
         // Expose global functions
         window.scrollToContact = scrollToContact;
         window.scrollToContactWithMessage = scrollToContactWithMessage;
+        window.sendWhatsApp = sendWhatsApp;
         window.sendSMSQuick = sendSMSQuick;
         window.makeCall = makeCall;
         window.sendSMS = sendSMS;
