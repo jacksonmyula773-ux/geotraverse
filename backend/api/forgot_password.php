@@ -2,7 +2,6 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -18,7 +17,7 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
     exit();
 }
 
@@ -36,13 +35,14 @@ $stmt->execute([$email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
-    echo json_encode(['success' => false, 'message' => 'Email address not found in our system']);
+    echo json_encode(['success' => false, 'message' => 'Email address not found']);
     exit();
 }
 
 // Generate reset token
 $resetToken = bin2hex(random_bytes(32));
-$expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
+// CHANGE HERE: 24 hours instead of 1 hour
+$expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
 
 // Delete old tokens
 $stmt = $pdo->prepare("DELETE FROM password_resets WHERE email = ?");
@@ -50,15 +50,19 @@ $stmt->execute([$email]);
 
 // Save new token
 $stmt = $pdo->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)");
-$stmt->execute([$email, $resetToken, $expiresAt]);
+$result = $stmt->execute([$email, $resetToken, $expiresAt]);
+
+if (!$result) {
+    echo json_encode(['success' => false, 'message' => 'Failed to generate reset token']);
+    exit();
+}
 
 // Create reset link
 $resetLink = "http://localhost/geotraverse/reset-password.html?token=" . $resetToken . "&email=" . urlencode($email);
 
-// FOR LOCALHOST - Display link in response (since email won't work)
 echo json_encode([
     'success' => true, 
-    'message' => 'Password reset link generated. Use this link to reset your password.',
+    'message' => 'Reset link generated successfully (valid for 24 hours)',
     'reset_link' => $resetLink,
     'token' => $resetToken
 ]);
