@@ -1,40 +1,62 @@
 <?php
-// backend/api/messages.php
-require_once __DIR__ . '/../config/database.php';
-require_once '../includes/response.php';
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+$host = 'localhost';
+$dbname = 'geotraverse_db';
+$username = 'root';
+$password = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die(json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]));
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-try {
-    $db = getDB();
-    
-    if ($method === 'GET') {
-        $stmt = $db->query("SELECT * FROM messages ORDER BY created_at DESC");
-        $messages = $stmt->fetchAll();
-        sendSuccess($messages);
-    }
-    
-    elseif ($method === 'POST') {
+switch($method) {
+    case 'GET':
+        $stmt = $pdo->query("SELECT * FROM messages ORDER BY id DESC");
+        $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'data' => $messages]);
+        break;
+        
+    case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
-        
-        if (empty($data['reply_message']) || empty($data['id'])) {
-            sendError('Message ID and reply are required', 400);
+        if (isset($data['reply_message'])) {
+            // This is a reply
+            $stmt = $pdo->prepare("UPDATE messages SET reply_message = ?, replied_at = NOW() WHERE id = ?");
+            $stmt->execute([$data['reply_message'], $data['id']]);
+            echo json_encode(['success' => true, 'message' => 'Reply sent']);
+        } else {
+            // New message
+            $stmt = $pdo->prepare("INSERT INTO messages (from_department, subject, message) VALUES (?, ?, ?)");
+            $stmt->execute([$data['from_department'], $data['subject'], $data['message']]);
+            echo json_encode(['success' => true, 'message' => 'Message sent', 'id' => $pdo->lastInsertId()]);
         }
+        break;
         
-        $stmt = $db->prepare("UPDATE messages SET reply_message = :reply, replied_at = NOW(), is_read = 1 WHERE id = :id");
-        $stmt->execute([
-            ':id' => $data['id'],
-            ':reply' => $data['reply_message']
-        ]);
+    case 'DELETE':
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
+        if ($id) {
+            $stmt = $pdo->prepare("DELETE FROM messages WHERE id = ?");
+            $stmt->execute([$id]);
+            echo json_encode(['success' => true, 'message' => 'Message deleted']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'ID required']);
+        }
+        break;
         
-        // Log activity
-        $log = $db->prepare("INSERT INTO activity_logs (action, user_email) VALUES ('Replied to message ID " . $data['id'] . "', 'admin')");
-        $log->execute();
-        
-        sendSuccess(null, 'Reply sent successfully');
-    }
-    
-} catch(PDOException $e) {
-    sendError('Database error: ' . $e->getMessage(), 500);
+    default:
+        echo json_encode(['success' => false, 'message' => 'Method not supported']);
 }
 ?>

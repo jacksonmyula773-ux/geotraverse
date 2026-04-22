@@ -1,6 +1,5 @@
 <?php
-// backend/api/projects.php
-header('Content-Type: application/json; charset=utf-8');
+header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -10,105 +9,132 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-require_once '../config/database.php';
+$host = 'localhost';
+$dbname = 'geotraverse_db';
+$username = 'root';
+$password = '';
 
-function sendResponse($success, $message, $data = null, $code = 200) {
-    http_response_code($code);
-    echo json_encode(['success' => $success, 'message' => $message, 'data' => $data]);
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
     exit();
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-try {
-    $db = getDB();
-    
-    // GET - Fetch all projects
-    if ($method === 'GET') {
-        $stmt = $db->query("SELECT * FROM projects ORDER BY id DESC");
+switch($method) {
+    case 'GET':
+        $stmt = $pdo->query("SELECT * FROM projects ORDER BY id DESC");
         $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        sendResponse(true, 'Projects fetched successfully', $projects);
-    }
-    
-    // POST - Create new project
-    elseif ($method === 'POST') {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
         
-        if (!$data || empty($data['name'])) {
-            sendResponse(false, 'Project name is required', 400);
+        // Add full image URL
+        foreach ($projects as &$project) {
+            if (!empty($project['image_path'])) {
+                $project['image_url'] = 'http://localhost/geotraverse/' . $project['image_path'];
+            } else {
+                $project['image_url'] = '';
+            }
         }
         
-        $stmt = $db->prepare("INSERT INTO projects (name, client_name, client_phone, client_email, description, amount, status, progress, image_url, location, start_date, end_date) 
-                              VALUES (:name, :client_name, :client_phone, :client_email, :description, :amount, :status, :progress, :image_url, :location, :start_date, :end_date)");
+        echo json_encode(['success' => true, 'data' => $projects]);
+        break;
         
-        $stmt->execute([
-            ':name' => $data['name'],
-            ':client_name' => $data['client_name'] ?? '',
-            ':client_phone' => $data['client_phone'] ?? '',
-            ':client_email' => $data['client_email'] ?? '',
-            ':description' => $data['description'] ?? '',
-            ':amount' => $data['amount'] ?? 0,
-            ':status' => $data['status'] ?? 'pending',
-            ':progress' => $data['progress'] ?? 0,
-            ':image_url' => $data['image_url'] ?? '',
-            ':location' => $data['location'] ?? '',
-            ':start_date' => $data['start_date'] ?? null,
-            ':end_date' => $data['end_date'] ?? null
-        ]);
+    case 'POST':
+        $data = json_decode(file_get_contents('php://input'), true);
         
-        sendResponse(true, 'Project created successfully', ['id' => $db->lastInsertId()], 201);
-    }
-    
-    // PUT - Update project
-    elseif ($method === 'PUT') {
-        $rawInput = file_get_contents('php://input');
-        $data = json_decode($rawInput, true);
-        
-        if (!$data || empty($data['id'])) {
-            sendResponse(false, 'Project ID is required', 400);
+        if (!$data) {
+            echo json_encode(['success' => false, 'message' => 'Invalid data received']);
+            exit();
         }
         
-        $stmt = $db->prepare("UPDATE projects SET name = :name, client_name = :client_name, client_phone = :client_phone, client_email = :client_email, description = :description, amount = :amount, status = :status, progress = :progress, image_url = :image_url, location = :location, start_date = :start_date, end_date = :end_date WHERE id = :id");
-        
-        $stmt->execute([
-            ':id' => $data['id'],
-            ':name' => $data['name'],
-            ':client_name' => $data['client_name'] ?? '',
-            ':client_phone' => $data['client_phone'] ?? '',
-            ':client_email' => $data['client_email'] ?? '',
-            ':description' => $data['description'] ?? '',
-            ':amount' => $data['amount'] ?? 0,
-            ':status' => $data['status'] ?? 'pending',
-            ':progress' => $data['progress'] ?? 0,
-            ':image_url' => $data['image_url'] ?? '',
-            ':location' => $data['location'] ?? '',
-            ':start_date' => $data['start_date'] ?? null,
-            ':end_date' => $data['end_date'] ?? null
+        $stmt = $pdo->prepare("INSERT INTO projects (name, client_name, client_phone, client_email, description, amount, location, status, progress, start_date, end_date, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $result = $stmt->execute([
+            $data['name'] ?? '',
+            $data['client_name'] ?? '',
+            $data['client_phone'] ?? '',
+            $data['client_email'] ?? '',
+            $data['description'] ?? '',
+            $data['amount'] ?? 0,
+            $data['location'] ?? '',
+            $data['status'] ?? 'pending',
+            $data['progress'] ?? 0,
+            $data['start_date'] ?? null,
+            $data['end_date'] ?? null,
+            $data['image_path'] ?? ''
         ]);
         
-        sendResponse(true, 'Project updated successfully');
-    }
-    
-    // DELETE - Delete project
-    elseif ($method === 'DELETE') {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Project added successfully', 'id' => $pdo->lastInsertId()]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to add project']);
+        }
+        break;
+        
+    case 'PUT':
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!$data || !isset($data['id'])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid data received']);
+            exit();
+        }
+        
+        $stmt = $pdo->prepare("UPDATE projects SET name = ?, client_name = ?, client_phone = ?, client_email = ?, description = ?, amount = ?, location = ?, status = ?, progress = ?, start_date = ?, end_date = ?, image_path = ? WHERE id = ?");
+        $result = $stmt->execute([
+            $data['name'] ?? '',
+            $data['client_name'] ?? '',
+            $data['client_phone'] ?? '',
+            $data['client_email'] ?? '',
+            $data['description'] ?? '',
+            $data['amount'] ?? 0,
+            $data['location'] ?? '',
+            $data['status'] ?? 'pending',
+            $data['progress'] ?? 0,
+            $data['start_date'] ?? null,
+            $data['end_date'] ?? null,
+            $data['image_path'] ?? '',
+            $data['id']
+        ]);
+        
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Project updated successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update project']);
+        }
+        break;
+        
+    case 'DELETE':
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
         
         if (!$id) {
-            sendResponse(false, 'Project ID is required', 400);
+            echo json_encode(['success' => false, 'message' => 'ID required']);
+            exit();
         }
         
-        $stmt = $db->prepare("DELETE FROM projects WHERE id = :id");
-        $stmt->execute([':id' => $id]);
+        // Get image path to delete file
+        $stmt = $pdo->prepare("SELECT image_path FROM projects WHERE id = ?");
+        $stmt->execute([$id]);
+        $project = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        sendResponse(true, 'Project deleted successfully');
-    }
-    
-    else {
-        sendResponse(false, 'Method not allowed', 405);
-    }
-    
-} catch(PDOException $e) {
-    sendResponse(false, 'Database error: ' . $e->getMessage(), 500);
+        if ($project && !empty($project['image_path'])) {
+            $imageFile = '../' . $project['image_path'];
+            if (file_exists($imageFile)) {
+                unlink($imageFile);
+            }
+        }
+        
+        $stmt = $pdo->prepare("DELETE FROM projects WHERE id = ?");
+        $result = $stmt->execute([$id]);
+        
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Project deleted successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to delete project']);
+        }
+        break;
+        
+    default:
+        echo json_encode(['success' => false, 'message' => 'Method not supported']);
 }
 ?>

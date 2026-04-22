@@ -1,71 +1,82 @@
 <?php
-// backend/api/admin_login.php
-require_once __DIR__ . '/../config/database.php';
-require_once '../includes/response.php';
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+$host = 'localhost';
+$dbname = 'geotraverse_db';
+$username = 'root';
+$password = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die(json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]));
+}
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-if (!$data) {
-    sendError('Invalid request', 400);
+if (!isset($data['email']) || !isset($data['password'])) {
+    echo json_encode(['success' => false, 'message' => 'Email and password required']);
+    exit();
 }
 
-$email = trim($data['email'] ?? '');
-$password = $data['password'] ?? '';
+$email = $data['email'];
+$password = $data['password'];
 
-if (empty($email) || empty($password)) {
-    sendError('Email and password are required', 400);
+// Demo mode - kwa ajili ya testing
+if ($email === 'jacksonmyula773@gmail.com' && $password === '1234') {
+    $token = bin2hex(random_bytes(32));
+    $userData = [
+        'id' => 1,
+        'email' => $email,
+        'full_name' => 'Jackson Myula',
+        'role' => 'admin'
+    ];
+    
+    echo json_encode([
+        'success' => true,
+        'data' => [
+            'token' => $token,
+            'user' => $userData
+        ]
+    ]);
+    exit();
 }
 
-try {
-    $db = getDB();
-    
-    $stmt = $db->prepare("SELECT id, email, password_hash, full_name, role, department, is_active FROM users WHERE email = :email");
-    $stmt->execute([':email' => $email]);
-    $user = $stmt->fetch();
-    
-    if (!$user) {
-        sendError('Invalid email or password', 401);
-    }
-    
-    // Verify password (supports bcrypt and plain text for demo)
-    $validPassword = false;
-    if (password_verify($password, $user['password_hash'])) {
-        $validPassword = true;
-    } elseif ($password === '1234') {
-        $validPassword = true;
-    }
-    
-    if (!$validPassword) {
-        sendError('Invalid email or password', 401);
-    }
-    
-    if (!$user['is_active']) {
-        sendError('Account is deactivated', 403);
-    }
-    
-    // Update last login
-    $stmt = $db->prepare("UPDATE users SET last_login = NOW() WHERE id = :id");
-    $stmt->execute([':id' => $user['id']]);
-    
-    // Log activity
-    $stmt = $db->prepare("INSERT INTO activity_logs (action, user_email) VALUES ('Admin logged in', :email)");
-    $stmt->execute([':email' => $email]);
-    
-    // Create simple token
+// Check database
+$stmt = $pdo->prepare("SELECT id, email, full_name, role, password_hash FROM users WHERE email = ? AND is_active = 1");
+$stmt->execute([$email]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($user && password_verify($password, $user['password_hash'])) {
     $token = bin2hex(random_bytes(32));
     
-    sendSuccess([
-        'token' => $token,
-        'user' => [
-            'id' => $user['id'],
-            'email' => $user['email'],
-            'full_name' => $user['full_name'],
-            'role' => $user['role'],
-            'department' => $user['department']
-        ]
-    ], 'Login successful');
+    // Save session
+    $expiresAt = date('Y-m-d H:i:s', strtotime('+1 day'));
+    $stmt = $pdo->prepare("INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)");
+    $stmt->execute([$user['id'], $token, $expiresAt]);
     
-} catch(PDOException $e) {
-    sendError('Login failed: ' . $e->getMessage(), 500);
+    echo json_encode([
+        'success' => true,
+        'data' => [
+            'token' => $token,
+            'user' => [
+                'id' => $user['id'],
+                'email' => $user['email'],
+                'full_name' => $user['full_name'],
+                'role' => $user['role']
+            ]
+        ]
+    ]);
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
 }
 ?>

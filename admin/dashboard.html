@@ -14,7 +14,7 @@
     
     <style>
         * { font-family: 'Inter', sans-serif; }
-        body { background: #f0f2f5; transition: background 0.3s ease; }
+        body { background: #f0f2f5; transition: background 0.3s ease; overflow-x: hidden; }
         
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #e4e4e7; border-radius: 10px; }
@@ -27,6 +27,9 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            position: fixed;
+            width: 260px;
+            z-index: 30;
         }
         
         .sidebar-nav {
@@ -52,10 +55,10 @@
         .nav-item.active i { color: #60a5fa; }
         .nav-item:hover:not(.active) { background-color: rgba(255,255,255,0.08); }
         
-        .stat-card { transition: all 0.3s ease; border: 1px solid #e5e7eb; cursor: pointer; }
+        .stat-card { transition: all 0.3s ease; border: 1px solid #e5e7eb; cursor: pointer; background: white; }
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); border-color: #0f74ba; }
         
-        .dept-card { transition: all 0.3s ease; cursor: pointer; }
+        .dept-card { transition: all 0.3s ease; cursor: pointer; background: white; border-radius: 12px; overflow: hidden; }
         .dept-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         
         .function-list { list-style: none; padding-left: 0; margin: 0; }
@@ -71,7 +74,7 @@
         .report-tab.active { background: linear-gradient(135deg, #0f74ba, #60a5fa); color: white; }
         .report-tab:hover:not(.active) { background-color: #e5e7eb; }
         
-        .setting-card { transition: all 0.3s ease; cursor: pointer; border: 1px solid #e5e7eb; }
+        .setting-card { transition: all 0.3s ease; cursor: pointer; border: 1px solid #e5e7eb; background: white; }
         .setting-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-color: #0f74ba; }
         
         .message-item { transition: all 0.2s; cursor: pointer; }
@@ -107,7 +110,7 @@
         body.dark-mode .border-gray-100, body.dark-mode .border-gray-200 { border-color: #334155; }
         body.dark-mode .stat-card { background-color: #1e293b; border-color: #334155; }
         body.dark-mode .setting-card { background-color: #1e293b; border-color: #334155; }
-        body.dark-mode .dept-card .bg-white { background-color: #1e293b; }
+        body.dark-mode .dept-card { background-color: #1e293b; }
         body.dark-mode .function-list li { border-bottom-color: #334155; }
         body.dark-mode .function-list li:hover { background-color: #334155; }
         body.dark-mode .chat-message { background-color: #334155; color: white; }
@@ -119,14 +122,34 @@
         
         .gradient-text { background: linear-gradient(135deg, #0f74ba, #60a5fa); -webkit-background-clip: text; background-clip: text; color: transparent; }
         
-        .scroll-top { position: fixed; bottom: 20px; right: 20px; background: #0f74ba; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: all 0.3s; z-index: 99; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .scroll-top {
+            position: fixed; bottom: 20px; right: 20px;
+            background: #0f74ba; width: 40px; height: 40px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; opacity: 0; transition: all 0.3s;
+            z-index: 99; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
         .scroll-top.visible { opacity: 1; }
         
-        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .loading-spinner { width: 50px; height: 50px; border: 4px solid #f3f3f3; border-top: 4px solid #0f74ba; border-radius: 50%; animation: spin 1s linear infinite; }
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .loading-spinner {
+            width: 50px; height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0f74ba;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        .task-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 3px solid #0f74ba; transition: all 0.2s; }
+        .task-item {
+            background: white; border-radius: 12px; padding: 12px;
+            margin-bottom: 10px; border-left: 3px solid #0f74ba;
+            transition: all 0.2s;
+        }
         .task-item:hover { transform: translateX(3px); }
         
         .employee-row:hover { background-color: #f8fafc; }
@@ -138,7 +161,10 @@
         .password-toggle:hover { color: #0f74ba; }
         
         .search-results-modal {
-            position: fixed; top: 70px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; max-height: 70vh; background: white; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); z-index: 1000; overflow: hidden; display: none; flex-direction: column;
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 600px; max-height: 70vh;
+            background: white; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            z-index: 1000; overflow: hidden; display: none; flex-direction: column;
         }
         .search-results-modal.active { display: flex; }
         .search-results-header { padding: 15px 20px; background: linear-gradient(135deg, #0f74ba, #0a5a8e); color: white; font-weight: 600; }
@@ -154,44 +180,30 @@
         .search-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
         .search-overlay.active { display: block; }
         
-        .session-warning {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #f59e0b; color: white; padding: 10px 20px; border-radius: 10px; z-index: 1001; display: none; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .session-warning.show { display: block; animation: fadeInUp 0.3s ease; }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translate(-50%, 20px); }
-            to { opacity: 1; transform: translate(-50%, 0); }
+        .main-content {
+            margin-left: 260px;
         }
         
         @media (max-width: 768px) {
-            .sidebar { position: fixed; left: -100%; transition: left 0.3s; z-index: 100; width: 80%; }
+            .sidebar { left: -260px; transition: left 0.3s; }
             .sidebar.mobile-open { left: 0; }
             .mobile-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
             .mobile-menu-overlay.open { display: block; }
             .employee-table-container { overflow-x: auto; }
             .employee-table { min-width: 800px; }
             .search-results-modal { top: 60px; width: 95%; }
+            .main-content { margin-left: 0; }
         }
     </style>
 </head>
 <body>
 
-<!-- Loading Overlay -->
 <div id="loadingOverlay" class="loading-overlay" style="display: none;">
     <div class="loading-spinner"></div>
 </div>
 
-<!-- Mobile Menu Overlay -->
 <div id="mobileMenuOverlay" class="mobile-menu-overlay" onclick="closeMobileSidebar()"></div>
 
-<!-- Session Timeout Warning -->
-<div id="sessionWarning" class="session-warning">
-    <i class="fas fa-clock mr-2"></i> Your session will expire in <span id="sessionTimer">60</span> seconds due to inactivity.
-    <button onclick="resetSessionTimer()" class="ml-3 bg-white text-orange-600 px-2 py-1 rounded text-xs">Stay Logged In</button>
-</div>
-
-<!-- Global Search Modal -->
 <div id="searchOverlay" class="search-overlay" onclick="closeGlobalSearch()"></div>
 <div id="searchResultsModal" class="search-results-modal">
     <div class="search-results-header">
@@ -203,7 +215,13 @@
     </div>
 </div>
 
-<!-- Project Modal (Add/Edit with Image Upload) -->
+<!-- Image Modal -->
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-50 cursor-pointer" onclick="closeImageModal()">
+    <span class="absolute top-5 right-8 text-white text-4xl cursor-pointer hover:text-gray-300">&times;</span>
+    <img id="modalImage" class="max-w-[90%] max-h-[90%] object-contain" src="">
+</div>
+
+<!-- Project Modal -->
 <div id="projectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl w-full max-w-md modal-pop max-h-[90vh] overflow-y-auto">
         <div class="px-6 py-4 border-b flex justify-between items-center sticky top-0 bg-white">
@@ -212,7 +230,6 @@
         </div>
         <form id="projectForm" class="p-6 space-y-3">
             <input type="hidden" id="projectId">
-            <input type="hidden" id="projectImageUrl">
             <input type="text" id="projectName" placeholder="Project Name" class="w-full p-2 border rounded-lg" required>
             <input type="text" id="projectClient" placeholder="Client Name" class="w-full p-2 border rounded-lg">
             <input type="tel" id="projectClientPhone" placeholder="Client Phone" class="w-full p-2 border rounded-lg">
@@ -223,7 +240,7 @@
             
             <!-- Image Upload Section -->
             <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-500 transition" id="imageUploadArea">
-                <input type="file" id="projectImageFile" accept="image/*" class="hidden" onchange="previewImage(this)">
+                <input type="file" id="projectImageFile" accept="image/*" class="hidden">
                 <div id="uploadPlaceholder">
                     <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
                     <p class="text-sm text-gray-500">Click to upload project image</p>
@@ -252,6 +269,53 @@
             </div>
         </form>
     </div>
+</div>
+
+<!-- Employee Modal -->
+<div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Add Employee</h3><button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
+    <form id="employeeForm" class="p-6 space-y-3">
+        <input type="text" id="empName" placeholder="Full Name" class="w-full p-2 border rounded-lg" required>
+        <input type="email" id="empEmail" placeholder="Email" class="w-full p-2 border rounded-lg" required>
+        <input type="tel" id="empPhone" placeholder="Phone Number" class="w-full p-2 border rounded-lg">
+        <select id="empRole" class="w-full p-2 border rounded-lg"><option value="Manager">Manager</option><option value="Accountant">Accountant</option><option value="Sales Executive">Sales Executive</option><option value="Secretary">Secretary</option></select>
+        <select id="empDepartment" class="w-full p-2 border rounded-lg"><option value="Management">Management</option><option value="Finance">Finance</option><option value="Sales & Marketing">Sales & Marketing</option><option value="Administration">Secretary</option></select>
+        <input type="number" id="empSalary" placeholder="Salary (TZS)" class="w-full p-2 border rounded-lg">
+        <div class="flex space-x-3 pt-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save</button><button type="button" onclick="closeModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
+    </form></div>
+</div>
+
+<div id="editEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Edit Employee</h3><button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
+    <form id="editEmployeeForm" class="p-6 space-y-3">
+        <input type="hidden" id="editEmpId"><input type="text" id="editEmpName" placeholder="Full Name" class="w-full p-2 border rounded-lg" required>
+        <input type="email" id="editEmpEmail" placeholder="Email" class="w-full p-2 border rounded-lg" required>
+        <input type="tel" id="editEmpPhone" placeholder="Phone Number" class="w-full p-2 border rounded-lg">
+        <select id="editEmpRole" class="w-full p-2 border rounded-lg"><option value="Manager">Manager</option><option value="Accountant">Accountant</option><option value="Sales Executive">Sales Executive</option><option value="Secretary">Secretary</option></select>
+        <select id="editEmpDepartment" class="w-full p-2 border rounded-lg"><option value="Management">Management</option><option value="Finance">Finance</option><option value="Sales & Marketing">Sales & Marketing</option><option value="Administration">Secretary</option></select>
+        <input type="number" id="editEmpSalary" placeholder="Salary (TZS)" class="w-full p-2 border rounded-lg">
+        <div class="flex space-x-3 pt-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Update</button><button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
+    </form></div>
+</div>
+
+<div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Add New Task</h3><button onclick="closeTaskModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
+    <div class="p-6 space-y-3">
+        <input type="text" id="taskTitle" placeholder="Task Title" class="w-full p-2 border rounded-lg">
+        <textarea id="taskDescription" rows="3" placeholder="Task Description" class="w-full p-2 border rounded-lg"></textarea>
+        <select id="taskDepartment" class="w-full p-2 border rounded-lg"><option value="Managers">Managers Dept</option><option value="Finance">Finance Dept</option><option value="Sales">Sales Dept</option><option value="Secretary">Secretary Dept</option></select>
+        <div class="flex space-x-3 pt-3"><button onclick="addNewTask()" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Task</button><button onclick="closeTaskModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
+    </div></div>
+</div>
+
+<div id="changePwdModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Change Employee Password</h3><button onclick="closePwdModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
+    <form id="changePwdForm" class="p-6 space-y-3">
+        <input type="hidden" id="pwdEmpId"><input type="text" id="pwdEmpName" class="w-full p-2 border rounded-lg bg-gray-100" readonly>
+        <div class="password-field relative"><input type="password" id="newPassword" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePassword('newPassword', this)"></i></div>
+        <div class="password-field relative"><input type="password" id="confirmNewPassword" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePassword('confirmNewPassword', this)"></i></div>
+        <div class="flex space-x-3 pt-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Change Password</button><button type="button" onclick="closePwdModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
+    </form></div>
 </div>
 
 <!-- MAIN DASHBOARD -->
@@ -293,7 +357,7 @@
     </aside>
     
     <!-- MAIN CONTENT -->
-    <main class="flex-1 overflow-y-auto">
+    <main class="flex-1 overflow-y-auto main-content">
         
         <header class="bg-white shadow-sm px-6 py-4 sticky top-0 z-10 border-b border-gray-200">
             <div class="flex items-center justify-between flex-wrap gap-3">
@@ -313,15 +377,15 @@
             </div>
         </header>
         
-        <div class="p-6" id="mainContent">
+        <div class="p-6" id="mainContentContainer">
             
             <!-- DASHBOARD SECTION -->
             <div id="dashboardSection">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
-                    <div class="stat-card bg-white rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Total Employees</p><p class="text-3xl font-bold text-gray-800" id="totalEmployees">0</p></div><div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center"><i class="fas fa-users text-blue-500 text-xl"></i></div></div></div>
-                    <div class="stat-card bg-white rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Pending Tasks</p><p class="text-3xl font-bold text-orange-600" id="pendingTasksCount">0</p></div><div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center"><i class="fas fa-tasks text-orange-500 text-xl"></i></div></div></div>
-                    <div class="stat-card bg-white rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Unread Messages</p><p class="text-3xl font-bold text-red-600" id="unreadMessagesCount">0</p></div><div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center"><i class="fas fa-envelope text-red-500 text-xl"></i></div></div></div>
-                    <div class="stat-card bg-white rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Total Projects</p><p class="text-3xl font-bold text-green-600" id="totalProjects">0</p></div><div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center"><i class="fas fa-building text-green-500 text-xl"></i></div></div></div>
+                    <div class="stat-card rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Total Employees</p><p class="text-3xl font-bold text-gray-800" id="totalEmployees">0</p></div><div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center"><i class="fas fa-users text-blue-500 text-xl"></i></div></div></div>
+                    <div class="stat-card rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Pending Tasks</p><p class="text-3xl font-bold text-orange-600" id="pendingTasksCount">0</p></div><div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center"><i class="fas fa-tasks text-orange-500 text-xl"></i></div></div></div>
+                    <div class="stat-card rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Unread Messages</p><p class="text-3xl font-bold text-red-600" id="unreadMessagesCount">0</p></div><div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center"><i class="fas fa-envelope text-red-500 text-xl"></i></div></div></div>
+                    <div class="stat-card rounded-xl p-5"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm mb-1">Total Projects</p><p class="text-3xl font-bold text-green-600" id="totalProjects">0</p></div><div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center"><i class="fas fa-building text-green-500 text-xl"></i></div></div></div>
                 </div>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
@@ -406,7 +470,7 @@
                 </div>
             </div>
             
-            <!-- PROJECTS SECTION (WITH CRUD) -->
+            <!-- PROJECTS SECTION -->
             <div id="projectsSection" class="hidden">
                 <div class="bg-white rounded-xl shadow-sm p-5">
                     <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
@@ -474,327 +538,597 @@
 </div>
 </div>
 
-<!-- MODALS -->
-<div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Add Employee</h3><button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
-    <form id="employeeForm" class="p-6 space-y-3">
-        <input type="text" id="empName" placeholder="Full Name" class="w-full p-2 border rounded-lg" required>
-        <input type="email" id="empEmail" placeholder="Email" class="w-full p-2 border rounded-lg" required>
-        <input type="tel" id="empPhone" placeholder="Phone Number" class="w-full p-2 border rounded-lg">
-        <select id="empRole" class="w-full p-2 border rounded-lg"><option value="Manager">Manager</option><option value="Accountant">Accountant</option><option value="Sales Executive">Sales Executive</option><option value="Secretary">Secretary</option></select>
-        <select id="empDepartment" class="w-full p-2 border rounded-lg"><option value="Management">Management</option><option value="Finance">Finance</option><option value="Sales & Marketing">Sales & Marketing</option><option value="Administration">Secretary</option></select>
-        <input type="number" id="empSalary" placeholder="Salary (TZS)" class="w-full p-2 border rounded-lg">
-        <div class="flex space-x-3 pt-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Save</button><button type="button" onclick="closeModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
-    </form></div>
-</div>
-
-<div id="editEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Edit Employee</h3><button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
-    <form id="editEmployeeForm" class="p-6 space-y-3">
-        <input type="hidden" id="editEmpId"><input type="text" id="editEmpName" placeholder="Full Name" class="w-full p-2 border rounded-lg" required>
-        <input type="email" id="editEmpEmail" placeholder="Email" class="w-full p-2 border rounded-lg" required>
-        <input type="tel" id="editEmpPhone" placeholder="Phone Number" class="w-full p-2 border rounded-lg">
-        <select id="editEmpRole" class="w-full p-2 border rounded-lg"><option value="Manager">Manager</option><option value="Accountant">Accountant</option><option value="Sales Executive">Sales Executive</option><option value="Secretary">Secretary</option></select>
-        <select id="editEmpDepartment" class="w-full p-2 border rounded-lg"><option value="Management">Management</option><option value="Finance">Finance</option><option value="Sales & Marketing">Sales & Marketing</option><option value="Administration">Secretary</option></select>
-        <input type="number" id="editEmpSalary" placeholder="Salary (TZS)" class="w-full p-2 border rounded-lg">
-        <div class="flex space-x-3 pt-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Update</button><button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
-    </form></div>
-</div>
-
-<div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Add New Task</h3><button onclick="closeTaskModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
-    <div class="p-6 space-y-3">
-        <input type="text" id="taskTitle" placeholder="Task Title" class="w-full p-2 border rounded-lg">
-        <textarea id="taskDescription" rows="3" placeholder="Task Description" class="w-full p-2 border rounded-lg"></textarea>
-        <select id="taskDepartment" class="w-full p-2 border rounded-lg"><option value="Managers">Managers Dept</option><option value="Finance">Finance Dept</option><option value="Sales">Sales Dept</option><option value="Secretary">Secretary Dept</option></select>
-        <div class="flex space-x-3 pt-3"><button onclick="addNewTask()" class="flex-1 btn-primary text-white py-2 rounded-lg">Add Task</button><button onclick="closeTaskModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
-    </div></div>
-</div>
-
-<div id="changePwdModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl w-full max-w-md modal-pop"><div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold">Change Employee Password</h3><button onclick="closePwdModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div>
-    <form id="changePwdForm" class="p-6 space-y-3">
-        <input type="hidden" id="pwdEmpId"><input type="text" id="pwdEmpName" class="w-full p-2 border rounded-lg bg-gray-100" readonly>
-        <div class="password-field relative"><input type="password" id="newPassword" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePassword('newPassword', this)"></i></div>
-        <div class="password-field relative"><input type="password" id="confirmNewPassword" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePassword('confirmNewPassword', this)"></i></div>
-        <div class="flex space-x-3 pt-3"><button type="submit" class="flex-1 btn-primary text-white py-2 rounded-lg">Change Password</button><button type="button" onclick="closePwdModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div>
-    </form></div>
-</div>
-
-<div class="scroll-top" id="scrollTopBtn"><i class="fas fa-arrow-up text-white text-sm"></i></div>
-
 <script>
-    // ==================== AUTHENTICATION CHECK ====================
-    (function checkAuth() {
-        const token = localStorage.getItem('admin_token');
-        const user = localStorage.getItem('admin_user');
-        if (!token || !user) { window.location.href = 'login.html'; return; }
-        try { const userData = JSON.parse(user); document.getElementById('adminName').innerText = userData.full_name || userData.email?.split('@')[0] || 'Admin'; document.getElementById('adminEmail').innerText = userData.email || 'admin@geotraverse.com'; } catch(e) { window.location.href = 'login.html'; }
-    })();
-    
-    // ==================== LOGOUT ====================
-    function logout() { 
-        localStorage.removeItem('admin_token'); 
-        localStorage.removeItem('admin_user'); 
-        localStorage.removeItem('last_activity'); 
-        showToast('Logged out successfully'); 
-        setTimeout(() => window.location.href = 'login.html', 500); 
-    }
-    document.getElementById('logoutBtn')?.addEventListener('click', logout);
-    
-    // ==================== AUTO LOGOUT AFTER 1 HOUR ====================
-    let inactivityTimer = null, warningTimer = null, warningCountdown = null;
-    const INACTIVITY_LIMIT = 60 * 60 * 1000;
-    const WARNING_TIME = 30 * 1000;
-    
-    function resetInactivityTimer() {
-        if (inactivityTimer) clearTimeout(inactivityTimer);
-        if (warningTimer) clearTimeout(warningTimer);
-        if (warningCountdown) clearInterval(warningCountdown);
-        document.getElementById('sessionWarning').classList.remove('show');
-        inactivityTimer = setTimeout(showSessionWarning, INACTIVITY_LIMIT - WARNING_TIME);
-        localStorage.setItem('last_activity', Date.now().toString());
-    }
-    
-    function showSessionWarning() {
-        let secondsLeft = 30;
-        const warningDiv = document.getElementById('sessionWarning');
-        const timerSpan = document.getElementById('sessionTimer');
-        warningDiv.classList.add('show');
-        timerSpan.innerText = secondsLeft;
-        warningTimer = setTimeout(() => { logout(); }, WARNING_TIME);
-        warningCountdown = setInterval(() => {
-            secondsLeft--;
-            timerSpan.innerText = secondsLeft;
-            if (secondsLeft <= 0) clearInterval(warningCountdown);
-        }, 1000);
-    }
-    
-    function resetSessionTimer() { resetInactivityTimer(); showToast('Session extended! You will remain logged in.'); }
-    
-    ['click', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(activity => { document.addEventListener(activity, resetInactivityTimer); });
-    
-    function checkExistingSession() {
-        const lastActivity = localStorage.getItem('last_activity');
-        if (lastActivity) {
-            const timeSinceLastActivity = Date.now() - parseInt(lastActivity);
-            if (timeSinceLastActivity >= INACTIVITY_LIMIT) { logout(); }
-            else {
-                const remainingTime = INACTIVITY_LIMIT - timeSinceLastActivity;
-                if (remainingTime > 0) { inactivityTimer = setTimeout(showSessionWarning, remainingTime - WARNING_TIME); }
-            }
-        } else { resetInactivityTimer(); }
-    }
-    checkExistingSession();
-    
-    // ==================== TOAST ====================
-    function showToast(message, isError = false) {
-        const existingToast = document.querySelector('.toast-notification'); if (existingToast) existingToast.remove();
-        const toast = document.createElement('div'); toast.className = `toast-notification ${isError ? 'error' : ''}`; toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2"></i>${message}`;
-        document.body.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
-    }
-    
-    function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
-    
     // ==================== API CONFIGURATION ====================
     const API_BASE = 'http://localhost/geotraverse/backend/api';
+    let currentImageFile = null;
+    let currentDept = '';
+    let currentReportType = 'daily';
     
-    async function apiCall(endpoint, options = {}) {
-        const token = localStorage.getItem('admin_token');
-        const defaultOptions = {
-            headers: { 'Content-Type': 'application/json', 'Authorization': token || '' }
-        };
-        try {
-            const response = await fetch(`${API_BASE}/${endpoint}`, { ...defaultOptions, ...options });
-            const data = await response.json();
-            if (!response.ok) {
-                if (response.status === 401) {
-                    localStorage.removeItem('admin_token'); localStorage.removeItem('admin_user');
-                    showToast('Session expired. Please login again.', true);
-                    setTimeout(() => window.location.href = 'login.html', 1500);
-                }
-                throw new Error(data.message || 'Request failed');
-            }
-            return data;
-        } catch (error) {
-            console.error('API Error:', error);
-            showToast(error.message, true);
-            throw error;
-        }
+    // Data stores
+    let employees = [];
+    let tasks = [];
+    let messages = [];
+    let projects = [];
+    let activityLogs = [];
+    
+    // ==================== HELPER FUNCTIONS ====================
+    function showToast(message, isError = false) {
+        const existingToast = document.querySelector('.toast-notification');
+        if (existingToast) existingToast.remove();
+        const toast = document.createElement('div');
+        toast.className = `toast-notification ${isError ? 'error' : ''}`;
+        toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-2"></i>${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
     }
     
-    // ==================== IMAGE UPLOAD FUNCTIONS ====================
-    let currentImageFile = null;
+    function showLoading(show) {
+        document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+    }
     
-    document.getElementById('imageUploadArea')?.addEventListener('click', function() {
-        document.getElementById('projectImageFile').click();
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function formatDate(dateStr) {
+        if (!dateStr) return 'Just now';
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        if (minutes < 60) return `${minutes} min ago`;
+        if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        return `${Math.floor(hours / 24)} day${Math.floor(hours / 24) > 1 ? 's' : ''} ago`;
+    }
+    
+    // Convert image to Base64 for localStorage
+    function getImageAsBase64(file) {
+        return new Promise((resolve, reject) => {
+            if (!file) {
+                resolve('');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    // ==================== AUTHENTICATION ====================
+    function checkAuth() {
+        const token = localStorage.getItem('admin_token');
+        const user = localStorage.getItem('admin_user');
+        if (!token || !user) {
+            window.location.href = 'login.html';
+            return false;
+        }
+        try {
+            const userData = JSON.parse(user);
+            document.getElementById('adminName').innerText = userData.full_name || userData.email?.split('@')[0] || 'Admin';
+            document.getElementById('adminEmail').innerText = userData.email || 'admin@geotraverse.com';
+        } catch(e) {
+            window.location.href = 'login.html';
+        }
+        return true;
+    }
+    
+    document.getElementById('logoutBtn')?.addEventListener('click', () => {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        window.location.href = 'login.html';
     });
     
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            currentImageFile = input.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('previewImg').src = e.target.result;
-                document.getElementById('uploadPlaceholder').classList.add('hidden');
-                document.getElementById('imagePreview').classList.remove('hidden');
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-    
-    function removeImage() {
-        currentImageFile = null;
-        document.getElementById('projectImageFile').value = '';
-        document.getElementById('uploadPlaceholder').classList.remove('hidden');
-        document.getElementById('imagePreview').classList.add('hidden');
-        document.getElementById('previewImg').src = '';
-        document.getElementById('projectImageUrl').value = '';
-    }
-    
-    async function uploadProjectImage() {
-        if (!currentImageFile) return null;
-        
-        const formData = new FormData();
-        formData.append('image', currentImageFile);
-        
+    // ==================== EMPLOYEES CRUD (Database) ====================
+    async function loadEmployees() {
         try {
-            const response = await fetch(`${API_BASE}/upload_project_image.php`, {
+            const response = await fetch(`${API_BASE}/employees.php`);
+            const result = await response.json();
+            if (result.success && result.data) {
+                employees = result.data;
+                renderEmployeeTable();
+                document.getElementById('totalEmployees').innerText = employees.length;
+                renderDepartmentsGrid();
+                return employees;
+            }
+        } catch (error) {
+            console.error('Error loading employees:', error);
+            const saved = localStorage.getItem('geotraverse_employees');
+            if (saved) {
+                employees = JSON.parse(saved);
+                renderEmployeeTable();
+                document.getElementById('totalEmployees').innerText = employees.length;
+            }
+        }
+        return [];
+    }
+    
+    function renderEmployeeTable() {
+        const tbody = document.getElementById('employeeTableBody');
+        if (!tbody) return;
+        
+        if (employees.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No employees found. Click "Add Employee" to add one.</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = employees.map(emp => `
+            <tr class="employee-row border-b hover:bg-gray-50 transition">
+                <td class="px-4 py-3 text-sm">${emp.id}</td>
+                <td class="px-4 py-3 font-medium text-sm">${escapeHtml(emp.name)}</td>
+                <td class="px-4 py-3 text-sm hidden sm:table-cell">${escapeHtml(emp.email)}</td>
+                <td class="px-4 py-3 text-sm hidden md:table-cell">${emp.phone || '-'}</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700">${emp.role}</span></td>
+                <td class="px-4 py-3 text-sm hidden lg:table-cell">${emp.department}</td>
+                <td class="px-4 py-3 text-sm font-semibold text-green-600">TZS ${parseFloat(emp.salary).toLocaleString()}</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">${emp.status || 'Active'}</span></td>
+                <td class="px-4 py-3">
+                    <button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteEmployee(${emp.id})" class="text-red-600 hover:text-red-800 mr-2"><i class="fas fa-trash"></i></button>
+                    <button onclick="openChangePwdModal(${emp.id}, '${escapeHtml(emp.name)}')" class="text-orange-600 hover:text-orange-800"><i class="fas fa-key"></i></button>
+                 </div>
+              </tr>
+        `).join('');
+    }
+    
+    async function addEmployee(empData) {
+        showLoading(true);
+        try {
+            const response = await fetch(`${API_BASE}/employees.php`, {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(empData)
             });
             const result = await response.json();
             if (result.success) {
-                return result.image_url;
+                showToast('Employee added successfully');
+                await loadEmployees();
+                closeModal();
             } else {
-                showToast(result.message || 'Upload failed', true);
-                return null;
+                showToast(result.message || 'Failed to add employee', true);
             }
         } catch (error) {
-            showToast('Upload failed: ' + error.message, true);
-            return null;
+            const newId = employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1;
+            employees.push({ id: newId, ...empData, status: 'Active' });
+            localStorage.setItem('geotraverse_employees', JSON.stringify(employees));
+            renderEmployeeTable();
+            updateDashboardCounts();
+            showToast('Employee added successfully (Local)');
+            closeModal();
         }
+        showLoading(false);
     }
     
-    function resetImageUpload() {
-        currentImageFile = null;
-        document.getElementById('projectImageFile').value = '';
-        document.getElementById('uploadPlaceholder').classList.remove('hidden');
-        document.getElementById('imagePreview').classList.add('hidden');
-        document.getElementById('previewImg').src = '';
-        document.getElementById('projectImageUrl').value = '';
-    }
-    
-    // ==================== PROJECTS CRUD ====================
-    let projects = [];
-    
-    async function loadProjects() {
+    async function updateEmployeeData(id, empData) {
+        showLoading(true);
         try {
-            const result = await apiCall('projects.php');
-            if (result.success && result.data) {
-                projects = result.data;
-                renderProjects();
-                updateDashboardCounts();
-                return projects;
-            }
-        } catch (error) {
-            const savedProjects = localStorage.getItem('geotraverse_projects');
-            if (savedProjects) {
-                projects = JSON.parse(savedProjects);
+            const response = await fetch(`${API_BASE}/employees.php`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, ...empData })
+            });
+            const result = await response.json();
+            if (result.success) {
+                showToast('Employee updated successfully');
+                await loadEmployees();
+                closeEditModal();
             } else {
-                projects = [
-                    { id: 1, name: "Modern Villa - Kigamboni", client_name: "John M.", amount: "180000000", status: "completed", progress: 100, location: "Kigamboni", image_url: "", description: "Luxury 4 bedroom villa" },
-                    { id: 2, name: "Commercial Complex - Pwani", client_name: "Sarah K.", amount: "350000000", status: "in_progress", progress: 65, location: "Pwani", image_url: "", description: "10 story commercial building" },
-                    { id: 3, name: "Land Survey - 15 Acres", client_name: "James P.", amount: "3500000", status: "approved", progress: 30, location: "Morogoro", image_url: "", description: "Agricultural land survey" }
-                ];
-            }
-            renderProjects();
-            updateDashboardCounts();
-        }
-    }
-    
-    async function addProject(projectData) {
-        let imageUrl = '';
-        if (currentImageFile) {
-            imageUrl = await uploadProjectImage();
-            if (!imageUrl && currentImageFile) {
-                showToast('Image upload failed', true);
-                return false;
-            }
-        }
-        
-        const fullProjectData = { ...projectData, image_url: imageUrl };
-        
-        try {
-            const result = await apiCall('projects.php', { method: 'POST', body: JSON.stringify(fullProjectData) });
-            if (result.success) {
-                showToast('Project added successfully');
-                await loadProjects();
-                return true;
+                showToast(result.message || 'Failed to update employee', true);
             }
         } catch (error) {
-            const newId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
-            projects.push({ id: newId, ...fullProjectData });
-            localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
-            renderProjects();
-            updateDashboardCounts();
-            showToast('Project added successfully (Local)');
-            return true;
-        }
-        return false;
-    }
-    
-    async function updateProject(id, projectData) {
-        let imageUrl = projectData.image_url || '';
-        if (currentImageFile) {
-            imageUrl = await uploadProjectImage();
-            if (!imageUrl && currentImageFile) {
-                showToast('Image upload failed', true);
-                return false;
-            }
-        }
-        
-        const fullProjectData = { ...projectData, image_url: imageUrl };
-        
-        try {
-            const result = await apiCall('projects.php', { method: 'PUT', body: JSON.stringify({ id, ...fullProjectData }) });
-            if (result.success) {
-                showToast('Project updated successfully');
-                await loadProjects();
-                return true;
-            }
-        } catch (error) {
-            const index = projects.findIndex(p => p.id === id);
+            const index = employees.findIndex(e => e.id === id);
             if (index !== -1) {
-                projects[index] = { ...projects[index], ...fullProjectData };
-                localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
-                renderProjects();
+                employees[index] = { ...employees[index], ...empData };
+                localStorage.setItem('geotraverse_employees', JSON.stringify(employees));
+                renderEmployeeTable();
                 updateDashboardCounts();
-                showToast('Project updated successfully (Local)');
-                return true;
+                showToast('Employee updated successfully (Local)');
+                closeEditModal();
             }
         }
-        return false;
+        showLoading(false);
     }
     
-    async function deleteProject(id) {
-        if (!confirm('Are you sure you want to delete this project?')) return false;
+    async function deleteEmployee(id) {
+        if (!confirm('Are you sure you want to delete this employee?')) return;
+        
+        showLoading(true);
         try {
-            const result = await apiCall(`projects.php?id=${id}`, { method: 'DELETE' });
+            const response = await fetch(`${API_BASE}/employees.php?id=${id}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
             if (result.success) {
-                showToast('Project deleted successfully');
-                await loadProjects();
-                return true;
+                showToast('Employee deleted successfully');
+                await loadEmployees();
+            } else {
+                showToast(result.message || 'Failed to delete employee', true);
             }
         } catch (error) {
-            projects = projects.filter(p => p.id !== id);
-            localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
-            renderProjects();
+            employees = employees.filter(e => e.id !== id);
+            localStorage.setItem('geotraverse_employees', JSON.stringify(employees));
+            renderEmployeeTable();
             updateDashboardCounts();
-            showToast('Project deleted successfully (Local)');
-            return true;
+            showToast('Employee deleted successfully (Local)');
         }
-        return false;
+        showLoading(false);
+    }
+    
+    function openAddEmployeeModal() {
+        document.getElementById('employeeModal').classList.remove('hidden');
+        document.getElementById('employeeModal').classList.add('flex');
+    }
+    
+    function closeModal() {
+        document.getElementById('employeeModal').classList.add('hidden');
+        document.getElementById('employeeModal').classList.remove('flex');
+        document.getElementById('employeeForm').reset();
+    }
+    
+    function openEditEmployeeModal(id) {
+        const emp = employees.find(e => e.id === id);
+        if (emp) {
+            document.getElementById('editEmpId').value = emp.id;
+            document.getElementById('editEmpName').value = emp.name;
+            document.getElementById('editEmpEmail').value = emp.email;
+            document.getElementById('editEmpPhone').value = emp.phone || '';
+            document.getElementById('editEmpRole').value = emp.role;
+            document.getElementById('editEmpDepartment').value = emp.department;
+            document.getElementById('editEmpSalary').value = emp.salary;
+            document.getElementById('editEmployeeModal').classList.remove('hidden');
+            document.getElementById('editEmployeeModal').classList.add('flex');
+        }
+    }
+    
+    function closeEditModal() {
+        document.getElementById('editEmployeeModal').classList.add('hidden');
+        document.getElementById('editEmployeeModal').classList.remove('flex');
+        document.getElementById('editEmployeeForm').reset();
+    }
+    
+    document.getElementById('employeeForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await addEmployee({
+            name: document.getElementById('empName').value,
+            email: document.getElementById('empEmail').value,
+            phone: document.getElementById('empPhone').value,
+            role: document.getElementById('empRole').value,
+            department: document.getElementById('empDepartment').value,
+            salary: document.getElementById('empSalary').value
+        });
+    });
+    
+    document.getElementById('editEmployeeForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        await updateEmployeeData(parseInt(document.getElementById('editEmpId').value), {
+            name: document.getElementById('editEmpName').value,
+            email: document.getElementById('editEmpEmail').value,
+            phone: document.getElementById('editEmpPhone').value,
+            role: document.getElementById('editEmpRole').value,
+            department: document.getElementById('editEmpDepartment').value,
+            salary: document.getElementById('editEmpSalary').value
+        });
+    });
+    
+    function exportEmployeesToExcel() {
+        if (!employees.length) {
+            showToast('No employee data to export', true);
+            return;
+        }
+        let excelData = [['GeoTraverse - Employees Report'], [`Generated on: ${new Date().toLocaleString()}`], [`Total Employees: ${employees.length}`], [], ['ID', 'Name', 'Email', 'Phone', 'Role', 'Department', 'Salary (TZS)', 'Status']];
+        employees.forEach(emp => {
+            excelData.push([emp.id, emp.name, emp.email, emp.phone || '-', emp.role, emp.department, parseFloat(emp.salary).toLocaleString(), emp.status || 'Active']);
+        });
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(excelData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Employees_Report');
+        XLSX.writeFile(wb, `employees_report_${new Date().toISOString().slice(0,10)}.xlsx`);
+        showToast('Employees exported to Excel successfully!');
+    }
+    
+    // ==================== CHANGE PASSWORD ====================
+    let currentEmpId = null;
+    
+    function openChangePwdModal(id, name) {
+        currentEmpId = id;
+        document.getElementById('pwdEmpName').value = name;
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmNewPassword').value = '';
+        document.getElementById('changePwdModal').classList.remove('hidden');
+        document.getElementById('changePwdModal').classList.add('flex');
+    }
+    
+    function closePwdModal() {
+        document.getElementById('changePwdModal').classList.add('hidden');
+        document.getElementById('changePwdModal').classList.remove('flex');
+        currentEmpId = null;
+    }
+    
+    function changeEmployeePassword() {
+        const newPwd = document.getElementById('newPassword').value;
+        const confirmPwd = document.getElementById('confirmNewPassword').value;
+        if (!newPwd) {
+            showToast('Enter new password', true);
+            return;
+        }
+        if (newPwd !== confirmPwd) {
+            showToast('Passwords do not match', true);
+            return;
+        }
+        showToast('Password changed successfully');
+        closePwdModal();
+    }
+    
+    document.getElementById('changePwdForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        changeEmployeePassword();
+    });
+    
+    // ==================== TASKS CRUD (Database) ====================
+    async function loadTasks() {
+        try {
+            const response = await fetch(`${API_BASE}/tasks.php`);
+            const result = await response.json();
+            if (result.success && result.data) {
+                tasks = result.data;
+                renderTasks();
+                updateDashboardCounts();
+                return tasks;
+            }
+        } catch (error) {
+            const saved = localStorage.getItem('geotraverse_tasks');
+            if (saved) {
+                tasks = JSON.parse(saved);
+                renderTasks();
+                updateDashboardCounts();
+            }
+        }
+        return [];
+    }
+    
+    function renderTasks() {
+        const pendingDiv = document.getElementById('pendingTasksList');
+        const completedDiv = document.getElementById('completedTasksList');
+        const pendingTasks = tasks.filter(t => !t.completed);
+        const completedTasks = tasks.filter(t => t.completed);
+        document.getElementById('pendingTasksBadgeInline') && (document.getElementById('pendingTasksBadgeInline').innerText = pendingTasks.length);
+        
+        if (pendingDiv) {
+            if (pendingTasks.length === 0) {
+                pendingDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No pending tasks</div>';
+            } else {
+                pendingDiv.innerHTML = pendingTasks.map(t => `
+                    <div class="task-item">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-semibold text-sm">${escapeHtml(t.title)}</p>
+                                <p class="text-xs text-gray-500 mt-1">${escapeHtml(t.description)}</p>
+                                <span class="text-xs text-blue-500">${t.department}</span>
+                            </div>
+                            <input type="checkbox" onchange="toggleTask(${t.id})" class="w-5 h-5 cursor-pointer">
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        if (completedDiv) {
+            if (completedTasks.length === 0) {
+                completedDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No completed tasks</div>';
+            } else {
+                completedDiv.innerHTML = completedTasks.map(t => `
+                    <div class="task-item opacity-75">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-semibold text-sm line-through text-gray-400">${escapeHtml(t.title)}</p>
+                                <p class="text-xs text-gray-400">${escapeHtml(t.description)}</p>
+                            </div>
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    }
+    
+    async function addTask(taskData) {
+        showLoading(true);
+        try {
+            const response = await fetch(`${API_BASE}/tasks.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(taskData)
+            });
+            const result = await response.json();
+            if (result.success) {
+                showToast('Task added successfully');
+                await loadTasks();
+                closeTaskModal();
+            } else {
+                showToast(result.message || 'Failed to add task', true);
+            }
+        } catch (error) {
+            const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+            tasks.push({ id: newId, ...taskData, completed: false });
+            localStorage.setItem('geotraverse_tasks', JSON.stringify(tasks));
+            renderTasks();
+            updateDashboardCounts();
+            showToast('Task added successfully (Local)');
+            closeTaskModal();
+        }
+        showLoading(false);
+    }
+    
+    async function toggleTask(id) {
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+            task.completed = !task.completed;
+            try {
+                await fetch(`${API_BASE}/tasks.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, completed: task.completed ? 1 : 0 })
+                });
+            } catch (error) {
+                localStorage.setItem('geotraverse_tasks', JSON.stringify(tasks));
+            }
+            renderTasks();
+            updateDashboardCounts();
+            showToast(task.completed ? 'Task completed!' : 'Task marked incomplete');
+        }
+    }
+    
+    function openAddTaskModal() {
+        document.getElementById('taskModal').classList.remove('hidden');
+        document.getElementById('taskModal').classList.add('flex');
+    }
+    
+    function closeTaskModal() {
+        document.getElementById('taskModal').classList.add('hidden');
+        document.getElementById('taskModal').classList.remove('flex');
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskDescription').value = '';
+    }
+    
+    function addNewTask() {
+        const title = document.getElementById('taskTitle').value;
+        if (!title) {
+            showToast('Enter task title', true);
+            return;
+        }
+        addTask({
+            title: title,
+            description: document.getElementById('taskDescription').value || 'No description',
+            department: document.getElementById('taskDepartment').value
+        });
+    }
+    
+    // ==================== MESSAGES CRUD (Database) ====================
+    async function loadMessages() {
+        try {
+            const response = await fetch(`${API_BASE}/messages.php`);
+            const result = await response.json();
+            if (result.success && result.data) {
+                messages = result.data;
+                renderMessagesList();
+                updateDashboardCounts();
+                return messages;
+            }
+        } catch (error) {
+            const saved = localStorage.getItem('geotraverse_messages');
+            if (saved) {
+                messages = JSON.parse(saved);
+                renderMessagesList();
+                updateDashboardCounts();
+            }
+        }
+        return [];
+    }
+    
+    function renderMessagesList() {
+        const convDiv = document.getElementById('messagesList');
+        if (!convDiv) return;
+        if (messages.length === 0) {
+            convDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No messages found</div>';
+            return;
+        }
+        convDiv.innerHTML = messages.map(m => `
+            <div class="message-item p-3 rounded-lg ${!m.is_read ? 'message-unread' : 'hover:bg-gray-50'}" onclick="viewConversation(${m.id})">
+                <div class="flex justify-between"><span class="font-semibold">${escapeHtml(m.from_department)} Dept</span><span class="text-xs text-gray-400">${formatDate(m.created_at)}</span></div>
+                <p class="text-sm truncate">${escapeHtml(m.subject)}</p>
+                <div class="flex justify-between items-center mt-1">
+                    <p class="text-xs text-gray-400">${m.reply_message ? 'Replied' : 'Awaiting reply'}</p>
+                    <button onclick="event.stopPropagation(); deleteMessage(${m.id})" class="text-red-500 hover:text-red-700 text-xs"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+        updateDashboardCounts();
+    }
+    
+    function viewConversation(id) {
+        const msg = messages.find(m => m.id === id);
+        if (msg && !msg.is_read) {
+            msg.is_read = true;
+            saveMessagesLocally();
+            renderMessagesList();
+            updateDashboardCounts();
+        }
+        const detailView = document.getElementById('messageDetailView');
+        let chatHtml = `<div class="mb-4 pb-4 border-b"><div class="flex justify-between items-center mb-3"><div><h3 class="font-bold text-lg">${escapeHtml(msg.from_department)} Department</h3><p class="text-sm text-gray-500">${formatDate(msg.created_at)}</p></div><div class="flex gap-2"><span class="text-xs bg-gray-100 px-2 py-1 rounded">${escapeHtml(msg.subject)}</span><button onclick="deleteMessage(${msg.id})" class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-trash"></i> Delete</button></div></div><div class="chat-bubble chat-message"><p>${escapeHtml(msg.message)}</p></div>`;
+        if (msg.reply_message) {
+            chatHtml += `<div class="chat-bubble chat-reply"><p class="font-semibold text-sm">Admin replied:</p><p>${escapeHtml(msg.reply_message)}</p><p class="text-xs text-gray-500 mt-1">${formatDate(msg.replied_at)}</p></div>`;
+        }
+        chatHtml += `</div><div class="mt-4"><textarea id="replyText" rows="3" placeholder="Type your reply..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea><div class="flex justify-end gap-2 mt-3"><button onclick="sendReply(${msg.id})" class="btn-primary text-white px-5 py-2 rounded-lg"><i class="fas fa-paper-plane mr-2"></i>Send Reply</button></div></div>`;
+        detailView.innerHTML = chatHtml;
+    }
+    
+    function saveMessagesLocally() {
+        localStorage.setItem('geotraverse_messages', JSON.stringify(messages));
+    }
+    
+    async function sendReply(id) {
+        const replyText = document.getElementById('replyText')?.value;
+        if (!replyText || replyText.trim() === '') {
+            showToast('Please enter a reply', true);
+            return;
+        }
+        const msg = messages.find(m => m.id === id);
+        if (msg) {
+            msg.reply_message = replyText;
+            msg.replied_at = new Date().toISOString();
+            saveMessagesLocally();
+            renderMessagesList();
+            showToast('Reply sent successfully');
+            viewConversation(id);
+        }
+    }
+    
+    async function deleteMessage(id) {
+        if (confirm('Are you sure you want to delete this message?')) {
+            messages = messages.filter(m => m.id !== id);
+            saveMessagesLocally();
+            renderMessagesList();
+            updateDashboardCounts();
+            showToast('Message deleted successfully');
+            document.getElementById('messageDetailView').innerHTML = `<i class="fas fa-envelope-open-text text-5xl mb-3"></i><p>Select a message to view, reply or delete</p>`;
+        }
+    }
+    
+    // ==================== PROJECTS CRUD (LocalStorage only for images) ====================
+    async function loadProjects() {
+        const saved = localStorage.getItem('geotraverse_projects');
+        if (saved) {
+            projects = JSON.parse(saved);
+            renderProjects();
+            document.getElementById('totalProjects').innerText = projects.length;
+            renderManagersProjects();
+        } else {
+            projects = [];
+            renderProjects();
+        }
+        
+        // Try to sync with API (without images)
+        try {
+            const response = await fetch(`${API_BASE}/projects.php`);
+            const result = await response.json();
+            if (result.success && result.data.length > 0) {
+                const apiProjects = result.data;
+                const localProjectIds = new Set(projects.map(p => p.id));
+                const newProjects = apiProjects.filter(p => !localProjectIds.has(p.id));
+                if (newProjects.length > 0) {
+                    projects = [...newProjects, ...projects];
+                    localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
+                    renderProjects();
+                }
+            }
+        } catch(e) {
+            console.log('API sync skipped');
+        }
+        return projects;
     }
     
     function renderProjects() {
@@ -808,7 +1142,7 @@
         
         grid.innerHTML = projects.map(p => `
             <div class="project-card bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition">
-                <div class="h-40 bg-gray-100 flex items-center justify-center overflow-hidden">
+                <div class="h-40 bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer" onclick="openImageModal('${p.image_url || ''}')">
                     ${p.image_url ? 
                         `<img src="${p.image_url}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x200?text=No+Image'">` : 
                         `<i class="fas fa-building text-gray-300 text-5xl"></i>`
@@ -847,11 +1181,78 @@
         return texts[status] || status;
     }
     
+    async function addProject(projectData) {
+        showLoading(true);
+        try {
+            let imageUrl = '';
+            if (currentImageFile) {
+                imageUrl = await getImageAsBase64(currentImageFile);
+            }
+            
+            const newProject = {
+                id: Date.now(),
+                ...projectData,
+                image_url: imageUrl,
+                created_at: new Date().toISOString()
+            };
+            
+            projects.unshift(newProject);
+            localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
+            renderProjects();
+            document.getElementById('totalProjects').innerText = projects.length;
+            renderManagersProjects();
+            showToast('Project added successfully with image!');
+            closeProjectModal();
+            removeImage();
+        } catch (error) {
+            showToast('Error adding project', true);
+        }
+        showLoading(false);
+    }
+    
+    async function updateProjectData(id, projectData) {
+        showLoading(true);
+        try {
+            let imageUrl = '';
+            if (currentImageFile) {
+                imageUrl = await getImageAsBase64(currentImageFile);
+            }
+            
+            const index = projects.findIndex(p => p.id === id);
+            if (index !== -1) {
+                projects[index] = {
+                    ...projects[index],
+                    ...projectData,
+                    image_url: imageUrl || projects[index].image_url
+                };
+                localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
+                renderProjects();
+                renderManagersProjects();
+                showToast('Project updated successfully!');
+                closeProjectModal();
+                removeImage();
+            }
+        } catch (error) {
+            showToast('Error updating project', true);
+        }
+        showLoading(false);
+    }
+    
+    function deleteProject(id) {
+        if (!confirm('Are you sure you want to delete this project?')) return;
+        projects = projects.filter(p => p.id !== id);
+        localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
+        renderProjects();
+        document.getElementById('totalProjects').innerText = projects.length;
+        renderManagersProjects();
+        showToast('Project deleted successfully');
+    }
+    
     function openAddProjectModal() {
         document.getElementById('projectModalTitle').innerText = 'Add New Project';
         document.getElementById('projectForm').reset();
         document.getElementById('projectId').value = '';
-        resetImageUpload();
+        removeImage();
         document.getElementById('projectModal').classList.remove('hidden');
         document.getElementById('projectModal').classList.add('flex');
     }
@@ -873,13 +1274,13 @@
             document.getElementById('projectStartDate').value = project.start_date || '';
             document.getElementById('projectEndDate').value = project.end_date || '';
             
-            if (project.image_url) {
+            if (project.image_url && project.image_url.startsWith('data:image')) {
                 document.getElementById('previewImg').src = project.image_url;
                 document.getElementById('uploadPlaceholder').classList.add('hidden');
                 document.getElementById('imagePreview').classList.remove('hidden');
-                document.getElementById('projectImageUrl').value = project.image_url;
+                currentImageFile = null;
             } else {
-                resetImageUpload();
+                removeImage();
             }
             
             document.getElementById('projectModal').classList.remove('hidden');
@@ -891,7 +1292,7 @@
         document.getElementById('projectModal').classList.add('hidden');
         document.getElementById('projectModal').classList.remove('flex');
         document.getElementById('projectForm').reset();
-        resetImageUpload();
+        removeImage();
     }
     
     document.getElementById('projectForm')?.addEventListener('submit', async function(e) {
@@ -912,326 +1313,53 @@
         };
         
         if (id) {
-            await updateProject(parseInt(id), projectData);
+            await updateProjectData(parseInt(id), projectData);
         } else {
             await addProject(projectData);
         }
-        closeProjectModal();
     });
     
-    // ==================== EMPLOYEES CRUD ====================
-    let employees = [];
-    
-    function loadEmployees() {
-        const saved = localStorage.getItem('geotraverse_employees');
-        if (saved) { employees = JSON.parse(saved); }
-        else {
-            employees = [
-                { id: 1, name: "John Doe", email: "john@geotraverse.com", phone: "0712345678", role: "Manager", department: "Management", salary: "2500000", status: "Active" },
-                { id: 2, name: "Mary Smith", email: "mary@geotraverse.com", phone: "0755123456", role: "Accountant", department: "Finance", salary: "1800000", status: "Active" },
-                { id: 3, name: "David Kim", email: "david@geotraverse.com", phone: "0784567890", role: "Sales Executive", department: "Sales & Marketing", salary: "1500000", status: "Active" },
-                { id: 4, name: "Sarah Lee", email: "sarah@geotraverse.com", phone: "0713987654", role: "Secretary", department: "Administration", salary: "1200000", status: "Active" }
-            ];
-            saveEmployees();
-        }
-        renderEmployeeTable();
-        updateDashboardCounts();
-        renderDepartmentsGrid();
-    }
-    
-    function saveEmployees() { localStorage.setItem('geotraverse_employees', JSON.stringify(employees)); }
-    
-    function addEmployee(emp) {
-        const newId = employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1;
-        employees.push({ id: newId, ...emp, status: "Active" });
-        saveEmployees();
-        renderEmployeeTable();
-        updateDashboardCounts();
-        renderDepartmentsGrid();
-        addActivityLog(`Added new employee: ${emp.name}`);
-        showToast('Employee added successfully');
-    }
-    
-    function updateEmployee(id, data) {
-        const index = employees.findIndex(e => e.id === id);
-        if (index !== -1) {
-            employees[index] = { ...employees[index], ...data };
-            saveEmployees();
-            renderEmployeeTable();
-            updateDashboardCounts();
-            renderDepartmentsGrid();
-            addActivityLog(`Updated employee: ${data.name}`);
-            showToast('Employee updated successfully');
-        }
-    }
-    
-    function deleteEmployeeById(id) {
-        const emp = employees.find(e => e.id === id);
-        if (emp && confirm('Are you sure you want to delete this employee?')) {
-            employees = employees.filter(e => e.id !== id);
-            saveEmployees();
-            renderEmployeeTable();
-            updateDashboardCounts();
-            renderDepartmentsGrid();
-            addActivityLog(`Deleted employee: ${emp.name}`);
-            showToast('Employee deleted successfully');
-        }
-    }
-    
-    function renderEmployeeTable() {
-        const tbody = document.getElementById('employeeTableBody');
-        if (!tbody) return;
-        if (employees.length === 0) { tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No employees found. Click "Add Employee" to add one.</td></tr>'; return; }
-        tbody.innerHTML = employees.map(emp => `
-            <tr class="employee-row border-b hover:bg-gray-50 transition">
-                <td class="px-4 py-3 text-sm">${emp.id}</td>
-                <td class="px-4 py-3 font-medium text-sm">${escapeHtml(emp.name)}</td>
-                <td class="px-4 py-3 text-sm hidden sm:table-cell">${escapeHtml(emp.email)}</td>
-                <td class="px-4 py-3 text-sm hidden md:table-cell">${emp.phone || '-'}</td>
-                <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700">${emp.role}</span></td>
-                <td class="px-4 py-3 text-sm hidden lg:table-cell">${emp.department}</td>
-                <td class="px-4 py-3 text-sm font-semibold text-green-600">TZS ${parseFloat(emp.salary).toLocaleString()}</td>
-                <td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">${emp.status}</span></td>
-                <td class="px-4 py-3">
-                    <button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteEmployeeById(${emp.id})" class="text-red-600 hover:text-red-800 mr-2"><i class="fas fa-trash"></i></button>
-                    <button onclick="openChangePwdModal(${emp.id})" class="text-orange-600 hover:text-orange-800"><i class="fas fa-key"></i></button>
-                </td>
-            </tr>
-        `).join('');
-    }
-    
-    function openAddEmployeeModal() { document.getElementById('employeeModal').classList.remove('hidden'); document.getElementById('employeeModal').classList.add('flex'); }
-    function closeModal() { document.getElementById('employeeModal').classList.add('hidden'); document.getElementById('employeeModal').classList.remove('flex'); document.getElementById('employeeForm').reset(); }
-    
-    function openEditEmployeeModal(id) {
-        const emp = employees.find(e => e.id === id);
-        if (emp) {
-            document.getElementById('editEmpId').value = emp.id;
-            document.getElementById('editEmpName').value = emp.name;
-            document.getElementById('editEmpEmail').value = emp.email;
-            document.getElementById('editEmpPhone').value = emp.phone || '';
-            document.getElementById('editEmpRole').value = emp.role;
-            document.getElementById('editEmpDepartment').value = emp.department;
-            document.getElementById('editEmpSalary').value = emp.salary;
-            document.getElementById('editEmployeeModal').classList.remove('hidden');
-            document.getElementById('editEmployeeModal').classList.add('flex');
-        }
-    }
-    function closeEditModal() { document.getElementById('editEmployeeModal').classList.add('hidden'); document.getElementById('editEmployeeModal').classList.remove('flex'); }
-    
-    function openChangePwdModal(id) {
-        const emp = employees.find(e => e.id === id);
-        if (emp) {
-            document.getElementById('pwdEmpId').value = emp.id;
-            document.getElementById('pwdEmpName').value = emp.name;
-            document.getElementById('changePwdModal').classList.remove('hidden');
-            document.getElementById('changePwdModal').classList.add('flex');
-        }
-    }
-    function closePwdModal() { document.getElementById('changePwdModal').classList.add('hidden'); document.getElementById('changePwdModal').classList.remove('flex'); document.getElementById('changePwdForm').reset(); }
-    function changeEmployeePassword() {
-        const newPwd = document.getElementById('newPassword').value;
-        const confirmPwd = document.getElementById('confirmNewPassword').value;
-        if (!newPwd) { showToast('Enter new password', true); return; }
-        if (newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; }
-        showToast('Password changed'); closePwdModal();
-    }
-    
-    document.getElementById('employeeForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('empName').value;
-        if (!name) return;
-        addEmployee({
-            name, email: document.getElementById('empEmail').value, phone: document.getElementById('empPhone').value,
-            role: document.getElementById('empRole').value, department: document.getElementById('empDepartment').value,
-            salary: document.getElementById('empSalary').value
-        });
-        closeModal();
-        document.getElementById('employeeForm').reset();
+    // Image upload handlers
+    document.getElementById('imageUploadArea')?.addEventListener('click', function() {
+        document.getElementById('projectImageFile').click();
     });
     
-    document.getElementById('editEmployeeForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const id = parseInt(document.getElementById('editEmpId').value);
-        updateEmployee(id, {
-            name: document.getElementById('editEmpName').value, email: document.getElementById('editEmpEmail').value,
-            phone: document.getElementById('editEmpPhone').value, role: document.getElementById('editEmpRole').value,
-            department: document.getElementById('editEmpDepartment').value, salary: document.getElementById('editEmpSalary').value
-        });
-        closeEditModal();
+    document.getElementById('projectImageFile')?.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+            currentImageFile = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                document.getElementById('previewImg').src = ev.target.result;
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
+                document.getElementById('imagePreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
     });
     
-    document.getElementById('changePwdForm')?.addEventListener('submit', function(e) { e.preventDefault(); changeEmployeePassword(); });
-    
-    function exportEmployeesToExcel() {
-        if (!employees.length) { showToast('No employee data to export', true); return; }
-        let excelData = [['GeoTraverse - Employees Report'], [`Generated on: ${new Date().toLocaleString()}`], [`Total Employees: ${employees.length}`], [], ['ID', 'Name', 'Email', 'Phone', 'Role', 'Department', 'Salary (TZS)', 'Status']];
-        employees.forEach(emp => { excelData.push([emp.id, emp.name, emp.email, emp.phone || '-', emp.role, emp.department, parseFloat(emp.salary).toLocaleString(), emp.status]); });
-        const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(excelData);
-        XLSX.utils.book_append_sheet(wb, ws, 'Employees_Report');
-        XLSX.writeFile(wb, `employees_report_${new Date().toISOString().slice(0,10)}.xlsx`);
-        showToast('Employees exported to Excel successfully!');
+    function removeImage() {
+        currentImageFile = null;
+        document.getElementById('projectImageFile').value = '';
+        document.getElementById('uploadPlaceholder').classList.remove('hidden');
+        document.getElementById('imagePreview').classList.add('hidden');
+        document.getElementById('previewImg').src = '';
     }
     
-    // ==================== TASKS CRUD ====================
-    let tasks = [];
-    
-    function loadTasks() {
-        const saved = localStorage.getItem('geotraverse_tasks');
-        if (saved) { tasks = JSON.parse(saved); }
-        else {
-            tasks = [
-                { id: 1, title: "Complete Q1 Project Reports", description: "Managers need to submit Q1 reports", department: "Managers", completed: false },
-                { id: 2, title: "Process Pending Invoices", description: "Finance - 3 invoices awaiting payment", department: "Finance", completed: false },
-                { id: 3, title: "Follow up on Customer Forms", description: "Sales - 5 new customer inquiries", department: "Sales", completed: true },
-                { id: 4, title: "Schedule Board Meeting", description: "Secretary - Arrange meeting for next week", department: "Secretary", completed: false }
-            ];
-            saveTasks();
-        }
-        renderTasks();
-        updateDashboardCounts();
-    }
-    
-    function saveTasks() { localStorage.setItem('geotraverse_tasks', JSON.stringify(tasks)); }
-    
-    function addTask(task) {
-        const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
-        tasks.push({ id: newId, ...task, completed: false });
-        saveTasks();
-        renderTasks();
-        updateDashboardCounts();
-        addActivityLog(`Added new task: ${task.title}`);
-        showToast('Task added successfully');
-    }
-    
-    function toggleTask(id) {
-        const task = tasks.find(t => t.id === id);
-        if (task) {
-            task.completed = !task.completed;
-            saveTasks();
-            renderTasks();
-            updateDashboardCounts();
-            addActivityLog(task.completed ? `Task completed: ${task.title}` : `Task marked incomplete: ${task.title}`);
-            showToast(task.completed ? 'Task completed!' : 'Task marked incomplete');
+    function openImageModal(imageUrl) {
+        if (imageUrl && imageUrl !== '') {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            img.src = imageUrl;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
     }
     
-    function renderTasks() {
-        const pendingDiv = document.getElementById('pendingTasksList');
-        const completedDiv = document.getElementById('completedTasksList');
-        const pendingTasks = tasks.filter(t => !t.completed);
-        const completedTasks = tasks.filter(t => t.completed);
-        document.getElementById('pendingTasksBadgeInline') && (document.getElementById('pendingTasksBadgeInline').innerText = pendingTasks.length);
-        if (pendingDiv) {
-            if (pendingTasks.length === 0) { pendingDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No pending tasks</div>'; }
-            else { pendingDiv.innerHTML = pendingTasks.map(t => `<div class="task-item"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm">${escapeHtml(t.title)}</p><p class="text-xs text-gray-500 mt-1">${escapeHtml(t.description)}</p><span class="text-xs text-blue-500">${t.department}</span></div><input type="checkbox" onchange="toggleTask(${t.id})" class="w-5 h-5 cursor-pointer"></div></div>`).join(''); }
-        }
-        if (completedDiv) {
-            if (completedTasks.length === 0) { completedDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No completed tasks</div>'; }
-            else { completedDiv.innerHTML = completedTasks.map(t => `<div class="task-item opacity-75"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm line-through text-gray-400">${escapeHtml(t.title)}</p><p class="text-xs text-gray-400">${escapeHtml(t.description)}</p></div><i class="fas fa-check-circle text-green-500"></i></div></div>`).join(''); }
-        }
-    }
-    
-    function openAddTaskModal() { document.getElementById('taskModal').classList.remove('hidden'); document.getElementById('taskModal').classList.add('flex'); }
-    function closeTaskModal() { document.getElementById('taskModal').classList.add('hidden'); document.getElementById('taskModal').classList.remove('flex'); document.getElementById('taskTitle').value = ''; document.getElementById('taskDescription').value = ''; }
-    function addNewTask() {
-        const title = document.getElementById('taskTitle').value;
-        if (!title) { showToast('Enter task title', true); return; }
-        addTask({ title, description: document.getElementById('taskDescription').value || 'No description', department: document.getElementById('taskDepartment').value });
-        closeTaskModal();
-    }
-    
-    // ==================== MESSAGES CRUD ====================
-    let messages = [];
-    
-    function loadMessages() {
-        const saved = localStorage.getItem('geotraverse_messages');
-        if (saved) { messages = JSON.parse(saved); }
-        else {
-            messages = [
-                { id: 1, from_department: "Managers", subject: "Project Update", message: "We have completed 2 new modern houses this month.", is_read: false, created_at: new Date(Date.now() - 2*60*60*1000).toISOString(), reply_message: null },
-                { id: 2, from_department: "Finance", subject: "Invoice Payment", message: "Client John Doe has paid TZS 5,000,000", is_read: false, created_at: new Date(Date.now() - 5*60*60*1000).toISOString(), reply_message: null },
-                { id: 3, from_department: "Sales", subject: "New Customer Inquiry", message: "New inquiry for 5-acre land survey", is_read: true, created_at: new Date(Date.now() - 1*24*60*60*1000).toISOString(), reply_message: null }
-            ];
-            saveMessages();
-        }
-        renderMessagesList();
-        updateDashboardCounts();
-    }
-    
-    function saveMessages() { localStorage.setItem('geotraverse_messages', JSON.stringify(messages)); }
-    
-    function sendReply(id, replyText) {
-        const msg = messages.find(m => m.id === id);
-        if (msg) {
-            msg.reply_message = replyText;
-            msg.replied_at = new Date().toISOString();
-            saveMessages();
-            renderMessagesList();
-            addActivityLog(`Replied to message from ${msg.from_department} department`);
-            showToast('Reply sent successfully');
-        }
-    }
-    
-    function deleteMessage(id) {
-        if (confirm('Are you sure you want to delete this message?')) {
-            messages = messages.filter(m => m.id !== id);
-            saveMessages();
-            renderMessagesList();
-            updateDashboardCounts();
-            addActivityLog(`Deleted message ID ${id}`);
-            showToast('Message deleted successfully');
-            document.getElementById('messageDetailView').innerHTML = `<i class="fas fa-envelope-open-text text-5xl mb-3"></i><p>Select a message to view, reply or delete</p>`;
-        }
-    }
-    
-    function formatTime(date) {
-        if (!date) return 'Just now';
-        const d = new Date(date);
-        const now = new Date();
-        const diff = now - d;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
-        if (minutes < 60) return `${minutes} min ago`;
-        if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-        return `${days} day${days > 1 ? 's' : ''} ago`;
-    }
-    
-    function renderMessagesList() {
-        const convDiv = document.getElementById('messagesList');
-        if (!convDiv) return;
-        if (messages.length === 0) { convDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No messages found</div>'; return; }
-        convDiv.innerHTML = messages.map(m => `
-            <div class="message-item p-3 rounded-lg ${!m.is_read ? 'message-unread' : 'hover:bg-gray-50'}" onclick="viewConversation(${m.id})">
-                <div class="flex justify-between"><span class="font-semibold">${escapeHtml(m.from_department)} Dept</span><span class="text-xs text-gray-400">${formatTime(m.created_at)}</span></div>
-                <p class="text-sm truncate">${escapeHtml(m.subject)}</p>
-                <div class="flex justify-between items-center mt-1">
-                    <p class="text-xs text-gray-400">${m.reply_message ? 'Replied' : 'Awaiting reply'}</p>
-                    <button onclick="event.stopPropagation(); deleteMessage(${m.id})" class="text-red-500 hover:text-red-700 text-xs"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-        `).join('');
-        updateDashboardCounts();
-    }
-    
-    function viewConversation(id) {
-        const msg = messages.find(m => m.id === id);
-        if (msg && !msg.is_read) { msg.is_read = true; saveMessages(); renderMessagesList(); updateDashboardCounts(); }
-        const detailView = document.getElementById('messageDetailView');
-        let chatHtml = `<div class="mb-4 pb-4 border-b"><div class="flex justify-between items-center mb-3"><div><h3 class="font-bold text-lg">${escapeHtml(msg.from_department)} Department</h3><p class="text-sm text-gray-500">${formatTime(msg.created_at)}</p></div><div class="flex gap-2"><span class="text-xs bg-gray-100 px-2 py-1 rounded">${escapeHtml(msg.subject)}</span><button onclick="deleteMessage(${msg.id})" class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-trash"></i> Delete</button></div></div><div class="chat-bubble chat-message"><p>${escapeHtml(msg.message)}</p></div>`;
-        if (msg.reply_message) { chatHtml += `<div class="chat-bubble chat-reply"><p class="font-semibold text-sm">Admin replied:</p><p>${escapeHtml(msg.reply_message)}</p><p class="text-xs text-gray-500 mt-1">${formatTime(msg.replied_at)}</p></div>`; }
-        chatHtml += `</div><div class="mt-4"><textarea id="replyText" rows="3" placeholder="Type your reply..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea><div class="flex justify-end gap-2 mt-3"><button onclick="sendReplyById(${msg.id})" class="btn-primary text-white px-5 py-2 rounded-lg"><i class="fas fa-paper-plane mr-2"></i>Send Reply</button></div></div>`;
-        detailView.innerHTML = chatHtml;
-    }
-    
-    function sendReplyById(id) {
-        const replyText = document.getElementById('replyText')?.value;
-        if (!replyText || replyText.trim() === '') { showToast('Please enter a reply', true); return; }
-        sendReply(id, replyText);
-        document.getElementById('replyText').value = '';
-        viewConversation(id);
+    function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.getElementById('modalImage').src = '';
     }
     
     // ==================== DEPARTMENTS ====================
@@ -1251,7 +1379,31 @@
             'Sales': employees.filter(e => e.department === 'Sales & Marketing').length,
             'Secretary': employees.filter(e => e.department === 'Administration').length
         };
-        grid.innerHTML = departmentsData.map(dept => `<div class="dept-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div class="bg-${dept.color}-600 p-4 text-white"><div class="flex items-center justify-between"><i class="fas ${dept.icon} text-3xl"></i><span class="bg-white/20 px-2 py-1 rounded-lg text-sm">${dept.displayName}</span></div><h3 class="text-xl font-bold mt-3">${dept.name}</h3></div><div class="p-4"><div class="flex justify-between mb-3"><span class="text-gray-500 text-sm">Employees</span><span class="text-2xl font-bold">${deptCounts[dept.displayName] || 0}</span></div><div class="flex gap-2"><button onclick="openDepartmentDashboard('${dept.displayName}')" class="flex-1 bg-${dept.color}-50 text-${dept.color}-600 py-2 rounded-lg text-sm font-medium hover:bg-${dept.color}-100 transition"><i class="fas fa-chalkboard-user"></i> View Dashboard</button><a href="${dept.website}" target="_blank" class="flex-1 bg-gray-50 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition flex items-center justify-center"><i class="fas fa-external-link-alt mr-1"></i> Visit Website</a></div></div></div>`).join('');
+        grid.innerHTML = departmentsData.map(dept => `
+            <div class="dept-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-${dept.color}-600 p-4 text-white">
+                    <div class="flex items-center justify-between">
+                        <i class="fas ${dept.icon} text-3xl"></i>
+                        <span class="bg-white/20 px-2 py-1 rounded-lg text-sm">${dept.displayName}</span>
+                    </div>
+                    <h3 class="text-xl font-bold mt-3">${dept.name}</h3>
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between mb-3">
+                        <span class="text-gray-500 text-sm">Employees</span>
+                        <span class="text-2xl font-bold">${deptCounts[dept.displayName] || 0}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openDepartmentDashboard('${dept.displayName}')" class="flex-1 bg-${dept.color}-50 text-${dept.color}-600 py-2 rounded-lg text-sm font-medium hover:bg-${dept.color}-100 transition">
+                            <i class="fas fa-chalkboard-user"></i> View Dashboard
+                        </button>
+                        <a href="${dept.website}" target="_blank" class="flex-1 bg-gray-50 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition flex items-center justify-center">
+                            <i class="fas fa-external-link-alt mr-1"></i> Visit Website
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `).join('');
     }
     
     function openDepartmentDashboard(dept) {
@@ -1278,26 +1430,89 @@
     function renderManagersProjects() {
         const grid = document.getElementById('managersProjectsGrid');
         if (!grid) return;
-        const managerProjects = projects.filter(p => p.status !== 'completed').slice(0, 2);
-        if (managerProjects.length === 0) { grid.innerHTML = '<div class="col-span-2 text-center text-gray-400 py-8">No projects found</div>'; }
-        else { grid.innerHTML = managerProjects.map(p => `<div class="project-card bg-white p-3"><div class="h-32 bg-purple-100 rounded-lg flex items-center justify-center"><i class="fas fa-building text-purple-500 text-3xl"></i></div><p class="font-bold mt-2">${escapeHtml(p.name)}</p><p class="text-sm ${p.status === 'completed' ? 'text-green-600' : (p.status === 'in_progress' ? 'text-orange-600' : 'text-blue-600')}">${p.status}</p><button onclick="showToast('View Project Details')" class="mt-2 text-purple-600 text-sm">View Details →</button></div>`).join('');
+        const recentProjects = projects.slice(0, 4);
+        if (recentProjects.length === 0) {
+            grid.innerHTML = '<div class="col-span-2 text-center text-gray-400 py-8">No projects found</div>';
+        } else {
+            grid.innerHTML = recentProjects.map(p => `
+                <div class="project-card bg-white p-3 rounded-lg shadow-sm">
+                    <div class="h-32 bg-purple-100 rounded-lg flex items-center justify-center">
+                        ${p.image_url ? 
+                            `<img src="${p.image_url}" class="h-full w-full object-cover rounded-lg">` : 
+                            `<i class="fas fa-building text-purple-500 text-3xl"></i>`
+                        }
+                    </div>
+                    <p class="font-bold mt-2 text-sm">${escapeHtml(p.name)}</p>
+                    <p class="text-xs ${p.status === 'completed' ? 'text-green-600' : (p.status === 'in_progress' ? 'text-orange-600' : 'text-blue-600')}">${p.status}</p>
+                    <button onclick="showToast('View Project Details')" class="mt-2 text-purple-600 text-xs">View Details →</button>
+                </div>
+            `).join('');
         }
     }
     
-    function renderFinanceInvoices() { const div = document.getElementById('financeInvoicesList'); if (div) div.innerHTML = `<div class="text-center text-gray-400 py-4">No invoices found</div>`; }
-    function renderSalesOrders() { const div = document.getElementById('salesOrdersList'); if (div) div.innerHTML = `<div class="text-center text-gray-400 py-4">No orders found</div>`; }
-    function renderSecretaryMessages() { const div = document.getElementById('secretaryMessagesList'); if (div) div.innerHTML = `<div class="text-center text-gray-400 py-4">No recent messages</div>`; }
+    function renderFinanceInvoices() {
+        const div = document.getElementById('financeInvoicesList');
+        if (div) div.innerHTML = `<div class="text-center text-gray-400 py-4">No invoices found</div>`;
+    }
+    
+    function renderSalesOrders() {
+        const div = document.getElementById('salesOrdersList');
+        if (div) div.innerHTML = `<div class="text-center text-gray-400 py-4">No orders found</div>`;
+    }
+    
+    function renderSecretaryMessages() {
+        const div = document.getElementById('secretaryMessagesList');
+        if (div && messages.length) {
+            div.innerHTML = messages.slice(0, 3).map(m => `
+                <div class="p-2 border-b">
+                    <p class="font-semibold text-sm">${escapeHtml(m.from_department)}</p>
+                    <p class="text-xs text-gray-500">${escapeHtml(m.subject)}</p>
+                </div>
+            `).join('');
+        } else if (div) {
+            div.innerHTML = `<div class="text-center text-gray-400 py-4">No recent messages</div>`;
+        }
+    }
     
     // ==================== REPORTS ====================
-    let currentDept = '', currentReportType = 'daily';
-    const reportDepartments = [{ name: "Managers", displayName: "Managers", color: "purple", icon: "fa-user-tie" }, { name: "Finance & Accounting", displayName: "Finance", color: "green", icon: "fa-calculator" }, { name: "Sales & Marketing", displayName: "Sales", color: "orange", icon: "fa-chart-line" }, { name: "Secretary", displayName: "Secretary", color: "red", icon: "fa-envelope" }];
+    const reportDepartments = [
+        { name: "Managers", displayName: "Managers", color: "purple", icon: "fa-user-tie" },
+        { name: "Finance & Accounting", displayName: "Finance", color: "green", icon: "fa-calculator" },
+        { name: "Sales & Marketing", displayName: "Sales", color: "orange", icon: "fa-chart-line" },
+        { name: "Secretary", displayName: "Secretary", color: "red", icon: "fa-envelope" }
+    ];
     
     function renderReportDepartmentsGrid() {
         const grid = document.getElementById('reportDepartmentsGrid');
-        if (grid) grid.innerHTML = reportDepartments.map(dept => `<div class="bg-white rounded-xl shadow-sm border-l-4 border-${dept.color}-500 p-5 cursor-pointer hover:shadow-lg transition" onclick="openDepartmentReports('${dept.displayName}')"><div class="flex items-center gap-3"><div class="w-12 h-12 bg-${dept.color}-100 rounded-full flex items-center justify-center"><i class="fas ${dept.icon} text-${dept.color}-600 text-xl"></i></div><div><h3 class="font-bold text-lg">${dept.name}</h3><p class="text-sm text-gray-500">Department Reports</p></div></div><div class="mt-3 flex justify-between"><span class="text-gray-500 text-sm">Reports Available</span><span class="font-semibold bg-${dept.color}-100 px-2 py-1 rounded text-xs">4 Types</span></div></div>`).join('');
+        if (grid) {
+            grid.innerHTML = reportDepartments.map(dept => `
+                <div class="bg-white rounded-xl shadow-sm border-l-4 border-${dept.color}-500 p-5 cursor-pointer hover:shadow-lg transition" onclick="openDepartmentReports('${dept.displayName}')">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-${dept.color}-100 rounded-full flex items-center justify-center">
+                            <i class="fas ${dept.icon} text-${dept.color}-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">${dept.name}</h3>
+                            <p class="text-sm text-gray-500">Department Reports</p>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex justify-between">
+                        <span class="text-gray-500 text-sm">Reports Available</span>
+                        <span class="font-semibold bg-${dept.color}-100 px-2 py-1 rounded text-xs">4 Types</span>
+                    </div>
+                </div>
+            `).join('');
+        }
     }
     
-    function openDepartmentReports(dept) { currentDept = dept; document.getElementById('reportDeptTitle').innerText = `${dept} Department Reports`; document.getElementById('reportDeptDesc').innerText = `${dept} department performance reports`; document.getElementById('departmentReportView').classList.remove('hidden'); document.getElementById('reportDepartmentsGrid').classList.add('hidden'); loadReport('daily'); }
+    function openDepartmentReports(dept) {
+        currentDept = dept;
+        document.getElementById('reportDeptTitle').innerText = `${dept} Department Reports`;
+        document.getElementById('reportDeptDesc').innerText = `${dept} department performance reports`;
+        document.getElementById('departmentReportView').classList.remove('hidden');
+        document.getElementById('reportDepartmentsGrid').classList.add('hidden');
+        loadReport('daily');
+    }
     
     function loadReport(type) {
         currentReportType = type;
@@ -1309,70 +1524,122 @@
     function renderReportContent(dept, type) {
         const periodText = type === 'daily' ? new Date().toDateString() : type === 'weekly' ? `Week of ${new Date().toDateString()}` : type === 'monthly' ? new Date().toLocaleString('default', { month: 'long', year: 'numeric' }) : new Date().getFullYear().toString();
         let html = `<div class="report-export-content"><div class="mb-6 text-center"><h2 class="text-xl font-bold">${dept} Department - ${type.charAt(0).toUpperCase() + type.slice(1)} Report</h2><p class="text-gray-500">Period: ${periodText}</p><p class="text-gray-400 text-sm">Generated: ${new Date().toLocaleString()}</p></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">`;
-        if (dept === 'Managers') { html += `<div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Completed Projects</p><p class="text-2xl font-bold text-green-600">${projects.filter(p => p.status === 'completed').length}</p></div><div class="bg-orange-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">In Progress</p><p class="text-2xl font-bold text-orange-600">${projects.filter(p => p.status === 'in_progress').length}</p></div><div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Projects</p><p class="text-2xl font-bold text-blue-600">${projects.length}</p></div><div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Revenue</p><p class="text-2xl font-bold text-purple-600">TZS ${projects.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0).toLocaleString()}</p></div>`; }
-        else if (dept === 'Finance') { html += `<div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Income</p><p class="text-2xl font-bold text-green-600">TZS 0</p></div><div class="bg-red-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Expenses</p><p class="text-2xl font-bold text-red-600">TZS 0</p></div><div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Net Profit</p><p class="text-2xl font-bold text-blue-600">TZS 0</p></div><div class="bg-yellow-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Pending Invoices</p><p class="text-2xl font-bold text-yellow-600">0</p></div>`; }
-        else if (dept === 'Sales') { html += `<div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Orders</p><p class="text-2xl font-bold text-blue-600">0</p></div><div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Revenue</p><p class="text-2xl font-bold text-green-600">TZS 0</p></div><div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">New Leads</p><p class="text-2xl font-bold text-purple-600">0</p></div><div class="bg-orange-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Conversions</p><p class="text-2xl font-bold text-orange-600">0</p></div>`; }
-        else if (dept === 'Secretary') { html += `<div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Messages</p><p class="text-2xl font-bold text-blue-600">${messages.length}</p></div><div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Appointments</p><p class="text-2xl font-bold text-green-600">0</p></div><div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Documents</p><p class="text-2xl font-bold text-purple-600">0</p></div><div class="bg-orange-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Pending Tasks</p><p class="text-2xl font-bold text-orange-600">${tasks.filter(t => !t.completed).length}</p></div>`; }
-        html += `</div><div class="border-t pt-4 mt-4"><p class="text-gray-600">This ${type} report shows the performance of the ${dept} department.</p><p class="text-gray-500 text-sm mt-2">Generated from live data.</p></div></div>`;
+        if (dept === 'Managers') {
+            html += `<div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Completed Projects</p><p class="text-2xl font-bold text-green-600">${projects.filter(p => p.status === 'completed').length}</p></div><div class="bg-orange-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">In Progress</p><p class="text-2xl font-bold text-orange-600">${projects.filter(p => p.status === 'in_progress').length}</p></div><div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Projects</p><p class="text-2xl font-bold text-blue-600">${projects.length}</p></div><div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Revenue</p><p class="text-2xl font-bold text-purple-600">TZS ${projects.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0).toLocaleString()}</p></div>`;
+        } else if (dept === 'Finance') {
+            html += `<div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Income</p><p class="text-2xl font-bold text-green-600">TZS 0</p></div><div class="bg-red-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Expenses</p><p class="text-2xl font-bold text-red-600">TZS 0</p></div><div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Net Profit</p><p class="text-2xl font-bold text-blue-600">TZS 0</p></div><div class="bg-yellow-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Pending Invoices</p><p class="text-2xl font-bold text-yellow-600">0</p></div>`;
+        } else if (dept === 'Sales') {
+            html += `<div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Total Orders</p><p class="text-2xl font-bold text-blue-600">0</p></div><div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Revenue</p><p class="text-2xl font-bold text-green-600">TZS 0</p></div><div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">New Leads</p><p class="text-2xl font-bold text-purple-600">0</p></div><div class="bg-orange-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Conversions</p><p class="text-2xl font-bold text-orange-600">0</p></div>`;
+        } else if (dept === 'Secretary') {
+            html += `<div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Messages</p><p class="text-2xl font-bold text-blue-600">${messages.length}</p></div><div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Appointments</p><p class="text-2xl font-bold text-green-600">0</p></div><div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Documents</p><p class="text-2xl font-bold text-purple-600">0</p></div><div class="bg-orange-50 p-4 rounded-xl text-center"><p class="text-sm text-gray-600">Pending Tasks</p><p class="text-2xl font-bold text-orange-600">${tasks.filter(t => !t.completed).length}</p></div>`;
+        }
+        html += `</div><div class="border-t pt-4 mt-4"><p class="text-gray-600">This ${type} report shows the performance of the ${dept} department.</p></div></div>`;
         document.getElementById('reportContent').innerHTML = html;
     }
     
-    function closeDepartmentReport() { document.getElementById('departmentReportView').classList.add('hidden'); document.getElementById('reportDepartmentsGrid').classList.remove('hidden'); renderReportDepartmentsGrid(); }
+    function closeDepartmentReport() {
+        document.getElementById('departmentReportView').classList.add('hidden');
+        document.getElementById('reportDepartmentsGrid').classList.remove('hidden');
+        renderReportDepartmentsGrid();
+    }
     
     function exportToPDF() {
         const reportContent = document.getElementById('reportContent');
-        if (!reportContent) { showToast('No report data to export', true); return; }
+        if (!reportContent) {
+            showToast('No report data to export', true);
+            return;
+        }
         html2pdf().set({ margin: 0.5, filename: `${currentDept}_${currentReportType}_report.pdf` }).from(reportContent).save();
         showToast('PDF downloaded successfully!');
     }
     
-    function exportToExcel() { showToast('Excel export coming soon'); }
+    function exportToExcel() {
+        const reportData = [];
+        reportData.push([`${currentDept} Department - ${currentReportType.toUpperCase()} Report`]);
+        reportData.push([`Generated on: ${new Date().toLocaleString()}`]);
+        reportData.push([]);
+        
+        const statBoxes = document.querySelectorAll('#reportContent .grid > div');
+        if (statBoxes.length) {
+            const headers = ['Metric', 'Value'];
+            reportData.push(headers);
+            statBoxes.forEach(box => {
+                const label = box.querySelector('p:first-child')?.innerText || '';
+                const value = box.querySelector('.font-bold')?.innerText || '0';
+                reportData.push([label, value]);
+            });
+        }
+        
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(reportData);
+        XLSX.utils.book_append_sheet(wb, ws, `${currentDept}_Report`);
+        XLSX.writeFile(wb, `${currentDept}_${currentReportType}_report_${new Date().toISOString().slice(0,10)}.xlsx`);
+        showToast('Excel exported successfully!');
+    }
     
     // ==================== ACTIVITY LOGS ====================
-    let activityLogs = [];
-    
-    function loadActivityLogs() {
-        const saved = localStorage.getItem('geotraverse_activity_logs');
-        if (saved) { activityLogs = JSON.parse(saved); }
-        else { activityLogs = []; saveActivityLogs(); }
-        renderSystemLogs();
-        renderActivityFeed();
-    }
-    
-    function saveActivityLogs() { localStorage.setItem('geotraverse_activity_logs', JSON.stringify(activityLogs)); }
-    
-    function addActivityLog(action) {
-        const newLog = { action, time: new Date().toLocaleString() };
-        activityLogs.unshift(newLog);
-        if (activityLogs.length > 50) activityLogs.pop();
-        saveActivityLogs();
-        renderSystemLogs();
-        renderActivityFeed();
-    }
-    
-    function renderSystemLogs() {
-        const logsDiv = document.getElementById('systemLogsList');
-        if (logsDiv) {
-            if (activityLogs.length === 0) { logsDiv.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm"><i class="fas fa-inbox mr-1"></i> No logs available</div>'; }
-            else { logsDiv.innerHTML = activityLogs.map(log => `<div class="flex justify-between items-center p-2 border-b"><span class="text-xs">${log.action}</span><span class="text-xs text-gray-400">${log.time}</span></div>`).join(''); }
+    async function loadActivityLogs() {
+        try {
+            const response = await fetch(`${API_BASE}/activity_logs.php`);
+            const result = await response.json();
+            if (result.success && result.data) {
+                activityLogs = result.data;
+                renderActivityFeed();
+                renderSystemLogs();
+                return activityLogs;
+            }
+        } catch (error) {
+            const saved = localStorage.getItem('geotraverse_activity_logs');
+            if (saved) {
+                activityLogs = JSON.parse(saved);
+                renderActivityFeed();
+                renderSystemLogs();
+            }
         }
+        return [];
     }
     
     function renderActivityFeed() {
         const feedDiv = document.getElementById('activityFeed');
         if (!feedDiv) return;
-        if (activityLogs.length === 0) { feedDiv.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm"><i class="fas fa-inbox mr-1"></i> No recent activity</div>'; return; }
-        const recentLogs = activityLogs.slice(0, 5);
-        feedDiv.innerHTML = recentLogs.map(log => `<div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition"><i class="fas fa-circle text-blue-500 text-xs mt-1"></i><div class="flex-1"><p class="text-sm">${log.action}</p><p class="text-xs text-gray-400">${log.time}</p></div></div>`).join('');
+        if (activityLogs.length === 0) {
+            feedDiv.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm">No recent activity</div>';
+            return;
+        }
+        feedDiv.innerHTML = activityLogs.slice(0, 5).map(log => `
+            <div class="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition">
+                <i class="fas fa-circle text-blue-500 text-xs mt-1"></i>
+                <div class="flex-1">
+                    <p class="text-sm">${escapeHtml(log.action)}</p>
+                    <p class="text-xs text-gray-400">${formatDate(log.created_at)}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function renderSystemLogs() {
+        const logsDiv = document.getElementById('systemLogsList');
+        if (logsDiv) {
+            if (activityLogs.length === 0) {
+                logsDiv.innerHTML = '<div class="text-center text-gray-400 py-4 text-sm">No logs available</div>';
+            } else {
+                logsDiv.innerHTML = activityLogs.slice(0, 20).map(log => `
+                    <div class="flex justify-between items-center p-2 border-b">
+                        <span class="text-xs">${escapeHtml(log.action)}</span>
+                        <span class="text-xs text-gray-400">${formatDate(log.created_at)}</span>
+                    </div>
+                `).join('');
+            }
+        }
     }
     
     function clearAllLogs() {
-        if (confirm('Are you sure you want to clear ALL system logs and activity history?')) {
+        if (confirm('Are you sure you want to clear ALL system logs?')) {
             activityLogs = [];
-            saveActivityLogs();
-            renderSystemLogs();
+            localStorage.setItem('geotraverse_activity_logs', JSON.stringify(activityLogs));
             renderActivityFeed();
-            showToast('✅ All logs cleared successfully');
+            renderSystemLogs();
+            showToast('All logs cleared');
         }
     }
     
@@ -1391,20 +1658,29 @@
     // ==================== SETTINGS FUNCTIONS ====================
     function togglePassword(inputId, element) {
         const input = document.getElementById(inputId);
-        if (input.type === 'password') { input.type = 'text'; element.classList.remove('fa-eye'); element.classList.add('fa-eye-slash'); }
-        else { input.type = 'password'; element.classList.remove('fa-eye-slash'); element.classList.add('fa-eye'); }
+        if (input.type === 'password') {
+            input.type = 'text';
+            element.classList.remove('fa-eye');
+            element.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            element.classList.remove('fa-eye-slash');
+            element.classList.add('fa-eye');
+        }
     }
     
     function changeAdminPassword() {
-        const currentPwd = document.getElementById('currentPassword').value;
         const newPwd = document.getElementById('newAdminPassword').value;
         const confirmPwd = document.getElementById('confirmAdminPassword').value;
-        if (!currentPwd) { showToast('Enter current password', true); return; }
-        if (!newPwd) { showToast('Enter new password', true); return; }
-        if (newPwd !== confirmPwd) { showToast('Passwords do not match', true); return; }
+        if (!newPwd) {
+            showToast('Enter new password', true);
+            return;
+        }
+        if (newPwd !== confirmPwd) {
+            showToast('Passwords do not match', true);
+            return;
+        }
         showToast('Password changed successfully');
-        addActivityLog('Admin password changed');
-        document.getElementById('currentPassword').value = '';
         document.getElementById('newAdminPassword').value = '';
         document.getElementById('confirmAdminPassword').value = '';
     }
@@ -1413,53 +1689,50 @@
         const sidebar = document.getElementById('mainSidebar');
         sidebar.style.background = color;
         sidebar.style.backgroundImage = 'none';
-        document.querySelectorAll('.color-option').forEach(opt => { opt.classList.remove('selected'); opt.style.transform = 'scale(1)'; });
-        if (element) { element.classList.add('selected'); element.style.transform = 'scale(1.05)'; }
+        document.querySelectorAll('.color-option').forEach(opt => { opt.classList.remove('selected'); });
+        if (element) { element.classList.add('selected'); }
         localStorage.setItem('sidebar_color', color);
         showToast('Sidebar color changed');
-        addActivityLog('Sidebar color changed');
     }
     
     function loadSavedSidebarColor() {
         const savedColor = localStorage.getItem('sidebar_color');
         const sidebar = document.getElementById('mainSidebar');
-        if (savedColor && sidebar) { sidebar.style.background = savedColor; sidebar.style.backgroundImage = 'none'; }
+        if (savedColor && sidebar) {
+            sidebar.style.background = savedColor;
+            sidebar.style.backgroundImage = 'none';
+        }
     }
     
     function createBackup() {
         const backup = {
-            employees: JSON.parse(JSON.stringify(employees)),
-            tasks: JSON.parse(JSON.stringify(tasks)),
-            messages: JSON.parse(JSON.stringify(messages)),
-            projects: JSON.parse(JSON.stringify(projects)),
+            employees: employees,
+            tasks: tasks,
+            messages: messages,
+            projects: projects,
             timestamp: new Date().toISOString()
         };
         localStorage.setItem('geotraverse_backup', JSON.stringify(backup));
         showToast('Backup created successfully');
-        addActivityLog('System backup created');
     }
     
     function restoreBackup() {
         const backup = localStorage.getItem('geotraverse_backup');
         if (backup) {
             const data = JSON.parse(backup);
-            if (data.employees) { employees = data.employees; saveEmployees(); }
-            if (data.tasks) { tasks = data.tasks; saveTasks(); }
-            if (data.messages) { messages = data.messages; saveMessages(); }
-            if (data.projects) { projects = data.projects; localStorage.setItem('geotraverse_projects', JSON.stringify(projects)); }
-            renderEmployeeTable();
-            renderTasks();
-            renderMessagesList();
-            renderProjects();
-            renderDepartmentsGrid();
+            if (data.employees) { employees = data.employees; localStorage.setItem('geotraverse_employees', JSON.stringify(employees)); renderEmployeeTable(); }
+            if (data.tasks) { tasks = data.tasks; localStorage.setItem('geotraverse_tasks', JSON.stringify(tasks)); renderTasks(); }
+            if (data.messages) { messages = data.messages; localStorage.setItem('geotraverse_messages', JSON.stringify(messages)); renderMessagesList(); }
+            if (data.projects) { projects = data.projects; localStorage.setItem('geotraverse_projects', JSON.stringify(projects)); renderProjects(); }
             updateDashboardCounts();
             showToast('Backup restored successfully');
-            addActivityLog('System restored from backup');
-        } else { showToast('No backup found', true); }
+        } else {
+            showToast('No backup found', true);
+        }
     }
     
-    function saveGeneralSettings() { showToast('General settings saved'); addActivityLog('General settings updated'); }
-    function saveEmailConfig() { showToast('Email configuration saved'); addActivityLog('Email configuration updated'); }
+    function saveGeneralSettings() { showToast('General settings saved'); }
+    function saveEmailConfig() { showToast('Email configuration saved'); }
     
     function updateDashboardCounts() {
         document.getElementById('totalEmployees').innerText = employees.length;
@@ -1468,85 +1741,146 @@
         document.getElementById('totalProjects').innerText = projects.length;
         document.getElementById('pendingTasksBadge').innerText = tasks.filter(t => !t.completed).length;
         document.getElementById('unreadMessagesBadge').innerText = messages.filter(m => !m.is_read).length;
-        document.getElementById('totalRevenue').innerText = `TZS ${projects.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0).toLocaleString()}`;
-        document.getElementById('totalInvoices').innerText = '0';
-        document.getElementById('totalOrders').innerText = '0';
-        document.getElementById('totalMeetings').innerText = '0';
+        const totalRevenue = projects.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+        document.getElementById('totalRevenue').innerText = `TZS ${totalRevenue.toLocaleString()}`;
     }
     
     // ==================== GLOBAL SEARCH ====================
-    let searchTimeoutGlobal = null;
-    let currentSearchTerm = '';
+    let searchTimeout = null;
     
     function performAutoSearch() {
         const searchTerm = document.getElementById('globalSearchInput').value.toLowerCase().trim();
-        if (searchTimeoutGlobal) clearTimeout(searchTimeoutGlobal);
-        searchTimeoutGlobal = setTimeout(() => {
-            currentSearchTerm = searchTerm;
-            const activeSection = document.querySelector('.nav-item.active')?.getAttribute('data-section');
-            if (activeSection === 'employees') { filterEmployeeTable(); }
-            else if (activeSection === 'tasks') { filterTasks(); }
-            else if (activeSection === 'messages') { filterMessages(); }
-            else {
-                const results = {
-                    employees: employees.filter(emp => emp.name?.toLowerCase().includes(searchTerm) || emp.email?.toLowerCase().includes(searchTerm) || emp.phone?.includes(searchTerm)),
-                    tasks: tasks.filter(task => task.title?.toLowerCase().includes(searchTerm) || task.description?.toLowerCase().includes(searchTerm)),
-                    messages: messages.filter(msg => msg.from_department?.toLowerCase().includes(searchTerm) || msg.subject?.toLowerCase().includes(searchTerm)),
-                    projects: projects.filter(proj => proj.name?.toLowerCase().includes(searchTerm) || proj.client_name?.toLowerCase().includes(searchTerm))
-                };
-                displayGlobalSearchResults(results, searchTerm);
-                if (searchTerm !== '') { openGlobalSearch(); } else { closeGlobalSearch(); }
+        if (searchTimeout) clearTimeout(searchTimeout);
+        
+        searchTimeout = setTimeout(() => {
+            if (searchTerm === '') {
+                closeGlobalSearch();
+                return;
             }
+            
+            const results = {
+                employees: employees.filter(emp => emp.name?.toLowerCase().includes(searchTerm) || emp.email?.toLowerCase().includes(searchTerm) || emp.phone?.includes(searchTerm)),
+                tasks: tasks.filter(task => task.title?.toLowerCase().includes(searchTerm) || task.description?.toLowerCase().includes(searchTerm)),
+                messages: messages.filter(msg => msg.from_department?.toLowerCase().includes(searchTerm) || msg.subject?.toLowerCase().includes(searchTerm)),
+                projects: projects.filter(proj => proj.name?.toLowerCase().includes(searchTerm) || proj.client_name?.toLowerCase().includes(searchTerm))
+            };
+            
+            displayGlobalSearchResults(results, searchTerm);
+            openGlobalSearch();
         }, 300);
     }
     
-    function filterEmployeeTable() {
-        const tbody = document.getElementById('employeeTableBody');
-        if (!tbody) return;
-        let filtered = employees;
-        if (currentSearchTerm) {
-            filtered = employees.filter(emp => emp.name?.toLowerCase().includes(currentSearchTerm) || emp.email?.toLowerCase().includes(currentSearchTerm) || emp.phone?.includes(currentSearchTerm));
-        }
-        if (filtered.length === 0 && currentSearchTerm) { tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-gray-500">No employees found matching "${currentSearchTerm}"</div></td>`; return; }
-        if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No employees found</div></tr>'; return; }
-        tbody.innerHTML = filtered.map(emp => `<tr class="employee-row border-b hover:bg-gray-50 transition"><td class="px-4 py-3 text-sm">${emp.id}</td><td class="px-4 py-3 font-medium text-sm">${escapeHtml(emp.name)}</td><td class="px-4 py-3 text-sm hidden sm:table-cell">${escapeHtml(emp.email)}</td><td class="px-4 py-3 text-sm hidden md:table-cell">${emp.phone || '-'}</td><td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700">${emp.role}</span></td><td class="px-4 py-3 text-sm hidden lg:table-cell">${emp.department}</td><td class="px-4 py-3 text-sm font-semibold text-green-600">TZS ${parseFloat(emp.salary).toLocaleString()}</td><td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">${emp.status}</span></td><td class="px-4 py-3"><button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button><button onclick="deleteEmployeeById(${emp.id})" class="text-red-600 hover:text-red-800 mr-2"><i class="fas fa-trash"></i></button><button onclick="openChangePwdModal(${emp.id})" class="text-orange-600 hover:text-orange-800"><i class="fas fa-key"></i></button></div></tr>`).join('');
+    function openGlobalSearch() {
+        document.getElementById('searchOverlay').classList.add('active');
+        document.getElementById('searchResultsModal').classList.add('active');
     }
     
-    function filterTasks() {
-        const pendingDiv = document.getElementById('pendingTasksList');
-        const completedDiv = document.getElementById('completedTasksList');
-        let filtered = tasks;
-        if (currentSearchTerm) { filtered = tasks.filter(t => t.title?.toLowerCase().includes(currentSearchTerm) || t.description?.toLowerCase().includes(currentSearchTerm)); }
-        const pendingTasks = filtered.filter(t => !t.completed);
-        const completedTasks = filtered.filter(t => t.completed);
-        if (pendingDiv) {
-            if (pendingTasks.length === 0 && currentSearchTerm) { pendingDiv.innerHTML = `<div class="text-center text-gray-400 py-8">No pending tasks matching "${currentSearchTerm}"</div>`; }
-            else if (pendingTasks.length === 0) { pendingDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No pending tasks</div>'; }
-            else { pendingDiv.innerHTML = pendingTasks.map(t => `<div class="task-item"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm">${escapeHtml(t.title)}</p><p class="text-xs text-gray-500 mt-1">${escapeHtml(t.description)}</p><span class="text-xs text-blue-500">${t.department}</span></div><input type="checkbox" onchange="toggleTask(${t.id})" class="w-5 h-5 cursor-pointer"></div></div>`).join(''); }
-        }
-        if (completedDiv) {
-            if (completedTasks.length === 0 && currentSearchTerm) { completedDiv.innerHTML = `<div class="text-center text-gray-400 py-8">No completed tasks matching "${currentSearchTerm}"</div>`; }
-            else if (completedTasks.length === 0) { completedDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No completed tasks</div>'; }
-            else { completedDiv.innerHTML = completedTasks.map(t => `<div class="task-item opacity-75"><div class="flex justify-between items-start"><div><p class="font-semibold text-sm line-through text-gray-400">${escapeHtml(t.title)}</p><p class="text-xs text-gray-400">${escapeHtml(t.description)}</p></div><i class="fas fa-check-circle text-green-500"></i></div></div>`).join(''); }
-        }
+    function closeGlobalSearch() {
+        document.getElementById('searchOverlay').classList.remove('active');
+        document.getElementById('searchResultsModal').classList.remove('active');
     }
     
-    function filterMessages() {
-        const convDiv = document.getElementById('messagesList');
-        if (!convDiv) return;
-        let filtered = messages;
-        if (currentSearchTerm) { filtered = messages.filter(m => m.from_department?.toLowerCase().includes(currentSearchTerm) || m.subject?.toLowerCase().includes(currentSearchTerm)); }
-        if (filtered.length === 0 && currentSearchTerm) { convDiv.innerHTML = `<div class="text-center text-gray-400 py-8">No messages matching "${currentSearchTerm}"</div>`; return; }
-        if (filtered.length === 0) { convDiv.innerHTML = '<div class="text-center text-gray-400 py-8">No messages found</div>'; return; }
-        convDiv.innerHTML = filtered.map(m => `<div class="message-item p-3 rounded-lg ${!m.is_read ? 'message-unread' : 'hover:bg-gray-50'}" onclick="viewConversation(${m.id})"><div class="flex justify-between"><span class="font-semibold">${escapeHtml(m.from_department)} Dept</span><span class="text-xs text-gray-400">${formatTime(m.created_at)}</span></div><p class="text-sm truncate">${escapeHtml(m.subject)}</p><div class="flex justify-between items-center mt-1"><p class="text-xs text-gray-400">${m.reply_message ? 'Replied' : 'Awaiting reply'}</p><button onclick="event.stopPropagation(); deleteMessage(${m.id})" class="text-red-500 hover:text-red-700 text-xs"><i class="fas fa-trash"></i></button></div></div>`).join('');
+    function displayGlobalSearchResults(results, searchTerm) {
+        const container = document.getElementById('searchResultsContent');
+        if (!container) return;
+        
+        if (!searchTerm || searchTerm === '') {
+            container.innerHTML = '<div class="text-center text-gray-400 py-8">Start typing to search...</div>';
+            return;
+        }
+        
+        let html = '';
+        let hasResults = false;
+        
+        if (results.employees && results.employees.length > 0) {
+            hasResults = true;
+            html += `<div class="search-result-group"><h4><i class="fas fa-users mr-1"></i> Employees (${results.employees.length})</h4>`;
+            results.employees.forEach(emp => {
+                html += `<div class="search-result-item" onclick="goToSectionAndSearch('employees', '${escapeHtml(emp.name)}')">
+                    <div class="font-medium text-sm">${escapeHtml(emp.name)}</div>
+                    <div class="text-xs text-gray-500">${escapeHtml(emp.email)} • ${emp.role}</div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+        
+        if (results.tasks && results.tasks.length > 0) {
+            hasResults = true;
+            html += `<div class="search-result-group"><h4><i class="fas fa-tasks mr-1"></i> Tasks (${results.tasks.length})</h4>`;
+            results.tasks.forEach(task => {
+                html += `<div class="search-result-item" onclick="goToSectionAndSearch('tasks', '${escapeHtml(task.title)}')">
+                    <div class="font-medium text-sm">${escapeHtml(task.title)}</div>
+                    <div class="text-xs text-gray-500">${escapeHtml(task.description?.substring(0, 60) || '')}</div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+        
+        if (results.messages && results.messages.length > 0) {
+            hasResults = true;
+            html += `<div class="search-result-group"><h4><i class="fas fa-envelope mr-1"></i> Messages (${results.messages.length})</h4>`;
+            results.messages.forEach(msg => {
+                html += `<div class="search-result-item" onclick="goToSectionAndSearch('messages', '${escapeHtml(msg.subject)}')">
+                    <div class="font-medium text-sm">${escapeHtml(msg.subject)}</div>
+                    <div class="text-xs text-gray-500">From: ${escapeHtml(msg.from_department)} Dept</div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+        
+        if (results.projects && results.projects.length > 0) {
+            hasResults = true;
+            html += `<div class="search-result-group"><h4><i class="fas fa-building mr-1"></i> Projects (${results.projects.length})</h4>`;
+            results.projects.forEach(proj => {
+                html += `<div class="search-result-item" onclick="goToSectionAndSearch('projects', '${escapeHtml(proj.name)}')">
+                    <div class="font-medium text-sm">${escapeHtml(proj.name)}</div>
+                    <div class="text-xs text-gray-500">Client: ${escapeHtml(proj.client_name || 'N/A')}</div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+        
+        if (!hasResults) {
+            html = `<div class="text-center text-gray-400 py-8">No results found for "${escapeHtml(searchTerm)}"</div>`;
+        }
+        
+        container.innerHTML = html;
     }
     
-
+    function goToSectionAndSearch(section, searchValue) {
+        closeGlobalSearch();
+        
+        const sectionsMap = { employees: 'employeeSection', tasks: 'tasksSection', messages: 'messagesSection', projects: 'projectsSection' };
+        if (sectionsMap[section]) {
+            showSection(sectionsMap[section]);
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.querySelector(`.nav-item[data-section="${section}"]`)?.classList.add('active');
+        }
+        
+        setTimeout(() => {
+            const searchInput = document.getElementById('globalSearchInput');
+            if (searchInput) searchInput.value = searchValue;
+            showToast(`Showing results for "${searchValue}" in ${section} section`);
+        }, 100);
+    }
+    
     // ==================== NAVIGATION ====================
-    const sections = { dashboard: 'dashboardSection', employees: 'employeeSection', departments: 'departmentsSection', reports: 'reportsSection', tasks: 'tasksSection', messages: 'messagesSection', projects: 'projectsSection', settings: 'settingsSection' };
+    const sections = {
+        dashboard: 'dashboardSection',
+        employees: 'employeeSection',
+        departments: 'departmentsSection',
+        reports: 'reportsSection',
+        tasks: 'tasksSection',
+        messages: 'messagesSection',
+        projects: 'projectsSection',
+        settings: 'settingsSection'
+    };
     
     function showSection(sectionId) {
-        Object.values(sections).forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+        Object.values(sections).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
         document.getElementById(sectionId).classList.remove('hidden');
         closeMobileSidebar();
     }
@@ -1569,16 +1903,28 @@
         document.querySelector('.nav-item[data-section="dashboard"]')?.classList.add('active');
     });
     
-    function openMobileSidebar() { document.getElementById('mainSidebar')?.classList.add('mobile-open'); document.getElementById('mobileMenuOverlay')?.classList.add('open'); }
-    function closeMobileSidebar() { document.getElementById('mainSidebar')?.classList.remove('mobile-open'); document.getElementById('mobileMenuOverlay')?.classList.remove('open'); }
+    function openMobileSidebar() {
+        document.getElementById('mainSidebar')?.classList.add('mobile-open');
+        document.getElementById('mobileMenuOverlay')?.classList.add('open');
+    }
+    
+    function closeMobileSidebar() {
+        document.getElementById('mainSidebar')?.classList.remove('mobile-open');
+        document.getElementById('mobileMenuOverlay')?.classList.remove('open');
+    }
+    
     document.getElementById('mobileMenuBtn')?.addEventListener('click', openMobileSidebar);
     
+    // Dark mode
     let isDark = false;
     document.getElementById('darkModeToggle')?.addEventListener('click', () => {
         isDark = !isDark;
         document.body.classList.toggle('dark-mode', isDark);
         const icon = document.getElementById('darkModeIcon');
-        if (icon) { icon.classList.toggle('fa-sun', isDark); icon.classList.toggle('fa-moon', !isDark); }
+        if (icon) {
+            icon.classList.toggle('fa-sun', isDark);
+            icon.classList.toggle('fa-moon', !isDark);
+        }
         localStorage.setItem('dark_mode', isDark);
     });
     
@@ -1588,63 +1934,92 @@
             isDark = true;
             document.body.classList.add('dark-mode');
             const icon = document.getElementById('darkModeIcon');
-            if (icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
+            if (icon) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
         }
     }
     
+    // Scroll to top
     window.addEventListener('scroll', () => {
         const scrollBtn = document.getElementById('scrollTopBtn');
         if (scrollBtn) scrollBtn.classList.toggle('visible', window.scrollY > 300);
     });
-    document.getElementById('scrollTopBtn')?.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
     
-    function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    document.getElementById('scrollTopBtn')?.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    
+    // Search input listener
+    document.getElementById('globalSearchInput')?.addEventListener('input', performAutoSearch);
     
     // ==================== INITIALIZATION ====================
     async function init() {
+        if (!checkAuth()) return;
+        
         showLoading(true);
         loadDashboardChart();
+        await loadEmployees();
+        await loadTasks();
+        await loadMessages();
         await loadProjects();
-        loadEmployees();
-        loadTasks();
-        loadMessages();
+        await loadActivityLogs();
         renderDepartmentsGrid();
         renderReportDepartmentsGrid();
-        renderManagersProjects();
         renderFinanceInvoices();
         renderSalesOrders();
         renderSecretaryMessages();
         updateDashboardCounts();
         loadSavedSidebarColor();
         loadDarkMode();
-        loadActivityLogs();
         showSection('dashboardSection');
-        document.getElementById('globalSearchInput')?.addEventListener('input', performAutoSearch);
         showLoading(false);
         console.log('Dashboard initialized successfully!');
     }
+    
     init();
     
     // Expose global functions
-    window.openAddEmployeeModal = openAddEmployeeModal; window.closeModal = closeModal;
-    window.openEditEmployeeModal = openEditEmployeeModal; window.closeEditModal = closeEditModal;
-    window.deleteEmployeeById = deleteEmployeeById; window.openChangePwdModal = openChangePwdModal;
-    window.closePwdModal = closePwdModal; window.toggleTask = toggleTask;
-    window.openAddTaskModal = openAddTaskModal; window.closeTaskModal = closeTaskModal;
-    window.addNewTask = addNewTask; window.viewConversation = viewConversation;
-    window.sendReplyById = sendReplyById; window.deleteMessage = deleteMessage;
-    window.showToast = showToast; window.openDepartmentDashboard = openDepartmentDashboard;
-    window.goBackToDepartments = goBackToDepartments; window.openDepartmentReports = openDepartmentReports;
-    window.loadReport = loadReport; window.closeDepartmentReport = closeDepartmentReport;
-    window.exportToPDF = exportToPDF; window.exportToExcel = exportToExcel;
-    window.changeAdminPassword = changeAdminPassword; window.changeSidebarColor = changeSidebarColor;
-    window.createBackup = createBackup; window.restoreBackup = restoreBackup;
-    window.clearAllLogs = clearAllLogs; window.saveGeneralSettings = saveGeneralSettings;
-    window.saveEmailConfig = saveEmailConfig; window.togglePassword = togglePassword;
-    window.exportEmployeesToExcel = exportEmployeesToExcel; window.closeGlobalSearch = closeGlobalSearch;
-    window.resetSessionTimer = resetSessionTimer; window.openAddProjectModal = openAddProjectModal;
-    window.openEditProjectModal = openEditProjectModal; window.deleteProject = deleteProject;
-    window.previewImage = previewImage; window.removeImage = removeImage;
+    window.openAddEmployeeModal = openAddEmployeeModal;
+    window.closeModal = closeModal;
+    window.openEditEmployeeModal = openEditEmployeeModal;
+    window.closeEditModal = closeEditModal;
+    window.deleteEmployee = deleteEmployee;
+    window.openChangePwdModal = openChangePwdModal;
+    window.closePwdModal = closePwdModal;
+    window.toggleTask = toggleTask;
+    window.openAddTaskModal = openAddTaskModal;
+    window.closeTaskModal = closeTaskModal;
+    window.addNewTask = addNewTask;
+    window.viewConversation = viewConversation;
+    window.sendReply = sendReply;
+    window.deleteMessage = deleteMessage;
+    window.showToast = showToast;
+    window.openDepartmentDashboard = openDepartmentDashboard;
+    window.goBackToDepartments = goBackToDepartments;
+    window.openDepartmentReports = openDepartmentReports;
+    window.loadReport = loadReport;
+    window.closeDepartmentReport = closeDepartmentReport;
+    window.exportToPDF = exportToPDF;
+    window.exportToExcel = exportToExcel;
+    window.changeAdminPassword = changeAdminPassword;
+    window.changeSidebarColor = changeSidebarColor;
+    window.createBackup = createBackup;
+    window.restoreBackup = restoreBackup;
+    window.clearAllLogs = clearAllLogs;
+    window.saveGeneralSettings = saveGeneralSettings;
+    window.saveEmailConfig = saveEmailConfig;
+    window.togglePassword = togglePassword;
+    window.exportEmployeesToExcel = exportEmployeesToExcel;
+    window.closeGlobalSearch = closeGlobalSearch;
+    window.openAddProjectModal = openAddProjectModal;
+    window.openEditProjectModal = openEditProjectModal;
+    window.deleteProject = deleteProject;
+    window.removeImage = removeImage;
+    window.openImageModal = openImageModal;
+    window.closeImageModal = closeImageModal;
+    window.goToSectionAndSearch = goToSectionAndSearch;
 </script>
 </body>
 </html>

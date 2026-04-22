@@ -1,70 +1,95 @@
 <?php
-// backend/api/tasks.php
-require_once __DIR__ . '/../config/database.php';
-require_once '../includes/response.php';
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+$host = 'localhost';
+$dbname = 'geotraverse_db';
+$username = 'root';
+$password = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
+    exit();
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-try {
-    $db = getDB();
-    
-    if ($method === 'GET') {
-        $stmt = $db->query("SELECT * FROM tasks ORDER BY id DESC");
-        $tasks = $stmt->fetchAll();
-        sendSuccess($tasks);
-    }
-    
-    elseif ($method === 'POST') {
+switch($method) {
+    case 'GET':
+        $stmt = $pdo->query("SELECT * FROM tasks ORDER BY id DESC");
+        $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'data' => $tasks]);
+        break;
+        
+    case 'POST':
         $data = json_decode(file_get_contents('php://input'), true);
         
-        if (empty($data['title'])) {
-            sendError('Task title is required', 400);
+        if (!$data) {
+            echo json_encode(['success' => false, 'message' => 'Invalid data received']);
+            exit();
         }
         
-        $stmt = $db->prepare("INSERT INTO tasks (title, description, department, completed) VALUES (:title, :description, :department, 0)");
-        $stmt->execute([
-            ':title' => $data['title'],
-            ':description' => $data['description'] ?? '',
-            ':department' => $data['department'] ?? 'General'
+        $stmt = $pdo->prepare("INSERT INTO tasks (title, description, department, completed) VALUES (?, ?, ?, 0)");
+        $result = $stmt->execute([
+            $data['title'] ?? '',
+            $data['description'] ?? '',
+            $data['department'] ?? ''
         ]);
         
-        // Log activity
-        $log = $db->prepare("INSERT INTO activity_logs (action, user_email) VALUES ('Added new task: " . $data['title'] . "', 'admin')");
-        $log->execute();
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Task added successfully', 'id' => $pdo->lastInsertId()]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to add task']);
+        }
+        break;
         
-        sendSuccess(['id' => $db->lastInsertId()], 'Task created successfully', 201);
-    }
-    
-    elseif ($method === 'PUT') {
+    case 'PUT':
         $data = json_decode(file_get_contents('php://input'), true);
         
-        if (empty($data['id'])) {
-            sendError('Task ID is required', 400);
+        if (!$data || !isset($data['id'])) {
+            echo json_encode(['success' => false, 'message' => 'Invalid data received']);
+            exit();
         }
         
-        $stmt = $db->prepare("UPDATE tasks SET completed = :completed WHERE id = :id");
-        $stmt->execute([
-            ':id' => $data['id'],
-            ':completed' => $data['completed'] ? 1 : 0
-        ]);
+        $stmt = $pdo->prepare("UPDATE tasks SET completed = ? WHERE id = ?");
+        $result = $stmt->execute([$data['completed'] ? 1 : 0, $data['id']]);
         
-        sendSuccess(null, 'Task updated successfully');
-    }
-    
-    elseif ($method === 'DELETE') {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Task updated successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update task']);
+        }
+        break;
+        
+    case 'DELETE':
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
         
         if (!$id) {
-            sendError('Task ID is required', 400);
+            echo json_encode(['success' => false, 'message' => 'ID required']);
+            exit();
         }
         
-        $stmt = $db->prepare("DELETE FROM tasks WHERE id = :id");
-        $stmt->execute([':id' => $id]);
+        $stmt = $pdo->prepare("DELETE FROM tasks WHERE id = ?");
+        $result = $stmt->execute([$id]);
         
-        sendSuccess(null, 'Task deleted successfully');
-    }
-    
-} catch(PDOException $e) {
-    sendError('Database error: ' . $e->getMessage(), 500);
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Task deleted successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to delete task']);
+        }
+        break;
+        
+    default:
+        echo json_encode(['success' => false, 'message' => 'Method not supported']);
 }
 ?>
