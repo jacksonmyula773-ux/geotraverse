@@ -381,7 +381,7 @@
     </div>
 </div>
 
-<!-- Start Chat Modal (No Subject Field) -->
+<!-- Start Chat Modal -->
 <div id="startChatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl w-full max-w-lg modal-pop">
         <div class="px-6 py-4 border-b flex justify-between items-center">
@@ -1093,7 +1093,7 @@
         }
     }
     
-    // ==================== MESSAGES SECTION WITH START CHAT (No Subject Field) ====================
+    // ==================== MESSAGES SECTION WITH START CHAT ====================
     function renderMessagesList() {
         const messages = JSON.parse(localStorage.getItem('geotraverse_messages') || '[]');
         document.getElementById('messagesSection').innerHTML = `
@@ -1487,7 +1487,7 @@
     
     function closeDeptViewModal() { document.getElementById('deptViewModal').classList.add('hidden'); document.getElementById('deptViewModal').classList.remove('flex'); }
     
-    // ==================== SETTINGS SECTION ====================
+    // ==================== SETTINGS SECTION WITH FIXED BACKUP ====================
     function loadSettings() {
         const settings = JSON.parse(localStorage.getItem('geotraverse_settings') || '{}');
         const logs = JSON.parse(localStorage.getItem('geotraverse_activity_logs') || '[]');
@@ -1497,7 +1497,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 <div class="setting-card p-5"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-key text-2xl text-blue-600"></i><h3 class="font-bold text-lg">Reset Password</h3></div><div class="space-y-2"><div class="password-field relative"><input type="password" id="newAdminPwd" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePasswordField('newAdminPwd')"></i></div><div class="password-field relative"><input type="password" id="confirmAdminPwd" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePasswordField('confirmAdminPwd')"></i></div><button onclick="changeAdminPassword()" class="w-full btn-primary text-white py-2 rounded-lg mt-2">Change Password</button></div></div>
                 <div class="setting-card p-5"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-palette text-2xl text-purple-600"></i><h3 class="font-bold text-lg">Sidebar Color</h3></div><div class="flex flex-wrap gap-2"><div class="color-option" style="background:#0f74ba" onclick="changeSidebarColor('#0f74ba', this)"></div><div class="color-option" style="background:#1e3a5f" onclick="changeSidebarColor('#1e3a5f', this)"></div><div class="color-option" style="background:#7c3aed" onclick="changeSidebarColor('#7c3aed', this)"></div><div class="color-option" style="background:#059669" onclick="changeSidebarColor('#059669', this)"></div><div class="color-option" style="background:#dc2626" onclick="changeSidebarColor('#dc2626', this)"></div><div class="color-option" style="background:#d97706" onclick="changeSidebarColor('#d97706', this)"></div></div><p class="text-xs text-gray-400 mt-3">6 colors available - Click to change sidebar color</p></div>
-                <div class="setting-card p-5"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-database text-2xl text-green-600"></i><h3 class="font-bold text-lg">Backup & Restore</h3></div><div class="flex gap-2"><button onclick="createBackup()" class="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg"><i class="fas fa-download mr-1"></i>Backup</button><button onclick="restoreBackup()" class="flex-1 bg-orange-600 text-white px-3 py-2 rounded-lg"><i class="fas fa-upload mr-1"></i>Restore</button></div></div>
+                <div class="setting-card p-5"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-database text-2xl text-green-600"></i><h3 class="font-bold text-lg">Backup & Restore</h3></div><div class="flex gap-2"><button onclick="createBackup()" class="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg"><i class="fas fa-download mr-1"></i>Backup Data</button><button onclick="restoreBackup()" class="flex-1 bg-orange-600 text-white px-3 py-2 rounded-lg"><i class="fas fa-upload mr-1"></i>Restore Data</button></div><p class="text-xs text-gray-400 mt-2">Backup includes: Employees, Projects, Tasks, Messages, Reports</p></div>
                 <div class="setting-card p-5"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-history text-2xl text-blue-600"></i><h3 class="font-bold text-lg">System Logs</h3></div><div class="max-h-32 overflow-y-auto space-y-1 text-sm" id="systemLogsList"></div><button onclick="clearAllLogs()" class="w-full mt-3 bg-red-600 text-white px-3 py-2 rounded-lg"><i class="fas fa-trash mr-1"></i>Clear All Logs</button></div>
                 <div class="setting-card p-5"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-globe text-2xl text-blue-600"></i><h3 class="font-bold text-lg">General Settings</h3></div><div class="space-y-2"><input type="text" id="companyName" value="${settings.company_name || 'GeoTraverse'}" class="w-full p-2 border rounded-lg"><input type="email" id="companyEmail" value="${settings.company_email || 'info@geotraverse.com'}" class="w-full p-2 border rounded-lg"><input type="text" id="companyPhone" value="${settings.company_phone || '+255 719 336 667'}" class="w-full p-2 border rounded-lg"><button onclick="saveGeneralSettings()" class="w-full btn-primary text-white py-2 rounded-lg">Save Settings</button></div></div>
                 <div class="setting-card p-5"><div class="flex items-center space-x-3 mb-3"><i class="fas fa-envelope text-2xl text-blue-600"></i><h3 class="font-bold text-lg">Email Config</h3></div><div class="space-y-2"><input type="text" id="smtpServer" value="${settings.smtp_server || 'smtp.gmail.com'}" class="w-full p-2 border rounded-lg"><input type="text" id="smtpPort" value="${settings.smtp_port || '587'}" class="w-full p-2 border rounded-lg"><input type="email" id="senderEmail" value="${settings.sender_email || 'noreply@geotraverse.com'}" class="w-full p-2 border rounded-lg"><button onclick="saveEmailConfig()" class="w-full btn-primary text-white py-2 rounded-lg">Save Email Config</button></div></div>
@@ -1527,32 +1527,94 @@
         showToast('Sidebar color changed');
     }
     
+    // FIXED BACKUP FUNCTION - SAVES ALL DATA
     function createBackup() {
-        const backup = {
+        const backupData = {
             employees: localStorage.getItem('geotraverse_employees'),
             projects: localStorage.getItem('geotraverse_projects'),
             tasks: localStorage.getItem('geotraverse_tasks'),
             messages: localStorage.getItem('geotraverse_messages'),
             reports: localStorage.getItem('geotraverse_reports'),
-            timestamp: new Date().toISOString()
+            settings: localStorage.getItem('geotraverse_settings'),
+            activity_logs: localStorage.getItem('geotraverse_activity_logs'),
+            backup_date: new Date().toISOString()
         };
-        localStorage.setItem('geotraverse_backup', JSON.stringify(backup));
-        showToast('Backup created');
+        
+        // Save backup to localStorage
+        localStorage.setItem('geotraverse_backup', JSON.stringify(backupData));
+        
+        // Also allow download as JSON file
+        const backupJson = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([backupJson], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `geotraverse_backup_${new Date().toISOString().slice(0,19)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        addActivityLog('Created system backup');
+        showToast('✅ Backup created and downloaded successfully!');
     }
     
+    // FIXED RESTORE FUNCTION - RESTORES ALL DATA
     function restoreBackup() {
-        const backup = localStorage.getItem('geotraverse_backup');
-        if (backup) {
-            const data = JSON.parse(backup);
+        // First check if there's a backup in localStorage
+        let backupData = localStorage.getItem('geotraverse_backup');
+        
+        if (!backupData) {
+            // If no backup in localStorage, ask user to upload file
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    try {
+                        const restoredData = JSON.parse(evt.target.result);
+                        if (restoredData.employees) localStorage.setItem('geotraverse_employees', restoredData.employees);
+                        if (restoredData.projects) localStorage.setItem('geotraverse_projects', restoredData.projects);
+                        if (restoredData.tasks) localStorage.setItem('geotraverse_tasks', restoredData.tasks);
+                        if (restoredData.messages) localStorage.setItem('geotraverse_messages', restoredData.messages);
+                        if (restoredData.reports) localStorage.setItem('geotraverse_reports', restoredData.reports);
+                        if (restoredData.settings) localStorage.setItem('geotraverse_settings', restoredData.settings);
+                        if (restoredData.activity_logs) localStorage.setItem('geotraverse_activity_logs', restoredData.activity_logs);
+                        
+                        addActivityLog('Restored system from backup file');
+                        showToast('✅ Backup restored successfully! Page will reload.');
+                        setTimeout(() => location.reload(), 1500);
+                    } catch(err) {
+                        showToast('Invalid backup file', true);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+            return;
+        }
+        
+        // Restore from localStorage backup
+        try {
+            const data = JSON.parse(backupData);
             if (data.employees) localStorage.setItem('geotraverse_employees', data.employees);
             if (data.projects) localStorage.setItem('geotraverse_projects', data.projects);
             if (data.tasks) localStorage.setItem('geotraverse_tasks', data.tasks);
             if (data.messages) localStorage.setItem('geotraverse_messages', data.messages);
             if (data.reports) localStorage.setItem('geotraverse_reports', data.reports);
-            showToast('Backup restored');
-            addActivityLog('Backup restored');
-            location.reload();
-        } else { showToast('No backup found', true); }
+            if (data.settings) localStorage.setItem('geotraverse_settings', data.settings);
+            if (data.activity_logs) localStorage.setItem('geotraverse_activity_logs', data.activity_logs);
+            
+            addActivityLog('Restored system from backup');
+            showToast('✅ Backup restored successfully! Page will reload.');
+            setTimeout(() => location.reload(), 1500);
+        } catch(err) {
+            showToast('Error restoring backup', true);
+        }
     }
     
     function clearAllLogs() {
