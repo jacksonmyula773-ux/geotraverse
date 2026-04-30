@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GeoTraverse Group | Department Login</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: linear-gradient(135deg, #0f74ba 0%, #0a5a8e 100%); min-height: 100vh; }
+        .dept-card { transition: all 0.3s ease; cursor: pointer; border-radius: 20px; overflow: hidden; }
+        .dept-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+        .password-field { position: relative; }
+        .password-field input { padding-right: 45px; }
+        .password-toggle { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; }
+        .toast-notification { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: slideInRight 0.3s ease; }
+        .toast-notification.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div id="appContainer">
+    <!-- Department Selection Screen -->
+    <div id="selectionScreen" class="min-h-screen flex items-center justify-center p-6">
+        <div class="max-w-6xl w-full">
+            <div class="text-center mb-12">
+                <div class="flex justify-center mb-4"><i class="fas fa-building text-6xl text-white"></i></div>
+                <h1 class="text-4xl font-bold text-white mb-2">GeoTraverse Group of Companies</h1>
+                <p class="text-white/80 text-lg">Select your department to continue</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="dept-card cursor-pointer" onclick="showLoginModal('finance')">
+                    <div class="bg-gradient-to-br from-green-500 to-green-700 p-6 text-white text-center">
+                        <i class="fas fa-chart-line text-5xl mb-3"></i>
+                        <h3 class="text-xl font-bold">Finance Department</h3>
+                        <p class="text-sm opacity-90 mt-2">Financial management, budgets, and transactions</p>
+                    </div>
+                    <div class="bg-white p-4 text-center"><span class="text-green-600 text-sm"><i class="fas fa-lock mr-1"></i> Secure Login</span></div>
+                </div>
+                
+                <div class="dept-card cursor-pointer" onclick="showLoginModal('sales')">
+                    <div class="bg-gradient-to-br from-orange-500 to-orange-700 p-6 text-white text-center">
+                        <i class="fas fa-chart-simple text-5xl mb-3"></i>
+                        <h3 class="text-xl font-bold">Sales Department</h3>
+                        <p class="text-sm opacity-90 mt-2">Lead management, targets, and performance</p>
+                    </div>
+                    <div class="bg-white p-4 text-center"><span class="text-orange-600 text-sm"><i class="fas fa-lock mr-1"></i> Secure Login</span></div>
+                </div>
+                
+                <div class="dept-card cursor-pointer" onclick="showLoginModal('secretary')">
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-700 p-6 text-white text-center">
+                        <i class="fas fa-envelope text-5xl mb-3"></i>
+                        <h3 class="text-xl font-bold">Secretary Department</h3>
+                        <p class="text-sm opacity-90 mt-2">Invoices, correspondence, and communications</p>
+                    </div>
+                    <div class="bg-white p-4 text-center"><span class="text-purple-600 text-sm"><i class="fas fa-lock mr-1"></i> Secure Login</span></div>
+                </div>
+                
+                <div class="dept-card cursor-pointer" onclick="showLoginModal('managers')">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-700 p-6 text-white text-center">
+                        <i class="fas fa-users text-5xl mb-3"></i>
+                        <h3 class="text-xl font-bold">Managers Department</h3>
+                        <p class="text-sm opacity-90 mt-2">Executive overview and company KPIs</p>
+                    </div>
+                    <div class="bg-white p-4 text-center"><span class="text-blue-600 text-sm"><i class="fas fa-lock mr-1"></i> Secure Login</span></div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="admin_dashboard.html" class="text-white/70 hover:text-white transition">
+                    <i class="fas fa-user-shield mr-1"></i> Admin Login
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+            <div class="p-6 border-b" id="loginModalHeader">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-2xl font-bold" id="loginDeptName">Department Login</h3>
+                    <button onclick="closeLoginModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                </div>
+                <p class="text-gray-500 text-sm mt-1" id="loginDeptDesc">Enter your credentials</p>
+            </div>
+            <div class="p-6">
+                <div class="mb-4"><label class="block text-sm font-semibold mb-2">Email Address</label><input type="email" id="loginEmail" class="w-full p-3 border rounded-xl"></div>
+                <div class="mb-6"><label class="block text-sm font-semibold mb-2">Password</label><div class="password-field relative"><input type="password" id="loginPassword" class="w-full p-3 border rounded-xl pr-12"><i class="fas fa-eye password-toggle" onclick="togglePassword('loginPassword')"></i></div></div>
+                <button onclick="attemptLogin()" class="w-full py-3 rounded-xl text-white font-semibold transition" id="loginBtn">Login</button>
+                <p class="text-center text-xs text-gray-400 mt-4"><i class="fas fa-info-circle"></i> Demo: finance@geotraverse.com / finance123</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const departmentCredentials = {
+        finance: { name: "Finance Department", email: "finance@geotraverse.com", password: "finance123", color: "green", bgGradient: "from-green-500 to-green-700", btnColor: "bg-green-600 hover:bg-green-700" },
+        sales: { name: "Sales Department", email: "sales@geotraverse.com", password: "sales123", color: "orange", bgGradient: "from-orange-500 to-orange-700", btnColor: "bg-orange-600 hover:bg-orange-700" },
+        secretary: { name: "Secretary Department", email: "secretary@geotraverse.com", password: "secretary123", color: "purple", bgGradient: "from-purple-500 to-purple-700", btnColor: "bg-purple-600 hover:bg-purple-700" },
+        managers: { name: "Managers Department", email: "manager@geotraverse.com", password: "manager123", color: "blue", bgGradient: "from-blue-500 to-blue-700", btnColor: "bg-blue-600 hover:bg-blue-700" }
+    };
+    
+    let currentDepartment = null;
+    
+    function showToast(message, isError) {
+        var toast = document.createElement('div');
+        toast.className = 'toast-notification' + (isError ? ' error' : '');
+        toast.innerHTML = '<i class="fas ' + (isError ? 'fa-exclamation-circle' : 'fa-check-circle') + ' mr-2"></i>' + message;
+        document.body.appendChild(toast);
+        setTimeout(function() { toast.remove(); }, 3000);
+    }
+    
+    function togglePassword(fieldId) {
+        var input = document.getElementById(fieldId);
+        if (!input) return;
+        var icon = input.nextElementSibling;
+        if (input.type === 'password') {
+            input.type = 'text';
+            if (icon) icon.classList.remove('fa-eye');
+            if (icon) icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            if (icon) icon.classList.remove('fa-eye-slash');
+            if (icon) icon.classList.add('fa-eye');
+        }
+    }
+    
+    function showLoginModal(department) {
+        currentDepartment = department;
+        var creds = departmentCredentials[department];
+        if (!creds) return;
+        document.getElementById('loginDeptName').innerHTML = '<i class="fas ' + getDeptIcon(department) + ' mr-2"></i>' + creds.name;
+        document.getElementById('loginDeptDesc').innerHTML = 'Enter your credentials to access ' + creds.name + ' Dashboard';
+        document.getElementById('loginEmail').value = creds.email;
+        document.getElementById('loginPassword').value = creds.password;
+        var loginBtn = document.getElementById('loginBtn');
+        loginBtn.className = 'w-full py-3 rounded-xl text-white font-semibold transition ' + creds.btnColor;
+        var header = document.getElementById('loginModalHeader');
+        header.className = 'p-6 border-b bg-gradient-to-r ' + creds.bgGradient + ' text-white rounded-t-2xl';
+        document.getElementById('loginModal').classList.remove('hidden');
+        document.getElementById('loginModal').classList.add('flex');
+    }
+    
+    function getDeptIcon(department) {
+        switch(department) {
+            case 'finance': return 'fa-chart-line';
+            case 'sales': return 'fa-chart-simple';
+            case 'secretary': return 'fa-envelope';
+            case 'managers': return 'fa-users';
+            default: return 'fa-building';
+        }
+    }
+    
+    function closeLoginModal() {
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('loginModal').classList.remove('flex');
+        currentDepartment = null;
+    }
+    
+    function attemptLogin() {
+        if (!currentDepartment) return;
+        var email = document.getElementById('loginEmail').value.trim();
+        var password = document.getElementById('loginPassword').value;
+        var creds = departmentCredentials[currentDepartment];
+        if (email === creds.email && password === creds.password) {
+            localStorage.setItem('dept_logged_in', 'true');
+            localStorage.setItem('dept_type', currentDepartment);
+            localStorage.setItem('dept_name', creds.name);
+            showToast('Welcome to ' + creds.name + '! Redirecting...');
+            setTimeout(function() { window.location.href = 'dashboard_' + currentDepartment + '.html'; }, 1000);
+        } else {
+            showToast('Invalid email or password. Please try again.', true);
+        }
+    }
+    
+    function checkExistingSession() {
+        var deptLoggedIn = localStorage.getItem('dept_logged_in');
+        var deptType = localStorage.getItem('dept_type');
+        if (deptLoggedIn === 'true' && deptType) {
+            window.location.href = 'dashboard_' + deptType + '.html';
+        }
+    }
+    
+    checkExistingSession();
+    document.getElementById('loginPassword')?.addEventListener('keypress', function(e) { if (e.key === 'Enter') attemptLogin(); });
+    
+    window.showLoginModal = showLoginModal;
+    window.closeLoginModal = closeLoginModal;
+    window.attemptLogin = attemptLogin;
+    window.togglePassword = togglePassword;
+</script>
+
+<!-- FINANCE DASHBOARD PAGE -->
+<script>
+if (window.location.pathname.includes('dashboard_finance.html')) {
+    document.write(`
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoTraverse | Finance Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"><\/script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+    <style>
+        *{font-family:'Inter',sans-serif;} body{background:#f0f2f5;} .stat-card{transition:all 0.3s ease;background:white;border-radius:16px;border:1px solid #e5e7eb;} .stat-card:hover{transform:translateY(-3px);box-shadow:0 20px 25px -12px rgba(0,0,0,0.15);} .transaction-item{background:white;border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #10b981;} .chat-bubble{max-width:80%;padding:10px 14px;border-radius:12px;margin-bottom:8px;} .chat-sent{background-color:#d1fae5;margin-left:auto;} .chat-received{background-color:#e5e7eb;} .color-option{transition:all 0.2s;cursor:pointer;border:2px solid transparent;width:36px;height:36px;border-radius:50%;} .color-option:hover{transform:scale(1.1);} .toast-notification{position:fixed;bottom:20px;right:20px;background:linear-gradient(135deg,#10b981,#059669);color:white;padding:12px 20px;border-radius:8px;z-index:1000;animation:slideInRight 0.3s ease;} .toast-notification.error{background:linear-gradient(135deg,#ef4444,#dc2626);} @keyframes slideInRight{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+    </style>
+</head>
+<body>
+<div class="min-h-screen">
+    <header class="bg-gradient-to-r from-green-600 to-green-800 text-white shadow-lg sticky top-0 z-20">
+        <div class="px-6 py-4 flex justify-between items-center flex-wrap gap-3">
+            <div class="flex items-center gap-3"><i class="fas fa-chart-line text-2xl"></i><div><h1 class="text-xl font-bold">GeoTraverse Group</h1><p class="text-xs opacity-90">Finance Department Dashboard</p></div></div>
+            <div class="flex items-center gap-4"><span class="text-sm"><i class="fas fa-user mr-1"></i> Finance Manager</span><button onclick="logout()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition"><i class="fas fa-sign-out-alt mr-1"></i>Logout</button></div>
+        </div>
+    </header>
+    
+    <div class="bg-white border-b px-6 sticky top-0 z-10">
+        <div class="flex gap-1 overflow-x-auto">
+            <button onclick="showTab('overview')" id="tabOverview" class="px-4 py-3 font-semibold text-green-600 border-b-2 border-green-600"><i class="fas fa-chart-line mr-1"></i>Overview</button>
+            <button onclick="showTab('messages')" id="tabMessages" class="px-4 py-3 font-semibold text-gray-500 hover:text-green-600"><i class="fas fa-envelope mr-1"></i>Messages <span id="msgBadge" class="ml-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full hidden">0</span></button>
+            <button onclick="showTab('reports')" id="tabReports" class="px-4 py-3 font-semibold text-gray-500 hover:text-green-600"><i class="fas fa-chart-bar mr-1"></i>Reports</button>
+            <button onclick="showTab('settings')" id="tabSettings" class="px-4 py-3 font-semibold text-gray-500 hover:text-green-600"><i class="fas fa-cog mr-1"></i>Settings</button>
+        </div>
+    </div>
+    
+    <div class="p-6" id="overviewTab"></div>
+    <div id="messagesTab" class="hidden p-6"></div>
+    <div id="reportsTab" class="hidden p-6"></div>
+    <div id="settingsTab" class="hidden p-6"></div>
+</div>
+
+<div id="chatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl w-full max-w-2xl"><div class="px-6 py-4 border-b flex justify-between items-center"><h3 class="text-lg font-bold" id="chatModalTitle">Chat</h3><button onclick="closeChatModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button></div><div class="h-96 overflow-y-auto p-4 bg-gray-50" id="chatMessagesArea"></div><div class="p-4 border-t"><div class="flex gap-2"><textarea id="chatInput" rows="2" placeholder="Type your message..." class="flex-1 p-2 border rounded-lg resize-none"></textarea><button onclick="sendChatMessage()" class="px-4 py-2 rounded-lg text-white bg-green-600">Send</button></div></div></div>
+</div>
+
+<div id="startChatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl max-w-md w-full"><div class="px-6 py-4 border-b"><h3 class="text-lg font-bold">Start New Chat</h3></div><div class="p-6 space-y-3"><select id="chatDeptSelect" class="w-full p-2 border rounded-lg"><option value="Finance">Finance Department</option><option value="Sales">Sales Department</option><option value="Secretary">Secretary Department</option><option value="Managers">Managers Department</option><option value="Admin">Admin</option></select><textarea id="newChatMsg" rows="3" placeholder="Type your message..." class="w-full p-2 border rounded-lg"></textarea><div class="flex gap-3"><button onclick="sendNewChat()" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Send</button><button onclick="closeStartChatModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div></div></div>
+</div>
+
+<div id="sendReportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl max-w-md w-full"><div class="px-6 py-4 border-b"><h3 class="text-lg font-bold">Send Report to Admin</h3></div><div class="p-6 space-y-3"><input type="text" id="reportTitle" placeholder="Report Title" class="w-full p-2 border rounded-lg"><textarea id="reportContent" rows="4" placeholder="Report Content..." class="w-full p-2 border rounded-lg"></textarea><div class="flex gap-3"><button onclick="sendReportToAdmin()" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Send Report</button><button onclick="closeSendReportModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div></div></div>
+</div>
+
+<div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl max-w-md w-full"><div class="p-6 border-b"><h3 class="text-xl font-bold">Add Transaction</h3></div><div class="p-6 space-y-3"><select id="transType" class="w-full p-2 border rounded-lg"><option value="income">Income</option><option value="expense">Expense</option></select><input type="text" id="transDescription" placeholder="Description" class="w-full p-2 border rounded-lg"><input type="number" id="transAmount" placeholder="Amount (TZS)" class="w-full p-2 border rounded-lg"><input type="date" id="transDate" class="w-full p-2 border rounded-lg"><div class="flex gap-3"><button onclick="saveTransaction()" class="flex-1 bg-green-600 text-white py-2 rounded-lg">Save</button><button onclick="closeTransactionModal()" class="flex-1 bg-gray-200 py-2 rounded-lg">Cancel</button></div></div></div>
+</div>
+
+<script>
+var deptType = "Finance";
+var primaryColor = "#10b981";
+
+function showToast(msg, isError) {
+    var t = document.createElement("div");
+    t.className = "toast-notification" + (isError ? " error" : "");
+    t.innerHTML = "<i class=\"fas " + (isError ? "fa-exclamation-circle" : "fa-check-circle") + " mr-2\"></i>" + msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.remove(); }, 3000);
+}
+function formatCurrency(amt) { return "TZS " + parseFloat(amt).toLocaleString(); }
+function escapeHtml(text) { if (!text) return ""; var div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
+function logout() { localStorage.removeItem("dept_logged_in"); localStorage.removeItem("dept_type"); window.location.href = "department_login.html"; }
+
+function initData() {
+    if (!localStorage.getItem("geotraverse_transactions")) localStorage.setItem("geotraverse_transactions", JSON.stringify([
+        { id: 1, type: "income", description: "Project Payment", amount: 180000000, date: "2024-03-15", status: "completed" },
+        { id: 2, type: "expense", description: "Salaries", amount: 15000000, date: "2024-03-31", status: "completed" }
+    ]));
+    if (!localStorage.getItem("dept_messages")) localStorage.setItem("dept_messages", JSON.stringify([]));
+    if (!localStorage.getItem("dept_reports")) localStorage.setItem("dept_reports", JSON.stringify([]));
+    if (!localStorage.getItem("dept_activity_logs")) localStorage.setItem("dept_activity_logs", JSON.stringify([]));
+}
+function addLog(action) { var logs = JSON.parse(localStorage.getItem("dept_activity_logs") || "[]"); logs.unshift({ action: action, department: deptType, created_at: new Date().toISOString() }); if (logs.length > 50) logs.pop(); localStorage.setItem("dept_activity_logs", JSON.stringify(logs)); }
+
+function showTab(tab) {
+    document.getElementById("overviewTab").classList.add("hidden");
+    document.getElementById("messagesTab").classList.add("hidden");
+    document.getElementById("reportsTab").classList.add("hidden");
+    document.getElementById("settingsTab").classList.add("hidden");
+    document.getElementById(tab + "Tab").classList.remove("hidden");
+    document.querySelectorAll("[id^=tab]").forEach(function(btn) { btn.classList.remove("text-green-600", "border-b-2", "border-green-600"); btn.classList.add("text-gray-500"); });
+    document.getElementById("tab" + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add("text-green-600", "border-b-2", "border-green-600");
+    if (tab === "messages") loadMessages();
+    else if (tab === "reports") loadReports();
+    else if (tab === "settings") loadSettings();
+    else if (tab === "overview") loadOverview();
+}
+
+function loadOverview() {
+    var transactions = JSON.parse(localStorage.getItem("geotraverse_transactions") || "[]");
+    var totalIncome = 0, totalExpense = 0;
+    for (var i = 0; i < transactions.length; i++) {
+        if (transactions[i].type === "income") totalIncome += parseFloat(transactions[i].amount);
+        else totalExpense += parseFloat(transactions[i].amount);
+    }
+    var html = '<div class="mb-6"><h2 class="text-2xl font-bold">Finance Dashboard</h2><p class="text-gray-500">Manage financial transactions</p></div><div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6"><div class="stat-card p-5"><p class="text-gray-500 text-sm">Total Income</p><p class="text-2xl font-bold text-green-600">' + formatCurrency(totalIncome) + '</p></div><div class="stat-card p-5"><p class="text-gray-500 text-sm">Total Expenses</p><p class="text-2xl font-bold text-red-600">' + formatCurrency(totalExpense) + '</p></div><div class="stat-card p-5"><p class="text-gray-500 text-sm">Net Profit</p><p class="text-2xl font-bold text-blue-600">' + formatCurrency(totalIncome - totalExpense) + '</p></div><div class="stat-card p-5 cursor-pointer" onclick="openTransactionModal()"><p class="text-green-600"><i class="fas fa-plus-circle"></i> Add Transaction</p></div></div><div class="bg-white rounded-xl p-5"><h3 class="font-semibold mb-3">Recent Transactions</h3><div id="transactionsList">';
+    for (var j = 0; j < Math.min(transactions.length, 10); j++) {
+        var t = transactions[j];
+        html += '<div class="transaction-item flex justify-between"><div><p class="font-medium">' + escapeHtml(t.description) + '</p><p class="text-xs text-gray-400">' + t.date + '</p></div><span class="font-semibold ' + (t.type === "income" ? "text-green-600" : "text-red-600") + '">' + (t.type === "income" ? "+" : "-") + ' ' + formatCurrency(t.amount) + '</span></div>';
+    }
+    html += '</div></div>';
+    document.getElementById("overviewTab").innerHTML = html;
+}
+
+function openTransactionModal() { document.getElementById("transactionModal").classList.remove("hidden"); document.getElementById("transactionModal").classList.add("flex"); }
+function closeTransactionModal() { document.getElementById("transactionModal").classList.add("hidden"); document.getElementById("transactionModal").classList.remove("flex"); }
+function saveTransaction() {
+    var transactions = JSON.parse(localStorage.getItem("geotraverse_transactions") || "[]");
+    transactions.unshift({ id: Date.now(), type: document.getElementById("transType").value, description: document.getElementById("transDescription").value, amount: parseFloat(document.getElementById("transAmount").value), date: document.getElementById("transDate").value || new Date().toISOString().split("T")[0], status: "completed" });
+    localStorage.setItem("geotraverse_transactions", JSON.stringify(transactions));
+    addLog("Added new transaction");
+    showToast("Transaction added");
+    closeTransactionModal();
+    loadOverview();
+}
+
+function loadMessages() {
+    var allMessages = JSON.parse(localStorage.getItem("dept_messages") || "[]");
+    var myMessages = [];
+    for (var i = 0; i < allMessages.length; i++) {
+        if (allMessages[i].to === deptType || allMessages[i].from === deptType) myMessages.push(allMessages[i]);
+    }
+    var unreadCount = 0;
+    for (var j = 0; j < myMessages.length; j++) {
+        if (myMessages[j].to === deptType && !myMessages[j].read) unreadCount++;
+    }
+    var badge = document.getElementById("msgBadge");
+    if (badge) { badge.innerText = unreadCount; if(unreadCount>0) badge.classList.remove("hidden"); else badge.classList.add("hidden"); }
+    
+    var conversations = {};
+    for (var k = 0; k < myMessages.length; k++) {
+        var m = myMessages[k];
+        var other = m.from === deptType ? m.to : m.from;
+        if (!conversations[other]) conversations[other] = [];
+        conversations[other].push(m);
+    }
+    var convHtml = '<div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold"><i class="fas fa-envelope mr-2"></i>Messages</h2><button onclick="openStartChatModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg"><i class="fas fa-plus-circle mr-1"></i>Start New Chat</button></div><div class="bg-white rounded-xl p-5"><div class="space-y-2" id="conversationsList">';
+    for (var dept in conversations) {
+        var lastMsg = conversations[dept][conversations[dept].length-1];
+        var unread = 0;
+        for (var l = 0; l < conversations[dept].length; l++) {
+            if (conversations[dept][l].to === deptType && !conversations[dept][l].read) unread++;
+        }
+        convHtml += '<div class="border rounded-lg p-3 mb-2 flex justify-between items-center cursor-pointer hover:bg-gray-50" onclick="openChatWith(\'' + dept + '\')"><div><p class="font-semibold">' + dept + '</p><p class="text-sm text-gray-500 truncate">' + escapeHtml(lastMsg.message.substring(0,50)) + '</p></div><div class="text-right"><span class="text-xs text-gray-400">' + new Date(lastMsg.created_at).toLocaleTimeString() + '</span>' + (unread > 0 ? '<span class="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">' + unread + '</span>' : '') + '</div></div>';
+    }
+    convHtml += (Object.keys(conversations).length === 0 ? '<p class="text-gray-400 text-center py-8">No messages yet. Start a new chat!</p>' : '') + '</div></div>';
+    document.getElementById("messagesTab").innerHTML = convHtml;
+}
+
+function openStartChatModal() { document.getElementById("startChatModal").classList.remove("hidden"); document.getElementById("startChatModal").classList.add("flex"); }
+function closeStartChatModal() { document.getElementById("startChatModal").classList.add("hidden"); document.getElementById("startChatModal").classList.remove("flex"); }
+
+function sendNewChat() {
+    var toDept = document.getElementById("chatDeptSelect").value;
+    var message = document.getElementById("newChatMsg").value.trim();
+    if(!message) { showToast("Please enter a message", true); return; }
+    var messages = JSON.parse(localStorage.getItem("dept_messages") || "[]");
+    messages.push({ id: Date.now(), from: deptType, to: toDept, message: message, read: false, created_at: new Date().toISOString() });
+    localStorage.setItem("dept_messages", JSON.stringify(messages));
+    addLog("Sent message to " + toDept);
+    showToast("Message sent to " + toDept);
+    closeStartChatModal();
+    loadMessages();
+}
+
+var currentChatDept = null;
+function openChatWith(department) {
+    currentChatDept = department;
+    var messages = JSON.parse(localStorage.getItem("dept_messages") || "[]");
+    for (var i = 0; i < messages.length; i++) {
+        if (messages[i].to === deptType && messages[i].from === department && !messages[i].read) messages[i].read = true;
+    }
+    localStorage.setItem("dept_messages", JSON.stringify(messages));
+    var chatHtml = "";
+    for (var j = 0; j < messages.length; j++) {
+        var m = messages[j];
+        if ((m.from === deptType && m.to === department) || (m.from === department && m.to === deptType)) {
+            chatHtml += '<div class="chat-bubble ' + (m.from === deptType ? "chat-sent" : "chat-received") + '" style="' + (m.from === deptType ? "background:#d1fae5;margin-left:auto;" : "background:#e5e7eb;") + '"><p class="text-xs text-gray-500 mb-1">' + (m.from === deptType ? "You" : department) + ' - ' + new Date(m.created_at).toLocaleTimeString() + '</p><p>' + escapeHtml(m.message) + '</p><button onclick="deleteMessage(' + m.id + ')" class="text-red-500 text-xs mt-1"><i class="fas fa-trash"></i> Delete</button></div>';
+        }
+    }
+    document.getElementById("chatModalTitle").innerHTML = "Chat with " + department;
+    document.getElementById("chatMessagesArea").innerHTML = chatHtml || '<div class="text-center text-gray-400 py-8">No messages yet.</div>';
+    document.getElementById("chatModal").classList.remove("hidden");
+    document.getElementById("chatModal").classList.add("flex");
+    document.getElementById("chatMessagesArea").scrollTop = document.getElementById("chatMessagesArea").scrollHeight;
+    loadMessages();
+}
+
+function sendChatMessage() {
+    var message = document.getElementById("chatInput").value.trim();
+    if(!message || !currentChatDept) return;
+    var messages = JSON.parse(localStorage.getItem("dept_messages") || "[]");
+    messages.push({ id: Date.now(), from: deptType, to: currentChatDept, message: message, read: false, created_at: new Date().toISOString() });
+    localStorage.setItem("dept_messages", JSON.stringify(messages));
+    document.getElementById("chatInput").value = "";
+    openChatWith(currentChatDept);
+}
+
+function deleteMessage(id) {
+    var messages = JSON.parse(localStorage.getItem("dept_messages") || "[]");
+    var newMessages = [];
+    for (var i = 0; i < messages.length; i++) { if (messages[i].id !== id) newMessages.push(messages[i]); }
+    localStorage.setItem("dept_messages", JSON.stringify(newMessages));
+    openChatWith(currentChatDept);
+    showToast("Message deleted");
+}
+
+function closeChatModal() { document.getElementById("chatModal").classList.add("hidden"); document.getElementById("chatModal").classList.remove("flex"); loadMessages(); }
+
+function loadReports() {
+    var reports = JSON.parse(localStorage.getItem("dept_reports") || "[]");
+    var myReports = [];
+    for (var i = 0; i < reports.length; i++) { if (reports[i].department === deptType) myReports.push(reports[i]); }
+    var html = '<div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold"><i class="fas fa-chart-bar mr-2"></i>Reports</h2><div class="flex gap-2"><button onclick="exportReportsToExcel()" class="bg-green-600 text-white px-3 py-2 rounded-lg"><i class="fas fa-file-excel mr-1"></i>Export Excel</button><button onclick="exportReportsToPDF()" class="bg-red-600 text-white px-3 py-2 rounded-lg"><i class="fas fa-file-pdf mr-1"></i>Export PDF</button><button onclick="openSendReportModal()" class="bg-blue-600 text-white px-3 py-2 rounded-lg"><i class="fas fa-paper-plane mr-1"></i>Send Report to Admin</button></div></div><div class="bg-white rounded-xl p-5"><div class="space-y-2" id="reportsList">';
+    if (myReports.length === 0) html += '<p class="text-gray-400 text-center py-8">No reports yet.</p>';
+    else {
+        for (var j = 0; j < myReports.length; j++) {
+            var r = myReports[j];
+            html += '<div class="border rounded-lg p-3"><div class="flex justify-between"><h4 class="font-semibold">' + escapeHtml(r.title) + '</h4><span class="text-xs text-gray-400">' + new Date(r.created_at).toLocaleDateString() + '</span></div><p class="text-sm text-gray-600 mt-1">' + escapeHtml(r.content) + '</p><span class="text-xs px-2 py-0.5 rounded-full bg-' + (r.sent_to_admin ? "green" : "yellow") + '-100 text-' + (r.sent_to_admin ? "green" : "yellow") + '-700">' + (r.sent_to_admin ? "Sent to Admin" : "Draft") + '</span></div>';
+        }
+    }
+    html += '</div></div>';
+    document.getElementById("reportsTab").innerHTML = html;
+}
+
+function openSendReportModal() { document.getElementById("sendReportModal").classList.remove("hidden"); document.getElementById("sendReportModal").classList.add("flex"); }
+function closeSendReportModal() { document.getElementById("sendReportModal").classList.add("hidden"); document.getElementById("sendReportModal").classList.remove("flex"); }
+
+function sendReportToAdmin() {
+    var title = document.getElementById("reportTitle").value.trim();
+    var content = document.getElementById("reportContent").value.trim();
+    if(!title || !content) { showToast("Please enter title and content", true); return; }
+    var reports = JSON.parse(localStorage.getItem("dept_reports") || "[]");
+    reports.unshift({ id: Date.now(), department: deptType, title: title, content: content, sent_to_admin: true, created_at: new Date().toISOString() });
+    localStorage.setItem("dept_reports", JSON.stringify(reports));
+    addLog("Sent report to Admin: " + title);
+    showToast("Report sent to Admin successfully");
+    closeSendReportModal();
+    document.getElementById("reportTitle").value = "";
+    document.getElementById("reportContent").value = "";
+    loadReports();
+}
+
+function exportReportsToExcel() {
+    var reports = JSON.parse(localStorage.getItem("dept_reports") || "[]");
+    var myReports = [];
+    for (var i = 0; i < reports.length; i++) { if (reports[i].department === deptType) myReports.push(reports[i]); }
+    var wsData = [["Title", "Content", "Date", "Sent to Admin"]];
+    for (var j = 0; j < myReports.length; j++) { wsData.push([myReports[j].title, myReports[j].content, new Date(myReports[j].created_at).toLocaleDateString(), myReports[j].sent_to_admin ? "Yes" : "No"]); }
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsData), "Reports");
+    XLSX.writeFile(wb, deptType + "_reports.xlsx");
+    showToast("Reports exported to Excel");
+}
+
+function exportReportsToPDF() {
+    var reports = JSON.parse(localStorage.getItem("dept_reports") || "[]");
+    var myReports = [];
+    for (var i = 0; i < reports.length; i++) { if (reports[i].department === deptType) myReports.push(reports[i]); }
+    var element = document.createElement("div");
+    var reportHtml = "<div style=\"padding:20px\"><h1 style=\"color:" + primaryColor + "\">" + deptType + " Department Reports</h1><p>Generated: " + new Date().toLocaleString() + "</p><hr>";
+    for (var j = 0; j < myReports.length; j++) {
+        reportHtml += "<div style=\"margin-bottom:15px\"><strong>" + myReports[j].title + "</strong><br>" + myReports[j].content + "<br><small>" + new Date(myReports[j].created_at).toLocaleDateString() + "</small></div>";
+    }
+    reportHtml += "</div>";
+    element.innerHTML = reportHtml;
+    html2pdf().set({ margin: 0.5, filename: deptType + "_reports.pdf" }).from(element).save();
+    showToast("Reports exported to PDF");
+}
+
+function loadSettings() {
+    var logs = JSON.parse(localStorage.getItem("dept_activity_logs") || "[]");
+    var myLogs = [];
+    for (var i = 0; i < logs.length; i++) { if (logs[i].department === deptType) myLogs.push(logs[i]); }
+    var logsHtml = "";
+    for (var j = 0; j < Math.min(myLogs.length, 20); j++) {
+        logsHtml += "<div class=\"text-xs border-b py-1\"><span>" + myLogs[j].action + "</span><span class=\"float-right text-gray-400\">" + new Date(myLogs[j].created_at).toLocaleDateString() + "</span></div>";
+    }
+    var html = '<h2 class="text-2xl font-bold mb-4"><i class="fas fa-cog mr-2"></i>Settings</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-white rounded-xl p-5"><h3 class="font-semibold mb-3"><i class="fas fa-palette mr-2"></i>Dashboard Color</h3><div class="flex gap-2"><div class="color-option" style="background:#10b981" onclick="changeColor(\'#10b981\', this)"></div><div class="color-option" style="background:#3b82f6" onclick="changeColor(\'#3b82f6\', this)"></div><div class="color-option" style="background:#f97316" onclick="changeColor(\'#f97316\', this)"></div><div class="color-option" style="background:#8b5cf6" onclick="changeColor(\'#8b5cf6\', this)"></div><div class="color-option" style="background:#ef4444" onclick="changeColor(\'#ef4444\', this)"></div></div></div><div class="bg-white rounded-xl p-5"><h3 class="font-semibold mb-3"><i class="fas fa-database mr-2"></i>Backup & Restore</h3><div class="flex gap-2"><button onclick="createBackup()" class="flex-1 bg-green-600 text-white py-2 rounded-lg"><i class="fas fa-download mr-1"></i>Backup</button><button onclick="restoreBackup()" class="flex-1 bg-orange-600 text-white py-2 rounded-lg"><i class="fas fa-upload mr-1"></i>Restore</button></div></div><div class="bg-white rounded-xl p-5"><h3 class="font-semibold mb-3"><i class="fas fa-history mr-2"></i>Activity Logs</h3><div class="max-h-40 overflow-y-auto space-y-1" id="logsList">' + (logsHtml || "<p class=\"text-gray-400 text-center\">No logs available</p>") + '</div><button onclick="clearLogs()" class="w-full mt-3 bg-red-600 text-white py-2 rounded-lg"><i class="fas fa-trash mr-1"></i>Clear All Logs</button></div><div class="bg-white rounded-xl p-5"><h3 class="font-semibold mb-3"><i class="fas fa-info-circle mr-2"></i>Department Info</h3><p><strong>Name:</strong> ' + deptType + ' Department</p><p><strong>Email:</strong> ' + deptType.toLowerCase() + '@geotraverse.com</p><p><strong>Role:</strong> Department Manager</p></div></div>';
+    document.getElementById("settingsTab").innerHTML = html;
+}
+
+function changeColor(color, element) {
+    var opts = document.querySelectorAll(".color-option");
+    for (var i = 0; i < opts.length; i++) opts[i].classList.remove("selected");
+    if(element) element.classList.add("selected");
+    var header = document.querySelector("header");
+    if(header) header.style.background = "linear-gradient(135deg, " + color + ", " + color + "dd)";
+    localStorage.setItem(deptType + "_color", color);
+    primaryColor = color;
+    showToast("Dashboard color changed");
+}
+
+function createBackup() {
+    var backup = { department: deptType, transactions: localStorage.getItem("geotraverse_transactions"), messages: localStorage.getItem("dept_messages"), reports: localStorage.getItem("dept_reports"), logs: localStorage.getItem("dept_activity_logs"), timestamp: new Date().toISOString() };
+    var blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = deptType + "_backup_" + new Date().toISOString().slice(0,19) + ".json";
+    a.click();
+    URL.revokeObjectURL(url);
+    addLog("Created backup");
+    showToast("Backup created");
+}
+
+function restoreBackup() {
+    var input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json";
+    input.onchange = function(e) {
+        var file = e.target.files[0];
+        if(!file) return;
+        var reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                var data = JSON.parse(evt.target.result);
+                if(data.transactions) localStorage.setItem("geotraverse_transactions", data.transactions);
+                if(data.messages) localStorage.setItem("dept_messages", data.messages);
+                if(data.reports) localStorage.setItem("dept_reports", data.reports);
+                addLog("Restored from backup");
+                showToast("Backup restored! Reloading...");
+                setTimeout(function() { location.reload(); }, 1500);
+            } catch(err) { showToast("Invalid backup file", true); }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function clearLogs() {
+    if(confirm("Clear all activity logs?")) {
+        var logs = JSON.parse(localStorage.getItem("dept_activity_logs") || "[]");
+        var newLogs = [];
+        for (var i = 0; i < logs.length; i++) { if (logs[i].department !== deptType) newLogs.push(logs[i]); }
+        localStorage.setItem("dept_activity_logs", JSON.stringify(newLogs));
+        loadSettings();
+        showToast("Logs cleared");
+    }
+}
+
+initData();
+loadOverview();
+var savedColor = localStorage.getItem(deptType + "_color");
+if(savedColor) { document.querySelector("header").style.background = "linear-gradient(135deg, " + savedColor + ", " + savedColor + "dd)"; }
+if(!localStorage.getItem("dept_logged_in") || localStorage.getItem("dept_type") !== "finance") window.location.href = "department_login.html";
+
+window.showTab = showTab; window.openChatWith = openChatWith; window.sendChatMessage = sendChatMessage; window.deleteMessage = deleteMessage; window.closeChatModal = closeChatModal;
+window.openStartChatModal = openStartChatModal; window.closeStartChatModal = closeStartChatModal; window.sendNewChat = sendNewChat;
+window.openSendReportModal = openSendReportModal; window.closeSendReportModal = closeSendReportModal; window.sendReportToAdmin = sendReportToAdmin;
+window.exportReportsToExcel = exportReportsToExcel; window.exportReportsToPDF = exportReportsToPDF; window.changeColor = changeColor;
+window.createBackup = createBackup; window.restoreBackup = restoreBackup; window.clearLogs = clearLogs;
+window.openTransactionModal = openTransactionModal; window.closeTransactionModal = closeTransactionModal; window.saveTransaction = saveTransaction;
+<\/script>
+</body>
+</html>
+    `);
+}
+
+// Sales Dashboard redirect
+if (window.location.pathname.includes('dashboard_sales.html')) {
+    window.location.href = 'department_login.html';
+}
+// Secretary Dashboard redirect  
+if (window.location.pathname.includes('dashboard_secretary.html')) {
+    window.location.href = 'department_login.html';
+}
+// Managers Dashboard redirect
+if (window.location.pathname.includes('dashboard_managers.html')) {
+    window.location.href = 'department_login.html';
+}
+</script>
+</body>
+</html>

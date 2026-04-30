@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GeoTraverse Group | Department Login</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #0f74ba 0%, #0a5a8e 100%);
+            min-height: 100vh;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.3);
+        }
+        
+        .dept-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .dept-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+        }
+        .dept-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .dept-card:hover::before {
+            left: 100%;
+        }
+        
+        .password-field { position: relative; }
+        .password-field input { padding-right: 45px; }
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #9ca3af;
+            transition: color 0.2s;
+        }
+        .password-toggle:hover { color: #0f74ba; }
+        
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+        .toast-notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .input-field {
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            border-color: #0f74ba;
+            box-shadow: 0 0 0 3px rgba(15,116,186,0.1);
+            outline: none;
+        }
+        
+        .remember-checkbox {
+            accent-color: #0f74ba;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .login-btn {
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2);
+        }
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: repeat;
+        }
+        
+        .admin-link {
+            transition: all 0.2s;
+        }
+        .admin-link:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="background-pattern"></div>
+
+<div id="appContainer" class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-7xl w-full">
+        <!-- Header -->
+        <div class="text-center mb-12 animate-fadeIn">
+            <div class="flex justify-center mb-4">
+                <div class="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                    <i class="fas fa-building text-5xl text-white"></i>
+                </div>
+            </div>
+            <h1 class="text-5xl font-bold text-white mb-2">GeoTraverse Group</h1>
+            <p class="text-white/80 text-lg">of Companies - ERP System</p>
+            <div class="w-24 h-1 bg-white/30 mx-auto mt-4 rounded-full"></div>
+        </div>
+        
+        <!-- Department Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Finance Card -->
+            <div class="dept-card cursor-pointer" onclick="showLoginModal('finance')">
+                <div class="bg-gradient-to-br from-green-500 to-green-700 p-6 text-white text-center">
+                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Finance Department</h3>
+                    <p class="text-sm opacity-90 mt-2">Financial management, budgets, transactions</p>
+                </div>
+                <div class="bg-white p-4 text-center">
+                    <span class="text-green-600 text-sm"><i class="fas fa-lock mr-1"></i> Click to Login</span>
+                </div>
+            </div>
+            
+            <!-- Sales Card -->
+            <div class="dept-card cursor-pointer" onclick="showLoginModal('sales')">
+                <div class="bg-gradient-to-br from-orange-500 to-orange-700 p-6 text-white text-center">
+                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-simple text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Sales Department</h3>
+                    <p class="text-sm opacity-90 mt-2">Lead management, targets, performance</p>
+                </div>
+                <div class="bg-white p-4 text-center">
+                    <span class="text-orange-600 text-sm"><i class="fas fa-lock mr-1"></i> Click to Login</span>
+                </div>
+            </div>
+            
+            <!-- Secretary Card -->
+            <div class="dept-card cursor-pointer" onclick="showLoginModal('secretary')">
+                <div class="bg-gradient-to-br from-purple-500 to-purple-700 p-6 text-white text-center">
+                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-envelope text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Secretary Department</h3>
+                    <p class="text-sm opacity-90 mt-2">Invoices, correspondence, communications</p>
+                </div>
+                <div class="bg-white p-4 text-center">
+                    <span class="text-purple-600 text-sm"><i class="fas fa-lock mr-1"></i> Click to Login</span>
+                </div>
+            </div>
+            
+            <!-- Managers Card -->
+            <div class="dept-card cursor-pointer" onclick="showLoginModal('managers')">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-700 p-6 text-white text-center">
+                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-users text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Managers Department</h3>
+                    <p class="text-sm opacity-90 mt-2">Executive overview and company KPIs</p>
+                </div>
+                <div class="bg-white p-4 text-center">
+                    <span class="text-blue-600 text-sm"><i class="fas fa-lock mr-1"></i> Click to Login</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Link -->
+        <div class="text-center mt-8">
+            <a href="admin_dashboard.html" class="admin-link inline-flex items-center gap-2 text-white/70 hover:text-white transition group">
+                <i class="fas fa-user-shield text-lg group-hover:scale-110 transition"></i>
+                <span>Admin Login</span>
+                <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition"></i>
+            </a>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center mt-12 text-white/50 text-sm">
+            <p>&copy; 2024 GeoTraverse Group of Companies. All rights reserved.</p>
+            <p class="text-xs mt-1">Secure Department Login System</p>
+        </div>
+    </div>
+</div>
+
+<!-- Login Modal -->
+<div id="loginModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm" style="backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl transform transition-all duration-300 scale-95 opacity-0" id="loginModalContent">
+        <div id="loginModalHeader" class="p-6 border-b rounded-t-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-2xl font-bold" id="loginDeptName">Department Login</h3>
+                <button onclick="closeLoginModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition hover:rotate-90 duration-300">&times;</button>
+            </div>
+            <p class="text-gray-500 text-sm mt-1" id="loginDeptDesc">Enter your credentials to access dashboard</p>
+        </div>
+        <div class="p-6">
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2 text-gray-700">
+                    <i class="fas fa-envelope mr-2 text-gray-400"></i>Email Address
+                </label>
+                <input type="email" id="loginEmail" class="w-full p-3 border border-gray-300 rounded-xl focus:border-orange-500 transition-all input-field" placeholder="department@geotraverse.com">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold mb-2 text-gray-700">
+                    <i class="fas fa-lock mr-2 text-gray-400"></i>Password
+                </label>
+                <div class="password-field relative">
+                    <input type="password" id="loginPassword" class="w-full p-3 border border-gray-300 rounded-xl pr-12 focus:border-orange-500 transition-all input-field" placeholder="Enter your password">
+                    <i class="fas fa-eye password-toggle" onclick="togglePassword('loginPassword')"></i>
+                </div>
+            </div>
+            <div class="flex justify-between items-center mb-6">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="rememberMe" class="remember-checkbox">
+                    <span class="text-sm text-gray-600">Remember me</span>
+                </label>
+                <a href="#" class="text-sm text-orange-600 hover:text-orange-700 transition" onclick="showDemoCredentials(); return false;">
+                    <i class="fas fa-info-circle mr-1"></i>Show demo credentials
+                </a>
+            </div>
+            <button onclick="attemptLogin()" class="login-btn w-full py-3 rounded-xl text-white font-semibold transition-all duration-300 flex items-center justify-center gap-2" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login to Dashboard</span>
+            </button>
+            <p class="text-center text-xs text-gray-400 mt-4">
+                <i class="fas fa-shield-alt mr-1"></i> Secure department access only
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Demo Credentials Toast -->
+<div id="demoToast" class="fixed bottom-4 left-4 bg-gray-800 text-white p-3 rounded-lg shadow-lg hidden z-50 max-w-sm">
+    <div class="flex items-start gap-2">
+        <i class="fas fa-key text-yellow-400 mt-0.5"></i>
+        <div class="text-sm" id="demoContent"></div>
+        <button onclick="document.getElementById('demoToast').classList.add('hidden')" class="text-gray-400 hover:text-white">&times;</button>
+    </div>
+</div>
+
+<script>
+    // Department credentials
+    const departmentCredentials = {
+        finance: {
+            name: "Finance Department",
+            displayName: "Finance",
+            email: "finance@geotraverse.com",
+            password: "finance123",
+            color: "green",
+            bgGradient: "from-green-500 to-green-700",
+            btnColor: "bg-green-600 hover:bg-green-700",
+            icon: "fa-chart-line",
+            dashboard: "dashboard_finance.html"
+        },
+        sales: {
+            name: "Sales Department",
+            displayName: "Sales",
+            email: "sales@geotraverse.com",
+            password: "sales123",
+            color: "orange",
+            bgGradient: "from-orange-500 to-orange-700",
+            btnColor: "bg-orange-600 hover:bg-orange-700",
+            icon: "fa-chart-simple",
+            dashboard: "dashboard_sales.html"
+        },
+        secretary: {
+            name: "Secretary Department",
+            displayName: "Secretary",
+            email: "secretary@geotraverse.com",
+            password: "secretary123",
+            color: "purple",
+            bgGradient: "from-purple-500 to-purple-700",
+            btnColor: "bg-purple-600 hover:bg-purple-700",
+            icon: "fa-envelope",
+            dashboard: "dashboard_secretary.html"
+        },
+        managers: {
+            name: "Managers Department",
+            displayName: "Managers",
+            email: "manager@geotraverse.com",
+            password: "manager123",
+            color: "blue",
+            bgGradient: "from-blue-500 to-blue-700",
+            btnColor: "bg-blue-600 hover:bg-blue-700",
+            icon: "fa-users",
+            dashboard: "dashboard_managers.html"
+        }
+    };
+    
+    let currentDepartment = null;
+    let isLoading = false;
+    
+    // ==================== HELPER FUNCTIONS ====================
+    function showToast(message, isError) {
+        var toast = document.createElement("div");
+        toast.className = "toast-notification" + (isError ? " error" : "");
+        toast.innerHTML = '<i class="fas ' + (isError ? "fa-exclamation-circle" : "fa-check-circle") + ' mr-2"></i>' + message;
+        document.body.appendChild(toast);
+        setTimeout(function() { toast.remove(); }, 3000);
+    }
+    
+    function togglePassword(fieldId) {
+        var input = document.getElementById(fieldId);
+        if (!input) return;
+        var icon = input.nextElementSibling;
+        if (input.type === "password") {
+            input.type = "text";
+            if (icon) icon.classList.remove("fa-eye");
+            if (icon) icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            if (icon) icon.classList.remove("fa-eye-slash");
+            if (icon) icon.classList.add("fa-eye");
+        }
+    }
+    
+    function showDemoCredentials() {
+        if (!currentDepartment) return;
+        var creds = departmentCredentials[currentDepartment];
+        if (!creds) return;
+        
+        var demoContent = document.getElementById("demoContent");
+        demoContent.innerHTML = '<strong>Demo Credentials:</strong><br>Email: ' + creds.email + '<br>Password: ' + creds.password;
+        document.getElementById("demoToast").classList.remove("hidden");
+        
+        setTimeout(function() {
+            document.getElementById("demoToast").classList.add("hidden");
+        }, 5000);
+    }
+    
+    // Auto-fill credentials when modal opens
+    function autoFillCredentials() {
+        if (!currentDepartment) return;
+        var creds = departmentCredentials[currentDepartment];
+        if (creds) {
+            document.getElementById("loginEmail").value = creds.email;
+            document.getElementById("loginPassword").value = creds.password;
+        }
+    }
+    
+    // ==================== LOGIN MODAL ====================
+    function showLoginModal(department) {
+        currentDepartment = department;
+        var creds = departmentCredentials[department];
+        if (!creds) return;
+        
+        // Update modal appearance
+        document.getElementById("loginDeptName").innerHTML = '<i class="fas ' + creds.icon + ' mr-2"></i>' + creds.name;
+        document.getElementById("loginDeptDesc").innerHTML = 'Enter your credentials to access ' + creds.name + ' Dashboard';
+        
+        // Update button color
+        var loginBtn = document.getElementById("loginBtn");
+        loginBtn.className = "login-btn w-full py-3 rounded-xl text-white font-semibold transition-all duration-300 flex items-center justify-center gap-2 " + creds.btnColor;
+        
+        // Update modal header gradient
+        var header = document.getElementById("loginModalHeader");
+        header.className = "p-6 border-b rounded-t-2xl bg-gradient-to-r " + creds.bgGradient + " text-white";
+        
+        // Auto-fill credentials
+        autoFillCredentials();
+        
+        // Show modal with animation
+        var modal = document.getElementById("loginModal");
+        var modalContent = document.getElementById("loginModalContent");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        
+        // Animation
+        setTimeout(function() {
+            modalContent.classList.remove("scale-95", "opacity-0");
+            modalContent.classList.add("scale-100", "opacity-100");
+        }, 10);
+        
+        // Focus on email input
+        setTimeout(function() {
+            document.getElementById("loginEmail").focus();
+        }, 200);
+    }
+    
+    function closeLoginModal() {
+        var modal = document.getElementById("loginModal");
+        var modalContent = document.getElementById("loginModalContent");
+        
+        // Reverse animation
+        modalContent.classList.remove("scale-100", "opacity-100");
+        modalContent.classList.add("scale-95", "opacity-0");
+        
+        setTimeout(function() {
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            currentDepartment = null;
+            isLoading = false;
+        }, 200);
+    }
+    
+    function attemptLogin() {
+        if (isLoading) return;
+        if (!currentDepartment) {
+            showToast("Please select a department first", true);
+            return;
+        }
+        
+        var email = document.getElementById("loginEmail").value.trim();
+        var password = document.getElementById("loginPassword").value;
+        var rememberMe = document.getElementById("rememberMe").checked;
+        var creds = departmentCredentials[currentDepartment];
+        
+        // Validation
+        if (!email) {
+            showToast("Please enter your email address", true);
+            document.getElementById("loginEmail").focus();
+            return;
+        }
+        
+        if (!password) {
+            showToast("Please enter your password", true);
+            document.getElementById("loginPassword").focus();
+            return;
+        }
+        
+        // Check credentials
+        if (email === creds.email && password === creds.password) {
+            isLoading = true;
+            
+            // Show loading state
+            var loginBtn = document.getElementById("loginBtn");
+            var originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<div class="loading-spinner"></div><span> Logging in...</span>';
+            loginBtn.disabled = true;
+            
+            // Store login session
+            localStorage.setItem("dept_logged_in", "true");
+            localStorage.setItem("dept_type", currentDepartment);
+            localStorage.setItem("dept_name", creds.name);
+            localStorage.setItem("dept_email", creds.email);
+            
+            if (rememberMe) {
+                localStorage.setItem("remember_dept", currentDepartment);
+                localStorage.setItem("remember_email", creds.email);
+            } else {
+                localStorage.removeItem("remember_dept");
+                localStorage.removeItem("remember_email");
+            }
+            
+            // Add activity log
+            var logs = JSON.parse(localStorage.getItem("dept_activity_logs") || "[]");
+            logs.unshift({ 
+                action: creds.name + " logged into system", 
+                department: currentDepartment,
+                created_at: new Date().toISOString() 
+            });
+            if (logs.length > 50) logs.pop();
+            localStorage.setItem("dept_activity_logs", JSON.stringify(logs));
+            
+            showToast("Welcome " + creds.name + "! Redirecting to dashboard...");
+            
+            // Redirect to department dashboard
+            setTimeout(function() {
+                window.location.href = creds.dashboard;
+            }, 1500);
+        } else {
+            showToast("Invalid email or password. Please try again.", true);
+            
+            // Highlight error
+            document.getElementById("loginEmail").classList.add("border-red-500");
+            document.getElementById("loginPassword").classList.add("border-red-500");
+            setTimeout(function() {
+                document.getElementById("loginEmail").classList.remove("border-red-500");
+                document.getElementById("loginPassword").classList.remove("border-red-500");
+            }, 2000);
+        }
+    }
+    
+    // Check for existing session
+    function checkExistingSession() {
+        var deptLoggedIn = localStorage.getItem("dept_logged_in");
+        var deptType = localStorage.getItem("dept_type");
+        
+        if (deptLoggedIn === "true" && deptType) {
+            var creds = departmentCredentials[deptType];
+            if (creds) {
+                // Auto-redirect to appropriate dashboard
+                window.location.href = creds.dashboard;
+            }
+        }
+        
+        // Check for remembered department
+        var rememberedDept = localStorage.getItem("remember_dept");
+        if (rememberedDept && departmentCredentials[rememberedDept]) {
+            var creds = departmentCredentials[rememberedDept];
+            var rememberedEmail = localStorage.getItem("remember_email");
+            if (rememberedEmail) {
+                // Pre-fill would happen when modal opens
+            }
+        }
+    }
+    
+    // Enter key support
+    document.getElementById("loginPassword")?.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") attemptLogin();
+    });
+    
+    document.getElementById("loginEmail")?.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") attemptLogin();
+    });
+    
+    // Close modal on escape key
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+            closeLoginModal();
+        }
+    });
+    
+    // Close modal when clicking outside
+    document.getElementById("loginModal")?.addEventListener("click", function(e) {
+        if (e.target === this) {
+            closeLoginModal();
+        }
+    });
+    
+    // Initialize
+    checkExistingSession();
+    
+    // Expose functions to global scope
+    window.showLoginModal = showLoginModal;
+    window.closeLoginModal = closeLoginModal;
+    window.attemptLogin = attemptLogin;
+    window.togglePassword = togglePassword;
+    window.showDemoCredentials = showDemoCredentials;
+</script>
+</body>
+</html>
