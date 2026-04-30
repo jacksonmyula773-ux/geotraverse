@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GeoTraverse | Admin Dashboard - Full Project Management</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #f0f2f5; transition: background 0.3s ease; }
+        ::-webkit-scrollbar { width: 5px; background: #e4e4e7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #a1a1aa; border-radius: 10px; }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #0f74ba 0%, #0a5a8e 100%);
+            transition: background-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            width: 260px;
+            z-index: 30;
+        }
+        .sidebar-logo-link { cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center; gap: 12px; }
+        .sidebar-logo-link:hover { opacity: 0.8; }
+        .sidebar-nav { flex: 1; overflow-y: auto; padding: 1.5rem 0.75rem; scrollbar-width: thin; }
+        .sidebar-footer { padding: 1rem; border-top: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+        .nav-item { transition: all 0.2s ease; border-left: 3px solid transparent; cursor: pointer; }
+        .nav-item.active { background-color: rgba(255,255,255,0.12); border-left-color: #60a5fa; }
+        .nav-item.active i { color: #60a5fa; }
+        .nav-item:hover:not(.active) { background-color: rgba(255,255,255,0.08); }
+        
+        .stat-card { transition: all 0.3s ease; border: 1px solid #e5e7eb; cursor: pointer; background: white; border-radius: 16px; }
+        .stat-card:hover { transform: translateY(-3px); border-color: #0f74ba; box-shadow: 0 10px 20px -10px rgba(0,0,0,0.1); }
+        .dept-link { transition: all 0.2s ease; cursor: pointer; background: white; border-radius: 12px; border: 1px solid #e5e7eb; }
+        .dept-link:hover { transform: translateX(5px); border-color: #0f74ba; background-color: #f0f9ff; }
+        .project-card { transition: all 0.2s; cursor: pointer; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; background: white; }
+        .project-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .message-unread { background-color: #eff6ff; border-left: 3px solid #3b82f6; }
+        .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 12px; margin-bottom: 8px; }
+        .chat-sent { background-color: #d1fae5; margin-left: auto; }
+        .chat-received { background-color: #e5e7eb; }
+        .setting-card { transition: all 0.3s ease; cursor: pointer; border: 1px solid #e5e7eb; background: white; border-radius: 16px; }
+        .setting-card:hover { transform: translateY(-3px); border-color: #0f74ba; }
+        .color-option { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; width: 36px; height: 36px; border-radius: 50%; }
+        .color-option:hover { transform: scale(1.1); }
+        .color-option.selected { border-color: white; box-shadow: 0 0 0 2px #333; }
+        @keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal-pop { animation: modalPop 0.2s ease-out; }
+        .toast-notification { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: slideInRight 0.3s ease; }
+        .toast-notification.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        body.dark-mode { background-color: #0f172a; }
+        body.dark-mode .bg-white { background-color: #1e293b; }
+        body.dark-mode .text-gray-800, body.dark-mode .text-gray-700 { color: #f1f5f9; }
+        body.dark-mode .text-gray-500, body.dark-mode .text-gray-400 { color: #94a3b8; }
+        body.dark-mode .stat-card, body.dark-mode .setting-card, body.dark-mode .dept-link, body.dark-mode .project-card, body.dark-mode .task-item { background-color: #1e293b; border-color: #334155; }
+        body.dark-mode .dept-link:hover { background-color: #1e3a5f; }
+        body.dark-mode .chat-received { background-color: #334155; }
+        body.dark-mode .chat-sent { background-color: #065f46; }
+        body.dark-mode .message-unread { background-color: #1e3a5f; border-left-color: #60a5fa; }
+        
+        .btn-primary { background: linear-gradient(135deg, #0f74ba, #0a5a8e); transition: all 0.2s ease; cursor: pointer; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(15,116,186,0.3); }
+        .gradient-text { background: linear-gradient(135deg, #0f74ba, #60a5fa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .scroll-top { position: fixed; bottom: 20px; right: 20px; background: #0f74ba; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: all 0.3s; z-index: 99; }
+        .scroll-top.visible { opacity: 1; }
+        .task-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; border-left: 3px solid #0f74ba; }
+        .task-item:hover { transform: translateX(3px); }
+        .main-content { margin-left: 260px; }
+        @media (max-width: 768px) {
+            .sidebar { left: -260px; transition: left 0.3s; }
+            .sidebar.mobile-open { left: 0; }
+            .mobile-menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
+            .mobile-menu-overlay.open { display: block; }
+            .main-content { margin-left: 0; }
+        }
+        .search-results-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); z-index: 50; max-height: 400px; overflow-y: auto; display: none; }
+        .search-results-dropdown.active { display: block; }
+        .search-result-item { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; cursor: pointer; }
+        .search-result-item:hover { background-color: #f3f4f6; }
+        .dark-mode .search-results-dropdown { background: #1e293b; }
+        .dark-mode .search-result-item { border-bottom-color: #334155; }
+        .dark-mode .search-result-item:hover { background-color: #334155; }
+        .password-field { position: relative; }
+        .password-field input { padding-right: 40px; }
+        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; }
+        .password-toggle:hover { color: #0f74ba; }
+    </style>
+</head>
+<body>
+
+<div id="mobileMenuOverlay" class="mobile-menu-overlay" onclick="closeMobileSidebar()"></div>
+
+<div class="flex h-screen overflow-hidden">
+    <aside id="mainSidebar" class="sidebar w-64 shadow-xl flex flex-col z-20">
+        <div class="px-6 py-6 border-b border-white/20 flex-shrink-0">
+            <div class="sidebar-logo-link" onclick="goToMainWebsite()">
+                <img src="https://i.postimg.cc/MT6jTVHh/weblogo.png" alt="GeoTraverse Logo" class="w-10 h-10 object-contain rounded-lg">
+                <div><span class="text-xl font-bold text-white">GeoTraverse</span><p class="text-[10px] text-white/60">Admin Dashboard</p></div>
+            </div>
+        </div>
+        <div class="sidebar-nav flex-1 overflow-y-auto">
+            <nav class="space-y-1">
+                <a href="#" class="nav-item active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="dashboard"><i class="fas fa-tachometer-alt w-5"></i><span>Dashboard</span></a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="employees"><i class="fas fa-users w-5"></i><span>Employees</span></a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="departments"><i class="fas fa-building w-5"></i><span>Departments</span></a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="projects"><i class="fas fa-tasks w-5"></i><span>Projects</span></a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="tasks"><i class="fas fa-check-square w-5"></i><span>Tasks</span><span class="ml-auto bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full" id="pendingTasksBadge">0</span></a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="messages"><i class="fas fa-envelope w-5"></i><span>Messages</span><span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full" id="unreadMessagesBadge">0</span></a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="reports"><i class="fas fa-chart-line w-5"></i><span>Reports</span><span class="ml-auto bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full" id="unreadReportsBadge">0</span></a>
+                <a href="#" class="nav-item flex items-center space-x-3 px-3 py-2.5 rounded-lg text-white" data-section="settings"><i class="fas fa-cog w-5"></i><span>Settings</span></a>
+            </nav>
+        </div>
+        <div class="sidebar-footer flex-shrink-0">
+            <div class="flex items-center space-x-3 mb-3">
+                <div class="w-9 h-9 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center"><i class="fas fa-user text-white text-sm"></i></div>
+                <div class="flex-1"><p class="text-sm font-semibold text-white">Admin User</p><p class="text-xs text-white/70">admin@geotraverse.com</p></div>
+            </div>
+            <button id="logoutBtn" class="w-full bg-red-600/80 hover:bg-red-600 text-white py-2 rounded-lg text-sm"><i class="fas fa-sign-out-alt mr-2"></i>Logout</button>
+        </div>
+    </aside>
+    
+    <main class="flex-1 overflow-y-auto main-content">
+        <header class="bg-white shadow-sm px-6 py-4 sticky top-0 z-10 border-b border-gray-200">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center space-x-4">
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-blue-600"><i class="fas fa-bars text-xl"></i></button>
+                    <button id="homeButton" class="text-gray-600 hover:text-blue-600" onclick="goToMainWebsite()"><i class="fas fa-home text-xl"></i></button>
+                </div>
+                <div class="flex-1 max-w-md mx-4 relative">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <input type="text" id="globalSearchInput" placeholder="Search employees, projects..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500">
+                        <div id="searchResultsDropdown" class="search-results-dropdown"></div>
+                    </div>
+                </div>
+                <button id="darkModeToggle" class="text-gray-500 hover:text-blue-600"><i id="darkModeIcon" class="fas fa-moon text-xl"></i></button>
+            </div>
+        </header>
+        <div class="p-6" id="mainContentContainer"></div>
+    </main>
+</div>
+
+<!-- All Modals (Employee, Project, Task, Chat, Report, Department, Backup, Password) -->
+<div id="employeeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">...</div>
+<div id="projectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">...</div>
+<div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">...</div>
+<div id="chatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">...</div>
+<div id="startChatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">...</div>
+<div id="reportViewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">...</div>
+<div id="deptViewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">...</div>
+<div id="backupRestoreModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">...</div>
+<div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">...</div>
+
+<script>
+    // ========== AUTO-INIT & DEFAULT DATA ==========
+    if (!localStorage.getItem('admin_logged_in')) localStorage.setItem('admin_logged_in', 'true');
+    
+    function initializeDefaultData() {
+        if (!localStorage.getItem('geotraverse_central_messages')) {
+            localStorage.setItem('geotraverse_central_messages', JSON.stringify([
+                { id: 1, from: "Admin", to: "Manager", message: "Welcome to ERP!", read: false, created_at: new Date().toISOString() }
+            ]));
+        }
+        if (!localStorage.getItem('geotraverse_central_reports')) {
+            localStorage.setItem('geotraverse_central_reports', JSON.stringify([
+                { id: 1, from: "Manager", title: "Q1 Report", content: "All good", period: "quarterly", status: "unread", created_at: new Date().toISOString() }
+            ]));
+        }
+        if (!localStorage.getItem('geotraverse_employees')) {
+            localStorage.setItem('geotraverse_employees', JSON.stringify([
+                { id: 1, name: "John Mwita", email: "manager@geotraverse.com", phone: "+255712345678", role: "Manager", department: "Management", salary: "2500000", password: "1234", status: "Active", join_date: "2024-01-15" },
+                { id: 2, name: "Sarah Kijazi", email: "finance@geotraverse.com", phone: "+255713456789", role: "Accountant", department: "Finance", salary: "2000000", password: "1234", status: "Active", join_date: "2024-02-01" },
+                { id: 3, name: "Michael Mushi", email: "sales@geotraverse.com", phone: "+255714567890", role: "Sales Executive", department: "Sales & Marketing", salary: "1800000", password: "1234", status: "Active", join_date: "2024-01-10" },
+                { id: 4, name: "Grace Mrema", email: "secretary@geotraverse.com", phone: "+255715678901", role: "Secretary", department: "Administration", salary: "1500000", password: "1234", status: "Active", join_date: "2024-01-20" }
+            ]));
+        }
+        if (!localStorage.getItem('geotraverse_projects')) {
+            localStorage.setItem('geotraverse_projects', JSON.stringify([
+                { id: 1, name: "Modern Villa", client_name: "John Mwita", amount: "180000000", status: "completed", progress: 100, department: "Management", start_date: "2024-01-10" },
+                { id: 2, name: "Commercial Complex", client_name: "Sarah Kijazi", amount: "350000000", status: "in_progress", progress: 65, department: "Management", start_date: "2024-02-01" }
+            ]));
+        }
+        if (!localStorage.getItem('geotraverse_tasks')) {
+            localStorage.setItem('geotraverse_tasks', JSON.stringify([
+                { id: 1, title: "Review Budget", description: "Q2 budget", department: "Finance", completed: false, due_date: "2024-05-10", created_at: "2024-04-01" }
+            ]));
+        }
+        if (!localStorage.getItem('geotraverse_activity_logs')) {
+            localStorage.setItem('geotraverse_activity_logs', JSON.stringify([{ action: "System initialized", created_at: new Date().toISOString() }]));
+        }
+    }
+    initializeDefaultData();
+    
+    // ========== GLOBALS ==========
+    let employees = JSON.parse(localStorage.getItem('geotraverse_employees'));
+    let projects = JSON.parse(localStorage.getItem('geotraverse_projects'));
+    let tasks = JSON.parse(localStorage.getItem('geotraverse_tasks'));
+    let activityLogs = JSON.parse(localStorage.getItem('geotraverse_activity_logs'));
+    
+    function saveEmployees() { localStorage.setItem('geotraverse_employees', JSON.stringify(employees)); }
+    function saveProjects() { localStorage.setItem('geotraverse_projects', JSON.stringify(projects)); }
+    function saveTasks() { localStorage.setItem('geotraverse_tasks', JSON.stringify(tasks)); }
+    function addLog(action) { activityLogs.unshift({ action, created_at: new Date().toISOString() }); if(activityLogs.length>50) activityLogs.pop(); localStorage.setItem('geotraverse_activity_logs', JSON.stringify(activityLogs)); }
+    
+    function getCentralMessages() { return JSON.parse(localStorage.getItem('geotraverse_central_messages') || '[]'); }
+    function saveCentralMessages(m) { localStorage.setItem('geotraverse_central_messages', JSON.stringify(m)); }
+    function addCentralMessage(from, to, message) { let msgs = getCentralMessages(); msgs.push({ id: Date.now(), from, to, message, read: false, created_at: new Date().toISOString() }); saveCentralMessages(msgs); }
+    function markMessageAsRead(id) { let msgs = getCentralMessages(); let msg = msgs.find(m=>m.id===id); if(msg && msg.to==="Admin") msg.read=true; saveCentralMessages(msgs); }
+    function getUnreadMessagesCount() { return getCentralMessages().filter(m=>m.to==="Admin" && !m.read).length; }
+    function getConversations() { let msgs=getCentralMessages(); let conv={}; msgs.forEach(m=>{ if(m.from==="Admin"||m.to==="Admin"){ let other=m.from==="Admin"?m.to:m.from; if(!conv[other]) conv[other]=[]; conv[other].push(m); } }); return conv; }
+    function deleteMessage(id) { let msgs=getCentralMessages(); saveCentralMessages(msgs.filter(m=>m.id!==id)); }
+    
+    function getCentralReports() { return JSON.parse(localStorage.getItem('geotraverse_central_reports') || '[]'); }
+    function saveCentralReports(r) { localStorage.setItem('geotraverse_central_reports', JSON.stringify(r)); }
+    function markReportRead(id) { let reports=getCentralReports(); let r=reports.find(rr=>rr.id===id); if(r) r.status="read"; saveCentralReports(reports); }
+    function getUnreadReportsCount() { return getCentralReports().filter(r=>r.status==="unread").length; }
+    
+    function showToast(msg, err) { let t=document.createElement('div'); t.className='toast-notification'+(err?' error':''); t.innerHTML='<i class="fas '+(err?'fa-exclamation-circle':'fa-check-circle')+' mr-1"></i>'+msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
+    function escapeHtml(t) { if(!t) return ''; let d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+    function formatDate(d) { let date=new Date(d); let now=new Date(); let diff=now-date; let mins=Math.floor(diff/60000); if(mins<60) return mins+' min ago'; let hrs=Math.floor(diff/3600000); if(hrs<24) return hrs+' hour'+(hrs>1?'s':'')+' ago'; return Math.floor(hrs/24)+' day(s) ago'; }
+    function formatDateTime(d) { return new Date(d).toLocaleString(); }
+    function goToMainWebsite() { window.location.href='index.html'; }
+    function togglePasswordField(id) { let i=document.getElementById(id); if(i.type==='password'){ i.type='text'; i.nextElementSibling.classList.remove('fa-eye'); i.nextElementSibling.classList.add('fa-eye-slash'); } else { i.type='password'; i.nextElementSibling.classList.remove('fa-eye-slash'); i.nextElementSibling.classList.add('fa-eye'); } }
+    
+    // ========== EMPLOYEES (unchanged but working) ==========
+    function renderEmployees() {
+        let html=`<div class="bg-white rounded-xl shadow-sm"><div class="px-5 py-4 border-b flex justify-between"><h3 class="font-semibold"><i class="fas fa-users mr-2 text-blue-500"></i>Employees (${employees.length})</h3><button onclick="openAddEmployeeModal()" class="btn-primary text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>Add Employee</button></div><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left text-xs">Name</th><th class="px-4 py-2 text-left text-xs">Email</th><th class="px-4 py-2 text-left text-xs">Phone</th><th class="px-4 py-2 text-left text-xs">Role</th><th class="px-4 py-2 text-left text-xs">Department</th><th class="px-4 py-2 text-left text-xs">Salary</th><th class="px-4 py-2 text-left text-xs">Actions</th></tr></thead><tbody>`;
+        employees.forEach(emp=>{
+            html+=`<tr class="border-b"><td class="px-4 py-2 text-sm font-medium">${escapeHtml(emp.name)}</td><td class="px-4 py-2 text-sm">${escapeHtml(emp.email)}</td><td class="px-4 py-2 text-sm">${emp.phone||'-'}</td><td class="px-4 py-2 text-sm">${emp.role}</td><td class="px-4 py-2 text-sm">${emp.department}</td><td class="px-4 py-2 text-sm text-green-600">TZS ${parseFloat(emp.salary).toLocaleString()}</td><td class="px-4 py-2 text-sm"><button onclick="openEditEmployee(${emp.id})" class="text-blue-500 mr-2"><i class="fas fa-edit"></i></button><button onclick="changeEmployeePassword(${emp.id})" class="text-yellow-500 mr-2"><i class="fas fa-key"></i></button><button onclick="deleteEmployee(${emp.id})" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
+        });
+        html+=`</tbody></table></div></div>`;
+        document.getElementById('employeeSection').innerHTML=html;
+    }
+    function openAddEmployeeModal(){ document.getElementById('employeeModalTitle').innerText='Add Employee'; document.getElementById('editEmpId').value=''; document.getElementById('empName').value=''; document.getElementById('empEmail').value=''; document.getElementById('empPhone').value=''; document.getElementById('empRole').value='Manager'; document.getElementById('empDepartment').value='Management'; document.getElementById('empSalary').value=''; document.getElementById('empPassword').value=''; document.getElementById('employeeModal').classList.remove('hidden'); }
+    function openEditEmployee(id){ let emp=employees.find(e=>e.id===id); if(emp){ document.getElementById('employeeModalTitle').innerText='Edit Employee'; document.getElementById('editEmpId').value=emp.id; document.getElementById('empName').value=emp.name; document.getElementById('empEmail').value=emp.email; document.getElementById('empPhone').value=emp.phone||''; document.getElementById('empRole').value=emp.role; document.getElementById('empDepartment').value=emp.department; document.getElementById('empSalary').value=emp.salary; document.getElementById('empPassword').value=''; document.getElementById('employeeModal').classList.remove('hidden'); } }
+    function saveEmployee(){ let id=document.getElementById('editEmpId').value; let name=document.getElementById('empName').value; if(!name){ showToast('Name required',true); return; } let emp={ id:id?parseInt(id):Date.now(), name, email:document.getElementById('empEmail').value, phone:document.getElementById('empPhone').value, role:document.getElementById('empRole').value, department:document.getElementById('empDepartment').value, salary:document.getElementById('empSalary').value, password:document.getElementById('empPassword').value||'1234', status:'Active', join_date:new Date().toISOString().split('T')[0] }; if(id){ let idx=employees.findIndex(e=>e.id==id); if(idx!==-1) employees[idx]=emp; addLog(`Updated employee: ${name}`); showToast('Employee updated'); } else { employees.push(emp); addLog(`Added employee: ${name}`); showToast('Employee added'); } saveEmployees(); renderEmployees(); closeEmployeeModal(); renderDashboard(); }
+    function changeEmployeePassword(id){ let newPwd=prompt('New password'); if(newPwd){ let emp=employees.find(e=>e.id===id); if(emp){ emp.password=newPwd; saveEmployees(); showToast('Password changed'); } } }
+    function deleteEmployee(id){ if(confirm('Delete employee?')){ employees=employees.filter(e=>e.id!==id); saveEmployees(); renderEmployees(); renderDashboard(); addLog('Deleted employee'); showToast('Employee deleted'); } }
+    function closeEmployeeModal(){ document.getElementById('employeeModal').classList.add('hidden'); }
+    
+    // ========== PROJECTS (newest first + export per project) ==========
+    function sortProjectsNewestFirst() {
+        projects.sort((a,b) => b.id - a.id);
+    }
+    
+    function renderProjects() {
+        sortProjectsNewestFirst(); // ensure newest first
+        let html=`<div class="bg-white rounded-xl shadow-sm p-5"><div class="flex justify-between items-center mb-4 flex-wrap gap-2"><h3 class="font-semibold"><i class="fas fa-tasks mr-2 text-green-500"></i>All Projects (${projects.length})</h3><div><button onclick="openAddProjectModal()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm mr-2"><i class="fas fa-plus"></i> Add Project</button><button onclick="exportAllProjectsToExcel()" class="bg-green-600 text-white px-3 py-1 rounded text-sm">Export All Excel</button></div></div><div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+        projects.forEach(p=>{
+            html+=`<div class="project-card p-3"><div class="flex justify-between"><h4 class="font-bold">${escapeHtml(p.name)}</h4><div><button onclick="editProject(${p.id})" class="text-blue-500 mr-1"><i class="fas fa-edit"></i></button><button onclick="deleteProject(${p.id})" class="text-red-500 mr-1"><i class="fas fa-trash"></i></button><button onclick="sendProjectToManager(${p.id})" class="text-purple-500"><i class="fas fa-paper-plane"></i></button></div></div>
+            <p class="text-sm">Client: ${escapeHtml(p.client_name)}</p><p class="text-sm font-semibold">TZS ${parseFloat(p.amount).toLocaleString()}</p>
+            <div class="mt-1"><div class="flex justify-between text-xs"><span>Progress</span><span>${p.progress}%</span></div><div class="w-full bg-gray-200 rounded-full h-1.5"><div class="bg-blue-500 h-1.5 rounded-full" style="width:${p.progress}%"></div></div></div>
+            <span class="inline-block mt-2 text-xs px-2 py-0.5 rounded-full ${p.status==='completed'?'bg-green-100 text-green-700':p.status==='in_progress'?'bg-yellow-100 text-yellow-700':'bg-gray-100'}">${p.status}</span>
+            <div class="flex gap-2 mt-3"><button onclick="exportSingleProjectToExcel(${p.id})" class="flex-1 text-xs bg-green-600 text-white py-1 rounded"><i class="fas fa-file-excel"></i> Excel</button><button onclick="exportSingleProjectToPDF(${p.id})" class="flex-1 text-xs bg-red-600 text-white py-1 rounded"><i class="fas fa-file-pdf"></i> PDF</button></div>
+            <button onclick="viewProject(${p.id})" class="mt-2 w-full text-center text-xs text-blue-500">View Details</button></div>`;
+        });
+        html+=`</div></div>`;
+        document.getElementById('projectsSection').innerHTML=html;
+    }
+    
+    function openAddProjectModal(){ document.getElementById('editProjectId').value=''; document.getElementById('projectName').value=''; document.getElementById('projectClient').value=''; document.getElementById('projectAmount').value=''; document.getElementById('projectStatus').value='pending'; document.getElementById('projectDepartment').value='Management'; document.getElementById('projectProgress').value='0'; document.getElementById('projectModal').classList.remove('hidden'); }
+    function editProject(id){ let p=projects.find(p=>p.id===id); if(p){ document.getElementById('editProjectId').value=p.id; document.getElementById('projectName').value=p.name; document.getElementById('projectClient').value=p.client_name; document.getElementById('projectAmount').value=p.amount; document.getElementById('projectStatus').value=p.status; document.getElementById('projectDepartment').value=p.department; document.getElementById('projectProgress').value=p.progress; document.getElementById('projectModal').classList.remove('hidden'); } }
+    function saveProject(){ let id=document.getElementById('editProjectId').value; let name=document.getElementById('projectName').value; if(!name){ showToast('Project name required',true); return; } let project={ id:id?parseInt(id):Date.now(), name, client_name:document.getElementById('projectClient').value, amount:document.getElementById('projectAmount').value, status:document.getElementById('projectStatus').value, department:document.getElementById('projectDepartment').value, progress:parseInt(document.getElementById('projectProgress').value), start_date:new Date().toISOString().split('T')[0], description:'', image:'' }; if(id){ let idx=projects.findIndex(p=>p.id==id); if(idx!==-1) projects[idx]=project; addLog(`Updated project: ${name}`); showToast('Project updated'); } else { projects.unshift(project); addLog(`Added project: ${name} (newest first)`); showToast('Project added'); } saveProjects(); renderProjects(); renderDashboard(); closeProjectModal(); }
+    function deleteProject(id){ if(confirm('Delete project?')){ projects=projects.filter(p=>p.id!==id); saveProjects(); renderProjects(); renderDashboard(); addLog('Deleted project'); showToast('Project deleted'); } }
+    function viewProject(id){ let p=projects.find(p=>p.id===id); if(p){ alert(`Project: ${p.name}\nClient: ${p.client_name}\nAmount: TZS ${parseFloat(p.amount).toLocaleString()}\nStatus: ${p.status}\nProgress: ${p.progress}%`); } }
+    function sendProjectToManager(id){ let p=projects.find(p=>p.id===id); if(p){ let msg=prompt(`Send message to Manager about "${p.name}":`, "Please review this project."); if(msg){ addCentralMessage("Admin", "Manager", `Project Note: ${p.name}\n\n${msg}`); addLog(`Sent project note to Manager: ${p.name}`); showToast(`Note sent to Manager`); } } }
+    function exportAllProjectsToExcel(){ let ws=[["ID","Name","Client","Amount","Status","Progress","Department"]]; projects.forEach(p=>ws.push([p.id,p.name,p.client_name,p.amount,p.status,p.progress,p.department])); let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(ws),"All Projects"); XLSX.writeFile(wb,`all_projects_${new Date().toISOString().slice(0,10)}.xlsx`); showToast("All projects exported to Excel"); }
+    function exportSingleProjectToExcel(id){ let p=projects.find(p=>p.id===id); if(p){ let ws=[["Field","Value"],[["Project Name",p.name],["Client",p.client_name],["Amount",p.amount],["Status",p.status],["Progress",p.progress],["Department",p.department]]]; let wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(ws),p.name); XLSX.writeFile(wb,`${p.name.replace(/ /g,"_")}.xlsx`); showToast(`Exported ${p.name} to Excel`); } }
+    function exportSingleProjectToPDF(id){ let p=projects.find(p=>p.id===id); if(p){ let element=document.createElement('div'); element.innerHTML=`<div style="padding:20px;font-family:Arial"><h1 style="color:#0f74ba">${p.name}</h1><p><strong>Client:</strong> ${p.client_name}</p><p><strong>Amount:</strong> TZS ${parseFloat(p.amount).toLocaleString()}</p><p><strong>Status:</strong> ${p.status}</p><p><strong>Progress:</strong> ${p.progress}%</p><p><strong>Department:</strong> ${p.department}</p><p><strong>Start Date:</strong> ${p.start_date}</p><small>Exported on ${new Date().toLocaleString()}</small></div>`; html2pdf().set({margin:0.5,filename:`${p.name.replace(/ /g,"_")}.pdf`}).from(element).save(); showToast(`Exported ${p.name} to PDF`); } }
+    function closeProjectModal(){ document.getElementById('projectModal').classList.add('hidden'); }
+    
+    // ========== TASKS ==========
+    function renderTasks(){ let pending=tasks.filter(t=>!t.completed).length; document.getElementById('pendingTasksBadge').innerText=pending; let html=`<div class="bg-white rounded-xl p-5"><div class="flex justify-between mb-4"><h3 class="font-semibold"><i class="fas fa-tasks mr-2 text-orange-500"></i>Tasks (${tasks.length})</h3><button onclick="openAddTaskModal()" class="btn-primary text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>Add Task</button></div><div class="grid md:grid-cols-2 gap-4"><div><h4 class="font-semibold text-orange-600">Pending (${pending})</h4><div id="pendingTasksList"></div></div><div><h4 class="font-semibold text-green-600">Completed (${tasks.filter(t=>t.completed).length})</h4><div id="completedTasksList"></div></div></div></div>`;
+        document.getElementById('tasksSection').innerHTML=html;
+        document.getElementById('pendingTasksList').innerHTML=tasks.filter(t=>!t.completed).map(t=>`<div class="task-item flex justify-between"><div><p class="font-medium">${escapeHtml(t.title)}</p><p class="text-xs text-gray-500">${escapeHtml(t.description||'')} | Dept: ${t.department} | Due: ${t.due_date||'N/A'}</p></div><input type="checkbox" onchange="toggleTask(${t.id})" class="w-5 h-5"></div>`).join('');
+        document.getElementById('completedTasksList').innerHTML=tasks.filter(t=>t.completed).map(t=>`<div class="task-item opacity-75 flex justify-between"><div><p class="font-medium line-through">${escapeHtml(t.title)}</p><p class="text-xs text-gray-400">Completed</p></div><i class="fas fa-check-circle text-green-500 mt-1"></i></div>`).join('');
+    }
+    function openAddTaskModal(){ document.getElementById('taskTitle').value=''; document.getElementById('taskDesc').value=''; document.getElementById('taskDepartment').value='Management'; document.getElementById('taskDueDate').value=''; document.getElementById('taskModal').classList.remove('hidden'); }
+    function closeTaskModal(){ document.getElementById('taskModal').classList.add('hidden'); }
+    function saveTask(){ let title=document.getElementById('taskTitle').value; if(!title){ showToast('Title required',true); return; } tasks.push({ id:Date.now(), title, description:document.getElementById('taskDesc').value, department:document.getElementById('taskDepartment').value, completed:false, due_date:document.getElementById('taskDueDate').value, created_at:new Date().toISOString().split('T')[0] }); saveTasks(); renderTasks(); renderDashboard(); showToast('Task added'); closeTaskModal(); }
+    function toggleTask(id){ let t=tasks.find(t=>t.id===id); if(t){ t.completed=!t.completed; saveTasks(); renderTasks(); renderDashboard(); showToast(t.completed?'Task completed':'Task reopened'); } }
+    
+    // ========== DEPARTMENTS ==========
+    let departmentsList = [
+        { name:"Management", display:"Management Department", color:"purple", icon:"fa-user-tie" },
+        { name:"Finance", display:"Finance Department", color:"green", icon:"fa-calculator" },
+        { name:"Sales & Marketing", display:"Sales & Marketing Department", color:"orange", icon:"fa-chart-line" },
+        { name:"Administration", display:"Administration Department", color:"red", icon:"fa-envelope" }
+    ];
+    function renderDepartments(){
+        let html=`<div class="mb-4"><h2 class="text-2xl font-bold gradient-text">Departments</h2><p class="text-gray-500">Click to view full department dashboard</p></div><div class="space-y-3">`;
+        departmentsList.forEach(d=>{ html+=`<div class="dept-link p-4 flex items-center justify-between cursor-pointer" onclick="viewFullDepartment('${d.name}')"><div class="flex items-center gap-4"><div class="w-10 h-10 bg-${d.color}-100 rounded-full flex items-center justify-center"><i class="fas ${d.icon} text-${d.color}-600"></i></div><div><p class="font-semibold">${d.display}</p><p class="text-sm text-gray-500">Projects, Tasks & Messages</p></div></div><i class="fas fa-chevron-right text-gray-400"></i></div>`; });
+        html+=`</div>`;
+        document.getElementById('departmentsSection').innerHTML=html;
+    }
+    function viewFullDepartment(deptName){
+        let deptProjects=projects.filter(p=>p.department===deptName);
+        let deptTasks=tasks.filter(t=>t.department===deptName);
+        let deptMsgs=getCentralMessages().filter(m=>(m.from===deptName||m.to===deptName) && (m.from==="Admin"||m.to==="Admin"));
+        let color=departmentsList.find(d=>d.name===deptName)?.color||'blue';
+        document.getElementById('deptModalTitle').innerHTML=`${deptName} Department Dashboard`;
+        document.getElementById('deptViewContent').innerHTML=`
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"><div class="bg-${color}-50 p-4 rounded-xl text-center"><i class="fas fa-tasks text-2xl text-${color}-600"></i><p class="text-2xl font-bold">${deptProjects.length}</p><p>Projects</p></div><div class="bg-${color}-50 p-4 rounded-xl text-center"><i class="fas fa-tasks text-2xl text-${color}-600"></i><p class="text-2xl font-bold">${deptTasks.length}</p><p>Tasks</p></div><div class="bg-${color}-50 p-4 rounded-xl text-center"><i class="fas fa-envelope text-2xl text-${color}-600"></i><p class="text-2xl font-bold">${deptMsgs.length}</p><p>Messages</p></div></div>
+            <h4 class="font-semibold mb-2">Projects</h4>${deptProjects.map(p=>`<div class="border p-2 rounded mb-1">${p.name} - ${p.status}</div>`).join('')||'<p>No projects</p>'}
+            <h4 class="font-semibold mt-4 mb-2">Tasks</h4>${deptTasks.map(t=>`<div class="border p-2 rounded mb-1">${t.title} - ${t.completed?'Completed':'Pending'}</div>`).join('')||'<p>No tasks</p>'}
+            <div class="mt-4"><button onclick="openChatWith('${deptName}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Send Message</button></div>
+        `;
+        document.getElementById('deptViewModal').classList.remove('hidden');
+    }
+    function closeDeptViewModal(){ document.getElementById('deptViewModal').classList.add('hidden'); }
+    
+    // ========== MESSAGES & CHAT ==========
+    let currentChatWith=null;
+    function renderMessages(){
+        let conv=getConversations(); let unread=getUnreadMessagesCount(); document.getElementById('unreadMessagesBadge').innerText=unread;
+        let html=`<div class="bg-white rounded-xl shadow-sm"><div class="px-5 py-4 border-b flex justify-between"><h3 class="font-semibold"><i class="fas fa-comments mr-2 text-blue-500"></i>Messages (${Object.keys(conv).length} convos)</h3><button onclick="openStartChatModal()" class="btn-primary text-white px-3 py-1 rounded text-sm">New Message</button></div><div class="divide-y">`;
+        for(let dept in conv){ let last=conv[dept][conv[dept].length-1]; let un=conv[dept].filter(m=>m.to==="Admin" && !m.read).length; html+=`<div class="p-4 ${un>0?'message-unread':''} cursor-pointer flex justify-between" onclick="openChatWith('${dept}')"><div><p class="font-semibold">${dept}</p><p class="text-sm text-gray-600 truncate">${escapeHtml(last.message.substring(0,60))}</p>${un>0?`<span class="text-xs bg-red-500 text-white px-2 rounded-full">${un} new</span>`:''}</div><i class="fas fa-chevron-right text-gray-400"></i></div>`; }
+        html+=`</div></div>`;
+        document.getElementById('messagesSection').innerHTML=html;
+    }
+    function openChatWith(dept){
+        currentChatWith=dept; let messages=getCentralMessages().filter(m=>(m.from===dept&&m.to==="Admin")||(m.from==="Admin"&&m.to===dept));
+        messages.forEach(m=>{ if(m.to==="Admin" && !m.read) markMessageAsRead(m.id); });
+        renderMessages(); renderDashboard();
+        let chatHtml=''; messages.forEach(m=>{ chatHtml+=`<div class="chat-bubble ${m.from==="Admin"?"chat-sent":"chat-received"}"><p class="text-xs text-gray-500">${m.from==="Admin"?"You":dept} · ${formatDateTime(m.created_at)}</p><p>${escapeHtml(m.message)}</p><button onclick="deleteSingleMessage(${m.id})" class="text-red-500 text-xs mt-1">Delete</button></div>`; });
+        if(messages.length===0) chatHtml='<div class="text-center text-gray-400 py-8">No messages</div>';
+        document.getElementById('chatModalTitle').innerHTML=`Chat with ${dept}`;
+        document.getElementById('chatMessagesArea').innerHTML=chatHtml;
+        document.getElementById('chatModal').classList.remove('hidden');
+        document.getElementById('chatMessagesArea').scrollTop=document.getElementById('chatMessagesArea').scrollHeight;
+    }
+    function sendChatMessage(){ let msg=document.getElementById('chatInput').value; if(!msg || !currentChatWith) return; addCentralMessage("Admin", currentChatWith, msg); document.getElementById('chatInput').value=''; openChatWith(currentChatWith); renderMessages(); updateBadges(); }
+    function deleteSingleMessage(id){ deleteMessage(id); openChatWith(currentChatWith); renderMessages(); updateBadges(); showToast('Message deleted'); }
+    function closeChatModal(){ document.getElementById('chatModal').classList.add('hidden'); }
+    function openStartChatModal(){ document.getElementById('startChatModal').classList.remove('hidden'); }
+    function closeStartChatModal(){ document.getElementById('startChatModal').classList.add('hidden'); }
+    function sendNewChatMessage(){ let dept=document.getElementById('chatDepartmentSelect').value; let msg=document.getElementById('newChatMessage').value; if(!msg){ showToast('Enter message',true); return; } addCentralMessage("Admin", dept, msg); showToast(`Message sent to ${dept}`); closeStartChatModal(); renderMessages(); updateBadges(); }
+    
+    // ========== REPORTS ==========
+    function renderReports(){ let reports=getCentralReports(); let unread=getUnreadReportsCount(); document.getElementById('unreadReportsBadge').innerText=unread; let html=`<div class="bg-white rounded-xl shadow-sm p-5"><h3 class="font-semibold mb-3"><i class="fas fa-chart-line mr-2 text-purple-500"></i>Reports (${reports.length})</h3><div class="space-y-2">`; reports.forEach(r=>{ html+=`<div class="border-l-4 ${r.status==='unread'?'border-blue-500 bg-blue-50':'border-gray-200'} p-3 rounded"><div class="flex justify-between"><span class="font-semibold">${escapeHtml(r.from)}</span><span class="text-xs text-gray-400">${formatDate(r.created_at)}</span></div><p class="font-medium">${escapeHtml(r.title)}</p><p class="text-sm">${escapeHtml(r.content.substring(0,100))}...</p><div class="flex gap-2 mt-2"><button onclick="viewReportDetail(${r.id})" class="text-blue-500 text-sm"><i class="fas fa-eye"></i> View</button><button onclick="markReportAsRead(${r.id})" class="text-green-500 text-sm"><i class="fas fa-check"></i> Mark Read</button><button onclick="exportReportToPDF(${r.id})" class="text-red-500 text-sm"><i class="fas fa-file-pdf"></i> PDF</button></div></div>`; }); html+=`</div></div>`; document.getElementById('reportsSection').innerHTML=html; }
+    function viewReportDetail(id){ let r=getCentralReports().find(rr=>rr.id===id); if(r){ document.getElementById('reportViewContent').innerHTML=`<div><p class="text-gray-500">From: ${r.from}</p><h3 class="font-bold">${escapeHtml(r.title)}</h3><p class="mt-2">${escapeHtml(r.content)}</p><p class="text-xs text-gray-400 mt-3">${formatDateTime(r.created_at)}</p></div>`; document.getElementById('reportViewModal').classList.remove('hidden'); if(r.status==='unread') markReportAsRead(id); } }
+    function markReportAsRead(id){ markReportRead(id); renderReports(); updateBadges(); showToast('Report marked as read'); }
+    function exportReportToPDF(id){ let r=getCentralReports().find(rr=>rr.id===id); if(r){ let el=document.createElement('div'); el.innerHTML=`<div style="padding:20px"><h1>${r.title}</h1><p>From: ${r.from}</p><p>${r.content}</p><p>Date: ${formatDateTime(r.created_at)}</p></div>`; html2pdf().set({margin:0.5,filename:`${r.from}_report.pdf`}).from(el).save(); } }
+    function closeReportViewModal(){ document.getElementById('reportViewModal').classList.add('hidden'); }
+    
+    // ========== DASHBOARD ==========
+    function renderDashboard(){
+        let unreadMsg=getUnreadMessagesCount(); let unreadRep=getUnreadReportsCount(); let pendingTasks=tasks.filter(t=>!t.completed).length; let totalProjects=projects.length;
+        let recentMsgs=getCentralMessages().filter(m=>m.to==="Admin" || m.from==="Admin").slice(0,5);
+        let html=`<div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6">
+            <div class="stat-card p-5 cursor-pointer" onclick="showSection('messages')"><div><p class="text-gray-500 text-sm">Unread Messages</p><p class="text-3xl font-bold text-red-600">${unreadMsg}</p></div></div>
+            <div class="stat-card p-5 cursor-pointer" onclick="showSection('reports')"><div><p class="text-gray-500 text-sm">Unread Reports</p><p class="text-3xl font-bold text-orange-600">${unreadRep}</p></div></div>
+            <div class="stat-card p-5 cursor-pointer" onclick="showSection('tasks')"><div><p class="text-gray-500 text-sm">Pending Tasks</p><p class="text-3xl font-bold text-blue-600">${pendingTasks}</p></div></div>
+            <div class="stat-card p-5 cursor-pointer" onclick="showSection('projects')"><div><p class="text-gray-500 text-sm">Total Projects</p><p class="text-3xl font-bold text-green-600">${totalProjects}</p></div></div>
+        </div>
+        <div class="bg-white rounded-xl p-5 mb-5"><h3 class="font-semibold mb-3"><i class="fas fa-history mr-2"></i>Recent Activity</h3><div id="recentActivityList" class="space-y-1 max-h-32 overflow-y-auto">${activityLogs.slice(0,10).map(l=>`<div class="text-xs py-1 border-b flex justify-between"><span>${escapeHtml(l.action)}</span><span class="text-gray-400">${formatDate(l.created_at)}</span></div>`).join('')}</div></div>
+        <div class="bg-white rounded-xl p-5"><h3 class="font-semibold mb-3"><i class="fas fa-envelope mr-2"></i>Recent Messages</h3>${recentMsgs.map(m=>`<div class="border-l-3 border-blue-500 pl-3 py-1 text-sm"><b>${m.from==="Admin"?"To "+m.to:"From "+m.from}:</b> ${escapeHtml(m.message.substring(0,80))}</div>`).join('')||'<p>No messages</p>'}</div>`;
+        document.getElementById('dashboardSection').innerHTML=html;
+        updateBadges();
+    }
+    function updateBadges(){ document.getElementById('unreadMessagesBadge').innerText=getUnreadMessagesCount(); document.getElementById('unreadReportsBadge').innerText=getUnreadReportsCount(); document.getElementById('pendingTasksBadge').innerText=tasks.filter(t=>!t.completed).length; }
+    
+    // ========== SETTINGS ==========
+    function renderSettings(){
+        let logsHtml=activityLogs.slice(0,15).map(l=>`<div class="text-xs py-1 border-b"><span>${escapeHtml(l.action)}</span><span class="float-right text-gray-400">${formatDate(l.created_at)}</span></div>`).join('');
+        let html=`<div class="grid md:grid-cols-2 gap-5">
+            <div class="setting-card p-5"><h3 class="font-bold"><i class="fas fa-palette mr-2"></i>Sidebar Color</h3><div class="flex gap-2 mt-2"><div class="color-option selected" style="background:#0f74ba" onclick="changeColor('#0f74ba',this)"></div><div class="color-option" style="background:#1e3a5f" onclick="changeColor('#1e3a5f',this)"></div><div class="color-option" style="background:#059669" onclick="changeColor('#059669',this)"></div></div></div>
+            <div class="setting-card p-5"><h3 class="font-bold"><i class="fas fa-key mr-2"></i>Admin Password</h3><button onclick="openPasswordModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-2 w-full">Change Admin Password</button></div>
+            <div class="setting-card p-5"><h3 class="font-bold"><i class="fas fa-database mr-2"></i>Backup & Restore</h3><button onclick="openBackupRestoreModal()" class="bg-green-600 text-white px-4 py-2 rounded-lg mt-2 w-full">Backup / Restore Data</button></div>
+            <div class="setting-card p-5"><h3 class="font-bold"><i class="fas fa-history mr-2"></i>Activity Logs</h3><div class="max-h-32 overflow-y-auto text-xs border rounded p-2 bg-gray-50">${logsHtml}</div><button onclick="clearAllLogs()" class="mt-2 bg-red-600 text-white px-3 py-1 rounded text-sm w-full">Clear All Logs</button></div>
+        </div>`;
+        document.getElementById('settingsSection').innerHTML=html;
+    }
+    function changeColor(color,el){ document.querySelectorAll('.color-option').forEach(o=>o.classList.remove('selected')); el.classList.add('selected'); document.getElementById('mainSidebar').style.background=color; document.getElementById('mainSidebar').style.backgroundImage='none'; localStorage.setItem('admin_sidebar_color',color); }
+    function openPasswordModal(){ document.getElementById('passwordModal').classList.remove('hidden'); }
+    function closePasswordModal(){ document.getElementById('passwordModal').classList.add('hidden'); }
+    function changeAdminPassword(){ let pwd=document.getElementById('adminNewPassword').value; let confirm=document.getElementById('adminConfirmPassword').value; if(!pwd){ showToast('Enter new password',true); return; } if(pwd!==confirm){ showToast('Passwords do not match',true); return; } localStorage.setItem('admin_password',pwd); showToast('Admin password changed'); closePasswordModal(); addLog('Admin changed password'); }
+    function openBackupRestoreModal(){ document.getElementById('backupRestoreModal').classList.remove('hidden'); }
+    function closeBackupRestoreModal(){ document.getElementById('backupRestoreModal').classList.add('hidden'); }
+    function createBackup(){ let data={ employees, projects, tasks, messages:getCentralMessages(), reports:getCentralReports(), logs:activityLogs }; let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`geotraverse_backup_${new Date().toISOString().slice(0,19)}.json`; a.click(); showToast('Backup created'); closeBackupRestoreModal(); }
+    function restoreBackupFile(){ let input=document.createElement('input'); input.type='file'; input.accept='application/json'; input.onchange=e=>{ let file=e.target.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=ev=>{ try{ let data=JSON.parse(ev.target.result); if(data.employees) employees=data.employees; if(data.projects) projects=data.projects; if(data.tasks) tasks=data.tasks; if(data.messages) localStorage.setItem('geotraverse_central_messages',JSON.stringify(data.messages)); if(data.reports) localStorage.setItem('geotraverse_central_reports',JSON.stringify(data.reports)); if(data.logs) activityLogs=data.logs; saveEmployees(); saveProjects(); saveTasks(); addLog('Restored from backup'); showToast('Restore successful, reloading...'); setTimeout(()=>location.reload(),1500); } catch(err){ showToast('Invalid backup file',true); } }; reader.readAsText(file); }; input.click(); closeBackupRestoreModal(); }
+    function clearAllLogs(){ if(confirm('Clear all activity logs?')){ activityLogs=[]; addLog('Logs cleared'); renderSettings(); showToast('Logs cleared'); } }
+    
+    // ========== GLOBAL SEARCH ==========
+    let searchTimeout;
+    function performGlobalSearch(){ let term=document.getElementById('globalSearchInput').value.toLowerCase().trim(); let dropdown=document.getElementById('searchResultsDropdown'); if(searchTimeout) clearTimeout(searchTimeout); if(!term){ dropdown.classList.remove('active'); dropdown.innerHTML=''; return; } searchTimeout=setTimeout(()=>{ let empRes=employees.filter(e=>e.name.toLowerCase().includes(term)); let projRes=projects.filter(p=>p.name.toLowerCase().includes(term)); let taskRes=tasks.filter(t=>t.title.toLowerCase().includes(term)); let html=''; if(empRes.length) html+=`<div class="p-2 bg-gray-50">Employees</div>`+empRes.slice(0,3).map(e=>`<div class="search-result-item" onclick="goToSectionAndSearch('employees','${e.name}')">${e.name}</div>`).join(''); if(projRes.length) html+=`<div class="p-2 bg-gray-50">Projects</div>`+projRes.slice(0,3).map(p=>`<div class="search-result-item" onclick="goToSectionAndSearch('projects','${p.name}')">${p.name}</div>`).join(''); if(taskRes.length) html+=`<div class="p-2 bg-gray-50">Tasks</div>`+taskRes.slice(0,3).map(t=>`<div class="search-result-item" onclick="goToSectionAndSearch('tasks','${t.title}')">${t.title}</div>`).join(''); if(!html) html='<div class="p-4 text-center text-gray-400">No results</div>'; dropdown.innerHTML=html; dropdown.classList.add('active'); },300); }
+    function goToSectionAndSearch(section,val){ document.getElementById('globalSearchInput').value=val; document.getElementById('searchResultsDropdown').classList.remove('active'); showSection(section); setTimeout(()=>{ if(section==='employees') renderEmployees(); else if(section==='projects') renderProjects(); else if(section==='tasks') renderTasks(); },100); }
+    document.addEventListener('click',e=>{ let inp=document.getElementById('globalSearchInput'); let drop=document.getElementById('searchResultsDropdown'); if(inp&&drop&&!inp.contains(e.target)&&!drop.contains(e.target)) drop.classList.remove('active'); });
+    
+    // ========== NAVIGATION ==========
+    function showSection(sectionId){
+        let ids=['dashboardSection','employeeSection','departmentsSection','projectsSection','tasksSection','messagesSection','reportsSection','settingsSection'];
+        ids.forEach(id=>{ let el=document.getElementById(id); if(el) el.classList.add('hidden'); });
+        let targetId=''; if(sectionId==='dashboard') targetId='dashboardSection'; else if(sectionId==='employees') targetId='employeeSection'; else if(sectionId==='departments') targetId='departmentsSection'; else if(sectionId==='projects') targetId='projectsSection'; else if(sectionId==='tasks') targetId='tasksSection'; else if(sectionId==='messages') targetId='messagesSection'; else if(sectionId==='reports') targetId='reportsSection'; else if(sectionId==='settings') targetId='settingsSection';
+        document.getElementById(targetId).classList.remove('hidden');
+        document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+        document.querySelector(`.nav-item[data-section="${sectionId}"]`).classList.add('active');
+        if(sectionId==='employees') renderEmployees(); else if(sectionId==='departments') renderDepartments(); else if(sectionId==='projects') renderProjects(); else if(sectionId==='tasks') renderTasks(); else if(sectionId==='messages') renderMessages(); else if(sectionId==='reports') renderReports(); else if(sectionId==='settings') renderSettings(); else renderDashboard();
+    }
+    function logout(){ if(confirm('Logout?')){ localStorage.removeItem('admin_logged_in'); location.reload(); } }
+    function closeMobileSidebar(){ document.getElementById('mainSidebar').classList.remove('mobile-open'); document.getElementById('mobileMenuOverlay').classList.remove('open'); }
+    
+    // ========== INIT ==========
+    function init(){
+        let container=document.getElementById('mainContentContainer');
+        container.innerHTML=`<div id="dashboardSection"></div><div id="employeeSection" class="hidden"></div><div id="departmentsSection" class="hidden"></div><div id="projectsSection" class="hidden"></div><div id="tasksSection" class="hidden"></div><div id="messagesSection" class="hidden"></div><div id="reportsSection" class="hidden"></div><div id="settingsSection" class="hidden"></div>`;
+        renderDashboard();
+        document.querySelectorAll('.nav-item').forEach(nav=>nav.addEventListener('click',e=>{ e.preventDefault(); showSection(nav.dataset.section); }));
+        document.getElementById('logoutBtn').addEventListener('click',logout);
+        document.getElementById('mobileMenuBtn').addEventListener('click',()=>{ document.getElementById('mainSidebar').classList.add('mobile-open'); document.getElementById('mobileMenuOverlay').classList.add('open'); });
+        document.getElementById('globalSearchInput').addEventListener('input',performGlobalSearch);
+        let savedDark=localStorage.getItem('admin_dark_mode'); if(savedDark==='true') document.body.classList.add('dark-mode');
+        document.getElementById('darkModeToggle').addEventListener('click',()=>{ document.body.classList.toggle('dark-mode'); localStorage.setItem('admin_dark_mode',document.body.classList.contains('dark-mode')); let icon=document.getElementById('darkModeIcon'); if(document.body.classList.contains('dark-mode')){ icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); } else { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); } });
+        let savedColor=localStorage.getItem('admin_sidebar_color'); if(savedColor) document.getElementById('mainSidebar').style.background=savedColor;
+        let scrollBtn=document.createElement('div'); scrollBtn.className='scroll-top'; scrollBtn.innerHTML='<i class="fas fa-arrow-up"></i>'; document.body.appendChild(scrollBtn); scrollBtn.onclick=()=>window.scrollTo({top:0,behavior:'smooth'}); window.addEventListener('scroll',()=>scrollBtn.classList.toggle('visible',window.scrollY>300));
+        setInterval(()=>{ if(document.getElementById('messagesSection')&&!document.getElementById('messagesSection').classList.contains('hidden')) renderMessages(); if(document.getElementById('reportsSection')&&!document.getElementById('reportsSection').classList.contains('hidden')) renderReports(); updateBadges(); if(document.getElementById('dashboardSection')&&!document.getElementById('dashboardSection').classList.contains('hidden')){ document.getElementById('recentActivityList').innerHTML=activityLogs.slice(0,10).map(l=>`<div class="text-xs py-1 border-b flex justify-between"><span>${escapeHtml(l.action)}</span><span class="text-gray-400">${formatDate(l.created_at)}</span></div>`).join(''); } },5000);
+        addLog('Admin Dashboard fully loaded with per-project exports');
+    }
+    
+    // Expose global functions
+    window.goToMainWebsite=goToMainWebsite; window.showSection=showSection; window.closeMobileSidebar=closeMobileSidebar;
+    window.openAddEmployeeModal=openAddEmployeeModal; window.openEditEmployee=openEditEmployee; window.closeEmployeeModal=closeEmployeeModal; window.saveEmployee=saveEmployee; window.changeEmployeePassword=changeEmployeePassword; window.deleteEmployee=deleteEmployee;
+    window.openAddProjectModal=openAddProjectModal; window.editProject=editProject; window.saveProject=saveProject; window.deleteProject=deleteProject; window.viewProject=viewProject; window.sendProjectToManager=sendProjectToManager; window.closeProjectModal=closeProjectModal; window.exportAllProjectsToExcel=exportAllProjectsToExcel; window.exportSingleProjectToExcel=exportSingleProjectToExcel; window.exportSingleProjectToPDF=exportSingleProjectToPDF;
+    window.openAddTaskModal=openAddTaskModal; window.closeTaskModal=closeTaskModal; window.saveTask=saveTask; window.toggleTask=toggleTask;
+    window.openChatWith=openChatWith; window.closeChatModal=closeChatModal; window.sendChatMessage=sendChatMessage; window.deleteSingleMessage=deleteSingleMessage; window.openStartChatModal=openStartChatModal; window.closeStartChatModal=closeStartChatModal; window.sendNewChatMessage=sendNewChatMessage;
+    window.viewReportDetail=viewReportDetail; window.markReportAsRead=markReportAsRead; window.exportReportToPDF=exportReportToPDF; window.closeReportViewModal=closeReportViewModal;
+    window.viewFullDepartment=viewFullDepartment; window.closeDeptViewModal=closeDeptViewModal;
+    window.changeColor=changeColor; window.openPasswordModal=openPasswordModal; window.closePasswordModal=closePasswordModal; window.changeAdminPassword=changeAdminPassword;
+    window.openBackupRestoreModal=openBackupRestoreModal; window.closeBackupRestoreModal=closeBackupRestoreModal; window.createBackup=createBackup; window.restoreBackupFile=restoreBackupFile;
+    window.clearAllLogs=clearAllLogs; window.logout=logout; window.togglePasswordField=togglePasswordField;
+    
+    init();
+</script>
+</body>
+</html>
