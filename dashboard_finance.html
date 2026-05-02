@@ -54,9 +54,6 @@
         .stat-card { transition: all 0.3s ease; background: white; border-radius: 20px; border: 1px solid #e5e7eb; cursor: pointer; }
         .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15); border-color: #10b981; }
         
-        .transaction-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 8px; border-left: 3px solid #10b981; transition: all 0.2s; }
-        .transaction-item:hover { transform: translateX(3px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        
         .btn-primary { background: linear-gradient(135deg, #10b981, #059669); transition: all 0.2s; }
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(16,185,129,0.3); }
         
@@ -252,14 +249,35 @@
     </div>
 </div>
 
-<!-- Send Report Modal -->
+<!-- Create Report Modal -->
+<div id="createReportModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4 modal-overlay">
+    <div class="bg-white rounded-2xl max-w-md w-full fade-in">
+        <div class="px-5 py-3 border-b"><h3 class="text-lg font-bold">Create New Report</h3></div>
+        <div class="p-5 space-y-3">
+            <select id="reportTypeSelect" class="w-full p-2 border rounded-xl text-sm">
+                <option value="daily">Daily Report</option>
+                <option value="weekly">Weekly Report</option>
+                <option value="monthly">Monthly Report</option>
+                <option value="annual">Annual Report</option>
+            </select>
+            <input type="text" id="reportTitleInput" placeholder="Report Title (optional)" class="w-full p-2 border rounded-xl text-sm">
+            <textarea id="reportContentInput" rows="5" placeholder="Report content will be auto-generated based on selected period. You can edit it here." class="w-full p-2 border rounded-xl text-sm"></textarea>
+            <div class="flex gap-3">
+                <button onclick="generateAndSaveReport()" class="flex-1 bg-green-600 text-white py-2 rounded-xl text-sm">Generate & Save</button>
+                <button onclick="closeCreateReportModal()" class="flex-1 bg-gray-100 py-2 rounded-xl text-sm">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Report Modal (for sending existing report) -->
 <div id="sendReportModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4 modal-overlay">
     <div class="bg-white rounded-2xl max-w-md w-full fade-in">
         <div class="px-5 py-3 border-b"><h3 class="text-lg font-bold">Send Report to Admin</h3></div>
         <div class="p-5 space-y-3">
-            <input type="text" id="reportTitle" placeholder="Report Title" class="w-full p-2 border rounded-xl text-sm">
-            <textarea id="reportContent" rows="4" placeholder="Report Content..." class="w-full p-2 border rounded-xl text-sm"></textarea>
-            <div class="flex gap-3"><button onclick="sendReportToAdmin()" class="flex-1 bg-green-600 text-white py-2 rounded-xl text-sm">Send</button><button onclick="closeSendReportModal()" class="flex-1 bg-gray-100 py-2 rounded-xl text-sm">Cancel</button></div>
+            <p class="text-sm">Send "<span id="sendReportTitleSpan"></span>" to Admin?</p>
+            <textarea id="sendReportAdditionalMsg" rows="3" placeholder="Additional message (optional)" class="w-full p-2 border rounded-xl text-sm"></textarea>
+            <div class="flex gap-3"><button onclick="confirmSendExistingReport()" class="flex-1 bg-green-600 text-white py-2 rounded-xl text-sm">Send</button><button onclick="closeSendReportModal()" class="flex-1 bg-gray-100 py-2 rounded-xl text-sm">Cancel</button></div>
         </div>
     </div>
 </div>
@@ -378,6 +396,7 @@
     let rowsPerPage = 8;
     let currentChatWith = null;
     let searchTimeout = null;
+    let pendingSendReportId = null;
     
     // ==================== HELPER FUNCTIONS ====================
     function showToast(msg, isError) { let t = document.createElement("div"); t.className = "toast-notification" + (isError ? " error" : ""); t.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} mr-1"></i>${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
@@ -583,7 +602,7 @@
                 <div class="bg-white rounded-xl p-3 shadow-sm"><h3 class="text-xs font-semibold mb-2"><i class="fas fa-chart-line text-green-500 mr-1"></i>Revenue Trend</h3><canvas id="revenueChart" height="140"></canvas></div>
                 <div class="bg-white rounded-xl p-3 shadow-sm"><h3 class="text-xs font-semibold mb-2"><i class="fas fa-chart-pie text-purple-500 mr-1"></i>Expense Categories</h3><canvas id="categoryChart" height="140"></canvas></div>
             </div>
-            <div class="bg-white rounded-xl p-3 shadow-sm"><div class="flex justify-between items-center mb-2"><h3 class="text-xs font-semibold"><i class="fas fa-history text-green-500 mr-1"></i>Recent Transactions</h3><button onclick="showSection('transactions')" class="text-[10px] text-green-500">View All →</button></div><div class="table-responsive"><table class="w-full text-xs"><thead class="bg-gray-50"><tr><th class="px-2 py-1">Date</th><th class="px-2 py-1">Type</th><th class="px-2 py-1">Source</th><th class="px-2 py-1">Amount</th><th class="px-2 py-1">Status</th></tr></thead><tbody>${recent.map(t => `<tr class="border-b"><td class="px-2 py-1">${t.date}</td><td class="px-2 py-1"><span class="px-1.5 py-0.5 text-[8px] rounded-full ${t.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${t.type === 'income' ? 'Income' : 'Expense'}</span></td><td class="px-2 py-1 font-medium">${t.source}</td><td class="px-2 py-1 font-semibold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${formatCurrency(t.amount)}</td></td><td class="px-2 py-1"><span class="px-1.5 py-0.5 text-[8px] rounded-full ${t.status === 'paid' ? 'status-paid' : t.status === 'partial' ? 'status-partial' : 'status-pending'}">${t.status === 'paid' ? 'Paid' : t.status === 'partial' ? 'Partial' : 'Pending'}</span></td></tr>`).join('')}</tbody>}></table></div></div>
+            <div class="bg-white rounded-xl p-3 shadow-sm"><div class="flex justify-between items-center mb-2"><h3 class="text-xs font-semibold"><i class="fas fa-history text-green-500 mr-1"></i>Recent Transactions</h3><button onclick="showSection('transactions')" class="text-[10px] text-green-500">View All →</button></div><div class="table-responsive"><table class="w-full text-xs"><thead class="bg-gray-50"><tr><th class="px-2 py-1">Date</th><th class="px-2 py-1">Type</th><th class="px-2 py-1">Source</th><th class="px-2 py-1">Amount</th><th class="px-2 py-1">Status</th></tr></thead><tbody>${recent.map(t => `<tr class="border-b"><td class="px-2 py-1">${t.date}</td><td class="px-2 py-1"><span class="px-1.5 py-0.5 text-[8px] rounded-full ${t.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${t.type === 'income' ? 'Income' : 'Expense'}</span></td><td class="px-2 py-1 font-medium">${t.source}</td><td class="px-2 py-1 font-semibold ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}">${formatCurrency(t.amount)}</td><td class="px-2 py-1"><span class="px-1.5 py-0.5 text-[8px] rounded-full ${t.status === 'paid' ? 'status-paid' : t.status === 'partial' ? 'status-partial' : 'status-pending'}">${t.status === 'paid' ? 'Paid' : t.status === 'partial' ? 'Partial' : 'Pending'}</span></td></tr>`).join('')}</tbody>}</div></div>
             <div class="mt-4 bg-white rounded-xl p-3 shadow-sm"><div class="flex justify-between items-center mb-2"><h3 class="text-xs font-semibold"><i class="fas fa-wallet text-green-500 mr-1"></i>Budget Overview</h3><button onclick="openBudgetModal()" class="text-[10px] bg-green-500 text-white px-2 py-0.5 rounded">Set Budget</button></div>${budgets.slice(0, 3).map(b => { let p = (b.spent / b.amount) * 100; return `<div class="mb-2"><div class="flex justify-between text-[9px] mb-0.5"><span>${b.category}</span><span>${formatCurrency(b.spent)} / ${formatCurrency(b.amount)}</span></div><div class="w-full bg-gray-200 rounded-full h-1"><div class="bg-${p > 80 ? 'red' : p > 60 ? 'yellow' : 'green'}-500 h-1 rounded-full" style="width: ${Math.min(p, 100)}%"></div></div></div>`; }).join('')}</div>`;
         document.getElementById("dashboardSection").innerHTML = html;
         
@@ -612,10 +631,7 @@
                 <div class="table-responsive">
                     <table class="w-full text-xs">
                         <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-2 py-2 text-left">Date</th><th class="px-2 py-2 text-left">Type</th><th class="px-2 py-2 text-left">Source/Category</th><th class="px-2 py-2 text-left">Income (TZS)</th><th class="px-2 py-2 text-left">Expenses (TZS)</th><th class="px-2 py-2 text-left">Paid Amount</th><th class="px-2 py-2 text-left">Balance</th><th class="px-2 py-2 text-left">Status</th><th class="px-2 py-2 text-left">Description</th><th class="px-2 py-2 text-left">Actions</th>
-                            </tr>
-                        </thead>
+                            <tr><th class="px-2 py-2 text-left">Date</th><th class="px-2 py-2 text-left">Type</th><th class="px-2 py-2 text-left">Source/Category</th><th class="px-2 py-2 text-left">Income (TZS)</th><th class="px-2 py-2 text-left">Expenses (TZS)</th><th class="px-2 py-2 text-left">Paid Amount</th><th class="px-2 py-2 text-left">Balance</th><th class="px-2 py-2 text-left">Status</th><th class="px-2 py-2 text-left">Description</th><th class="px-2 py-2 text-left">Actions</th></tr></thead>
                         <tbody>
                             ${paginated.map(t => {
                                 let balance = t.type === "income" ? (t.amount - (t.paidAmount || t.amount)) : 0;
@@ -766,7 +782,7 @@
     function exportTransactionsToPDF() {
         let element = document.createElement("div"); 
         let tableHtml = `<table border="1" cellpadding="5" style="width:100%;border-collapse:collapse">
-            <thead><tr style="background:#10b981;color:white"><th>Date</th><th>Type</th><th>Source</th><th>Income</th><th>Expenses</th><th>Paid</th><th>Balance</th><th>Status</th></table></thead><tbody>`;
+            <thead><tr style="background:#10b981;color:white"><th>Date</th><th>Type</th><th>Source</th><th>Income</th><th>Expenses</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead><tbody>`;
         transactions.forEach(t => {
             let income = t.type === "income" ? formatCurrency(t.amount) : "-";
             let expense = t.type === "expense" ? formatCurrency(t.amount) : "-";
@@ -792,8 +808,8 @@
         let html = `<div class="mb-4"><h2 class="text-xl font-bold text-gray-800"><i class="fas fa-clock text-orange-500 mr-2"></i>Incomplete Transactions</h2><p class="text-xs text-gray-500">Pending or partial payments</p></div>
             <div class="bg-white rounded-xl shadow-sm p-3"><div class="table-responsive"><table class="w-full text-xs"><thead class="bg-gray-50"><tr><th class="px-2 py-1">Date</th><th class="px-2 py-1">Source</th><th class="px-2 py-1">Amount</th><th class="px-2 py-1">Paid</th><th class="px-2 py-1">Balance</th><th class="px-2 py-1">Status</th><th class="px-2 py-1">Description</th><th class="px-2 py-1">Actions</th></tr></thead><tbody>
             ${incomplete.map(t => { let balance = t.amount - (t.paidAmount || 0); return `<tr class="border-b"><td class="px-2 py-1">${t.date}</td><td class="font-medium">${t.source}</td><td class="text-green-600">${formatCurrency(t.amount)}</td><td class="px-2 py-1">${formatCurrency(t.paidAmount || 0)}</td><td class="text-orange-600 font-semibold">${formatCurrency(balance)}</td><td class="px-2 py-1"><span class="px-1.5 py-0.5 text-[8px] rounded-full ${t.status === 'partial' ? 'status-partial' : 'status-pending'}">${t.status === 'partial' ? 'Partial' : 'Pending'}</span></td><td class="max-w-[150px] truncate" title="${t.description || ''}">${t.description ? (t.description.length > 30 ? t.description.substring(0, 30) + '...' : t.description) : '-'}</td>
-            <td><button onclick="viewTransactionDetails(${t.id})" class="text-blue-500 mr-1" title="View"><i class="fas fa-eye"></i></button><button onclick="editTransaction(${t.id})" class="text-green-500 mr-1" title="Edit"><i class="fas fa-edit"></i></button><button onclick="markAsPaid(${t.id})" class="text-green-500 mr-1 text-xs" title="Record Payment"><i class="fas fa-check-circle"></i></button><button onclick="deleteTransaction(${t.id})" class="text-red-500" title="Delete"><i class="fas fa-trash"></i></button></td></tr>`; }).join('')}
-            </tbody>}</table></div>${incomplete.length === 0 ? '<p class="text-center text-gray-400 py-4 text-sm">No incomplete transactions</p>' : ''}</div>`;
+            <td class="px-2 py-1"><button onclick="viewTransactionDetails(${t.id})" class="text-blue-500 mr-1" title="View"><i class="fas fa-eye"></i></button><button onclick="editTransaction(${t.id})" class="text-green-500 mr-1" title="Edit"><i class="fas fa-edit"></i></button><button onclick="markAsPaid(${t.id})" class="text-green-500 mr-1 text-xs" title="Record Payment"><i class="fas fa-check-circle"></i></button><button onclick="deleteTransaction(${t.id})" class="text-red-500" title="Delete"><i class="fas fa-trash"></i></button></td></tr>`; }).join('')}
+            </tbody></table></div>${incomplete.length === 0 ? '<p class="text-center text-gray-400 py-4 text-sm">No incomplete transactions</p>' : ''}</div>`;
         document.getElementById("incompleteSection").innerHTML = html;
     }
     
@@ -817,38 +833,175 @@
         }
     }
     
-    // ==================== REPORTS SECTION ====================
-    function renderReports() {
-        let html = `<div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-gray-800"><i class="fas fa-chart-bar text-green-500 mr-2"></i>Reports</h2><button onclick="openSendReportModal()" class="btn-primary text-white px-4 py-2 rounded-xl text-sm"><i class="fas fa-paper-plane mr-1"></i>Send Report to Admin</button></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                <div class="bg-white rounded-xl p-3 shadow-sm"><h3 class="text-xs font-semibold mb-2">Generate Report</h3><div class="grid grid-cols-2 gap-2 mb-3"><button onclick="generateReport('daily')" class="bg-green-500 text-white py-1 rounded text-xs">Daily</button><button onclick="generateReport('weekly')" class="bg-green-500 text-white py-1 rounded text-xs">Weekly</button><button onclick="generateReport('monthly')" class="bg-green-500 text-white py-1 rounded text-xs">Monthly</button><button onclick="generateReport('yearly')" class="bg-green-500 text-white py-1 rounded text-xs">Yearly</button></div><div class="flex gap-2"><button onclick="exportToExcel()" class="flex-1 bg-green-600 text-white py-1.5 rounded text-xs"><i class="fas fa-file-excel mr-1"></i>Excel</button><button onclick="exportToPDF()" class="flex-1 bg-red-600 text-white py-1.5 rounded text-xs"><i class="fas fa-file-pdf mr-1"></i>PDF</button><button onclick="window.print()" class="flex-1 bg-gray-600 text-white py-1.5 rounded text-xs"><i class="fas fa-print mr-1"></i>Print</button></div></div>
-                <div class="bg-white rounded-xl p-3 shadow-sm"><h3 class="text-xs font-semibold mb-2">Financial Summary</h3><div class="grid grid-cols-2 gap-2 text-sm"><div><p class="text-gray-400 text-[9px]">Total Income</p><p class="font-bold text-green-600">${formatCurrency(getTotalIncome())}</p></div><div><p class="text-gray-400 text-[9px]">Total Expenses</p><p class="font-bold text-red-600">${formatCurrency(getTotalExpenses())}</p></div><div><p class="text-gray-400 text-[9px]">Net Profit</p><p class="font-bold text-blue-600">${formatCurrency(getNetProfit())}</p></div><div><p class="text-gray-400 text-[9px]">Pending</p><p class="font-bold text-orange-600">${formatCurrency(getPendingPayments())}</p></div></div></div>
-            </div>
-            <div class="bg-white rounded-xl p-3 shadow-sm"><h3 class="text-xs font-semibold mb-2">Saved Reports</h3><div class="space-y-2">${reportsList.map(r => `<div class="border rounded-lg p-2"><div class="flex justify-between items-start"><div><h4 class="font-semibold text-sm">${r.title}</h4><span class="text-[9px] px-1.5 py-0.5 rounded-full bg-${r.period === 'daily' ? 'green' : r.period === 'weekly' ? 'blue' : 'purple'}-100">${r.period}</span><p class="text-[10px] text-gray-500 mt-1">${r.content.substring(0, 60)}...</p></div><div class="flex gap-1"><button onclick="viewReport(${r.id})" class="text-blue-500 text-xs p-1"><i class="fas fa-eye"></i></button><button onclick="editReport(${r.id})" class="text-green-500 text-xs p-1"><i class="fas fa-edit"></i></button><button onclick="deleteReport(${r.id})" class="text-red-500 text-xs p-1"><i class="fas fa-trash"></i></button></div></div></div>`).join('') || '<p class="text-gray-400 text-center py-4 text-sm">No reports yet</p>'}</div></div>`;
-        document.getElementById("reportsSection").innerHTML = html;
+    // ==================== REPORTS SECTION (Enhanced) ====================
+    // Helper: generate report content based on period
+    function generateReportContent(period) {
+        let now = new Date();
+        let startDate, endDate = new Date();
+        if (period === 'daily') {
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        } else if (period === 'weekly') {
+            startDate = new Date(now);
+            startDate.setDate(now.getDate() - 7);
+        } else if (period === 'monthly') {
+            startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        } else if (period === 'annual') {
+            startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+        } else {
+            startDate = new Date(now);
+            startDate.setDate(now.getDate() - 30);
+        }
+        let filtered = transactions.filter(t => new Date(t.date) >= startDate && new Date(t.date) <= endDate);
+        let income = filtered.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
+        let expense = filtered.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+        let profit = income - expense;
+        let pendingIncome = filtered.filter(t => t.type === "income" && t.status !== "paid").reduce((s, t) => s + (t.amount - (t.paidAmount || 0)), 0);
+        let periodText = { daily: "Daily", weekly: "Weekly", monthly: "Monthly", annual: "Annual" }[period] || "Periodic";
+        return `${periodText} Financial Report (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}):\nTotal Income: ${formatCurrency(income)}\nTotal Expenses: ${formatCurrency(expense)}\nNet Profit: ${formatCurrency(profit)}\nOutstanding Payments: ${formatCurrency(pendingIncome)}\nGenerated on: ${new Date().toLocaleString()}`;
     }
     
-    function openSendReportModal() { document.getElementById("sendReportModal").classList.remove("hidden"); document.getElementById("sendReportModal").classList.add("flex"); }
-    function closeSendReportModal() { document.getElementById("sendReportModal").classList.add("hidden"); document.getElementById("sendReportModal").classList.remove("flex"); }
-    function sendReportToAdmin() { 
-        let title = document.getElementById("reportTitle").value; 
-        let content = document.getElementById("reportContent").value; 
-        if (!title || !content) { showToast("Please enter title and content", true); return; } 
-        addCentralMessage("Finance", "Admin", `REPORT: ${title}\n\n${content}`);
-        addLog(`Report sent to Admin: ${title}`); 
-        showToast("Report sent to Admin successfully"); 
-        closeSendReportModal(); 
-        document.getElementById("reportTitle").value = ""; 
-        document.getElementById("reportContent").value = ""; 
+    function openCreateReportModal() {
+        document.getElementById("reportTitleInput").value = "";
+        // auto-generate default content based on monthly (or current selection)
+        let defaultPeriod = document.getElementById("reportTypeSelect").value;
+        let defaultContent = generateReportContent(defaultPeriod);
+        document.getElementById("reportContentInput").value = defaultContent;
+        document.getElementById("createReportModal").classList.remove("hidden");
+        document.getElementById("createReportModal").classList.add("flex");
+    }
+    
+    function closeCreateReportModal() {
+        document.getElementById("createReportModal").classList.add("hidden");
+        document.getElementById("createReportModal").classList.remove("flex");
+    }
+    
+    // When user changes report type, auto-update content
+    document.getElementById("reportTypeSelect")?.addEventListener("change", function() {
+        let period = this.value;
+        let content = generateReportContent(period);
+        document.getElementById("reportContentInput").value = content;
+    });
+    
+    function generateAndSaveReport() {
+        let period = document.getElementById("reportTypeSelect").value;
+        let customTitle = document.getElementById("reportTitleInput").value.trim();
+        let content = document.getElementById("reportContentInput").value.trim();
+        if (!content) { showToast("Report content cannot be empty", true); return; }
+        let title = customTitle ? customTitle : `${period.charAt(0).toUpperCase() + period.slice(1)} Report - ${new Date().toLocaleDateString()}`;
+        let newReport = {
+            id: Date.now(),
+            title: title,
+            period: period,
+            content: content,
+            status: "draft",
+            created_at: new Date().toISOString()
+        };
+        reportsList.unshift(newReport);
+        addLog(`Created new report: ${title}`);
+        showToast("Report saved successfully");
+        closeCreateReportModal();
+        renderReports(); // refresh reports section
+    }
+    
+    function viewReportDetail(id) {
+        let r = reportsList.find(r => r.id === id);
+        if (r) {
+            alert(`📄 ${r.title}\n\nPeriod: ${r.period}\nDate: ${new Date(r.created_at).toLocaleString()}\n\nContent:\n${r.content}`);
+        }
+    }
+    
+    function editReportDetail(id) {
+        let r = reportsList.find(r => r.id === id);
+        if (r) {
+            let newTitle = prompt("Edit report title:", r.title);
+            if (newTitle !== null) r.title = newTitle;
+            let newContent = prompt("Edit report content:", r.content);
+            if (newContent !== null) r.content = newContent;
+            addLog(`Edited report: ${r.title}`);
+            showToast("Report updated");
+            renderReports();
+        }
+    }
+    
+    function deleteReportDetail(id) {
+        if (confirm("Delete this report?")) {
+            reportsList = reportsList.filter(r => r.id !== id);
+            addLog("Deleted report");
+            showToast("Report deleted");
+            renderReports();
+        }
+    }
+    
+    function openSendReportToAdmin(id) {
+        let report = reportsList.find(r => r.id === id);
+        if (report) {
+            pendingSendReportId = id;
+            document.getElementById("sendReportTitleSpan").innerText = report.title;
+            document.getElementById("sendReportAdditionalMsg").value = "";
+            document.getElementById("sendReportModal").classList.remove("hidden");
+            document.getElementById("sendReportModal").classList.add("flex");
+        }
+    }
+    
+    function confirmSendExistingReport() {
+        if (!pendingSendReportId) return;
+        let report = reportsList.find(r => r.id === pendingSendReportId);
+        if (report) {
+            let extraMsg = document.getElementById("sendReportAdditionalMsg").value.trim();
+            let fullMessage = `REPORT: ${report.title}\nPeriod: ${report.period}\nDate: ${new Date(report.created_at).toLocaleString()}\n\n${report.content}`;
+            if (extraMsg) fullMessage += `\n\nAdditional note: ${extraMsg}`;
+            addCentralMessage("Finance", "Admin", fullMessage);
+            addLog(`Sent report "${report.title}" to Admin`);
+            showToast(`Report "${report.title}" sent to Admin`);
+        }
+        closeSendReportModal();
         renderMessages();
         document.getElementById("msgBadge").innerText = getUnreadMessagesCountForFinance();
     }
-    function generateReport(period) { alert(`📊 ${period.toUpperCase()} REPORT\n\nTotal Income: ${formatCurrency(getTotalIncome())}\nTotal Expenses: ${formatCurrency(getTotalExpenses())}\nNet Profit: ${formatCurrency(getNetProfit())}\nPending Payments: ${formatCurrency(getPendingPayments())}\n\nGenerated: ${new Date().toLocaleString()}`); showToast(`${period} report generated`); }
-    function exportToExcel() { exportTransactionsToExcel(); }
-    function exportToPDF() { exportTransactionsToPDF(); }
-    function viewReport(id) { let r = reportsList.find(r => r.id === id); if (r) alert(`📄 ${r.title}\n\nPeriod: ${r.period}\nDate: ${new Date(r.created_at).toLocaleString()}\n\nContent:\n${r.content}`); }
-    function editReport(id) { let r = reportsList.find(r => r.id === id); if (r) { let newTitle = prompt("Edit title:", r.title); if (newTitle) r.title = newTitle; let newContent = prompt("Edit content:", r.content); if (newContent) r.content = newContent; addLog(`Updated report: ${r.title}`); showToast("Report updated"); renderReports(); } }
-    function deleteReport(id) { if (confirm("Delete this report?")) { reportsList = reportsList.filter(r => r.id !== id); addLog("Deleted report"); showToast("Report deleted"); renderReports(); } }
+    
+    function closeSendReportModal() {
+        document.getElementById("sendReportModal").classList.add("hidden");
+        document.getElementById("sendReportModal").classList.remove("flex");
+        pendingSendReportId = null;
+    }
+    
+    // Quick generate report (legacy)
+    function generateQuickReport(period) {
+        let content = generateReportContent(period);
+        let title = `${period.charAt(0).toUpperCase() + period.slice(1)} Report - ${new Date().toLocaleDateString()}`;
+        let newReport = { id: Date.now(), title: title, period: period, content: content, status: "draft", created_at: new Date().toISOString() };
+        reportsList.unshift(newReport);
+        addLog(`Generated ${period} report: ${title}`);
+        showToast(`${period} report generated and saved`);
+        renderReports();
+    }
+    
+    function renderReports() {
+        let html = `<div class="flex justify-between items-center mb-4 flex-wrap gap-2"><h2 class="text-xl font-bold text-gray-800"><i class="fas fa-chart-bar text-green-500 mr-2"></i>Reports</h2><div class="flex gap-2"><button onclick="openCreateReportModal()" class="btn-primary text-white px-4 py-2 rounded-xl text-sm"><i class="fas fa-plus-circle mr-1"></i>Create New Report</button><button onclick="generateQuickReport('daily')" class="bg-green-500 text-white px-3 py-1.5 rounded-xl text-xs">Daily</button><button onclick="generateQuickReport('weekly')" class="bg-green-500 text-white px-3 py-1.5 rounded-xl text-xs">Weekly</button><button onclick="generateQuickReport('monthly')" class="bg-green-500 text-white px-3 py-1.5 rounded-xl text-xs">Monthly</button><button onclick="generateQuickReport('annual')" class="bg-green-500 text-white px-3 py-1.5 rounded-xl text-xs">Annual</button></div></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                <div class="bg-white rounded-xl p-3 shadow-sm"><h3 class="text-xs font-semibold mb-2">Financial Summary</h3><div class="grid grid-cols-2 gap-2 text-sm"><div><p class="text-gray-400 text-[9px]">Total Income</p><p class="font-bold text-green-600">${formatCurrency(getTotalIncome())}</p></div><div><p class="text-gray-400 text-[9px]">Total Expenses</p><p class="font-bold text-red-600">${formatCurrency(getTotalExpenses())}</p></div><div><p class="text-gray-400 text-[9px]">Net Profit</p><p class="font-bold text-blue-600">${formatCurrency(getNetProfit())}</p></div><div><p class="text-gray-400 text-[9px]">Pending</p><p class="font-bold text-orange-600">${formatCurrency(getPendingPayments())}</p></div></div></div>
+                <div class="bg-white rounded-xl p-3 shadow-sm"><h3 class="text-xs font-semibold mb-2">Export Options</h3><div class="flex gap-2"><button onclick="exportAllReportsToExcel()" class="flex-1 bg-green-600 text-white py-1.5 rounded text-xs"><i class="fas fa-file-excel mr-1"></i>Excel All</button><button onclick="exportAllReportsToPDF()" class="flex-1 bg-red-600 text-white py-1.5 rounded text-xs"><i class="fas fa-file-pdf mr-1"></i>PDF All</button></div></div>
+            </div>
+            <div class="bg-white rounded-xl p-3 shadow-sm"><h3 class="text-xs font-semibold mb-2">Saved Reports</h3><div class="space-y-2">${reportsList.map(r => `<div class="border rounded-lg p-2"><div class="flex justify-between items-start"><div><h4 class="font-semibold text-sm">${escapeHtml(r.title)}</h4><span class="text-[9px] px-1.5 py-0.5 rounded-full bg-${r.period === 'daily' ? 'green' : r.period === 'weekly' ? 'blue' : r.period === 'monthly' ? 'purple' : 'orange'}-100">${r.period}</span><p class="text-[10px] text-gray-500 mt-1">${escapeHtml(r.content.substring(0, 60))}...</p></div><div class="flex gap-1"><button onclick="viewReportDetail(${r.id})" class="text-blue-500 text-xs p-1" title="View"><i class="fas fa-eye"></i></button><button onclick="editReportDetail(${r.id})" class="text-green-500 text-xs p-1" title="Edit"><i class="fas fa-edit"></i></button><button onclick="deleteReportDetail(${r.id})" class="text-red-500 text-xs p-1" title="Delete"><i class="fas fa-trash"></i></button><button onclick="openSendReportToAdmin(${r.id})" class="text-purple-500 text-xs p-1" title="Send to Admin"><i class="fas fa-paper-plane"></i></button></div></div></div>`).join('') || '<p class="text-gray-400 text-center py-4 text-sm">No reports yet. Create your first report!</p>'}</div></div>`;
+        document.getElementById("reportsSection").innerHTML = html;
+    }
+    
+    function exportAllReportsToExcel() {
+        let wsData = [["ID","Title","Period","Content","Created At"]];
+        reportsList.forEach(r => wsData.push([r.id, r.title, r.period, r.content, new Date(r.created_at).toLocaleString()]));
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsData), "Reports");
+        XLSX.writeFile(wb, `reports_${new Date().toISOString().slice(0,10)}.xlsx`);
+        showToast("Reports exported to Excel");
+    }
+    
+    function exportAllReportsToPDF() {
+        let element = document.createElement("div");
+        let reportsHtml = reportsList.map(r => `<div style="margin-bottom:20px;border-bottom:1px solid #ccc;"><h3>${r.title}</h3><p><strong>Period:</strong> ${r.period}</p><p><strong>Date:</strong> ${new Date(r.created_at).toLocaleString()}</p><p><strong>Content:</strong></p><pre style="white-space:pre-wrap;">${r.content}</pre></div>`).join('');
+        element.innerHTML = `<div style="padding:20px"><h1 style="color:#10b981">GeoTraverse - Reports Summary</h1><hr/>${reportsHtml}</div>`;
+        html2pdf().set({ margin: 0.5, filename: `reports_${new Date().toISOString().slice(0,10)}.pdf` }).from(element).save();
+        showToast("Reports exported to PDF");
+    }
     
     // ==================== BUDGET SECTION ====================
     function renderBudget() { 
@@ -906,11 +1059,8 @@
         document.getElementById("profileBtn")?.addEventListener("click", () => document.getElementById("profileDropdown")?.classList.toggle("hidden"));
         document.addEventListener("click", (e) => { if (!document.getElementById("profileBtn")?.contains(e.target)) document.getElementById("profileDropdown")?.classList.add("hidden"); });
         
-        // Global search input
         let searchInput = document.getElementById("globalSearchInput");
-        if (searchInput) {
-            searchInput.addEventListener("input", performGlobalSearch);
-        }
+        if (searchInput) searchInput.addEventListener("input", performGlobalSearch);
         
         let savedDark = localStorage.getItem("finance_dark_mode");
         if (savedDark === "true") document.body.classList.add("dark-mode");
@@ -941,13 +1091,14 @@
     window.openStartChatModal = openStartChatModal; window.closeStartChatModal = closeStartChatModal; window.sendNewChat = sendNewChat;
     window.openChatWith = openChatWith; window.sendChatMessage = sendChatMessage; window.deleteMessageFromChat = deleteMessageFromChat; window.closeChatModal = closeChatModal;
     // Reports
-    window.openSendReportModal = openSendReportModal; window.closeSendReportModal = closeSendReportModal; window.sendReportToAdmin = sendReportToAdmin;
-    window.generateReport = generateReport; window.exportToExcel = exportToExcel; window.exportToPDF = exportToPDF;
-    window.viewReport = viewReport; window.editReport = editReport; window.deleteReport = deleteReport;
+    window.openCreateReportModal = openCreateReportModal; window.closeCreateReportModal = closeCreateReportModal; window.generateAndSaveReport = generateAndSaveReport;
+    window.viewReportDetail = viewReportDetail; window.editReportDetail = editReportDetail; window.deleteReportDetail = deleteReportDetail; window.openSendReportToAdmin = openSendReportToAdmin; window.confirmSendExistingReport = confirmSendExistingReport;
+    window.generateQuickReport = generateQuickReport; window.exportAllReportsToExcel = exportAllReportsToExcel; window.exportAllReportsToPDF = exportAllReportsToPDF;
     // Budget
     window.openBudgetModal = openBudgetModal; window.closeBudgetModal = closeBudgetModal; window.setBudget = setBudget;
     // Settings
     window.changeColor = changeColor; window.createBackup = createBackup; window.restoreBackup = restoreBackup; window.clearLogs = clearLogs;
+    window.closeSendReportModal = closeSendReportModal; // for modal close button
     window.logout = logout;
     
     init();

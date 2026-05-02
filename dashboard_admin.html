@@ -275,6 +275,7 @@
             border-left-color: #fbbf24;
         }
         
+        /* Chat conversation styles */
         .chat-conversation {
             cursor: pointer;
             transition: all 0.2s;
@@ -613,10 +614,10 @@
     </div>
 </div>
 
-<!-- Start Chat Modal -->
-<div id="startChatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+<!-- Start Chat Modal (for sending new message) -->
+<div id="startChatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4 modal-overlay">
     <div class="bg-white rounded-xl max-w-md w-full modal-pop">
-        <div class="px-5 py-3 border-b flex justify-between items-center">
+        <div class="px-5 py-3 border-b border-gray-200 flex justify-between items-center">
             <h3 class="text-lg font-bold"><i class="fas fa-comment-dots text-blue-500 mr-2"></i>Start New Chat</h3>
             <button onclick="closeStartChatModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
         </div>
@@ -637,41 +638,7 @@
 </div>
 
 <script>
-    // ==================== CENTRAL STORAGE KEYS ====================
-    // Reports storage
-    function getCentralReports() {
-        let reports = localStorage.getItem('geotraverse_central_reports');
-        if (!reports) {
-            // Initialize with some sample reports
-            let sample = [
-                { id: 1, department: "Finance", type: "monthly", title: "March Financial Summary", content: "Revenue: TZS 28.75M, Expenses: TZS 15.2M", status: "unread", created_at: "2024-04-01", submitted_at: "2024-04-01" },
-                { id: 2, department: "Management", type: "weekly", title: "Week 15 Progress Report", content: "All projects are on track.", status: "unread", created_at: "2024-04-18", submitted_at: "2024-04-18" }
-            ];
-            localStorage.setItem('geotraverse_central_reports', JSON.stringify(sample));
-            return sample;
-        }
-        return JSON.parse(reports);
-    }
-    
-    function saveCentralReports(reports) {
-        localStorage.setItem('geotraverse_central_reports', JSON.stringify(reports));
-    }
-    
-    // Projects requests storage
-    function getCentralProjects() {
-        let projectsReq = localStorage.getItem('geotraverse_central_projects');
-        if (!projectsReq) {
-            localStorage.setItem('geotraverse_central_projects', JSON.stringify([]));
-            return [];
-        }
-        return JSON.parse(projectsReq);
-    }
-    
-    function saveCentralProjects(requests) {
-        localStorage.setItem('geotraverse_central_projects', JSON.stringify(requests));
-    }
-    
-    // Messages storage
+    // ==================== CENTRAL STORAGE KEYS (for messages and project requests) ====================
     function getCentralMessages() {
         let messages = localStorage.getItem('geotraverse_central_messages');
         if (!messages) {
@@ -696,6 +663,19 @@
             created_at: new Date().toISOString()
         });
         saveCentralMessages(messages);
+    }
+    
+    function getCentralProjects() {
+        let projectsReq = localStorage.getItem('geotraverse_central_projects');
+        if (!projectsReq) {
+            localStorage.setItem('geotraverse_central_projects', JSON.stringify([]));
+            return [];
+        }
+        return JSON.parse(projectsReq);
+    }
+    
+    function saveCentralProjects(requests) {
+        localStorage.setItem('geotraverse_central_projects', JSON.stringify(requests));
     }
     
     // ==================== INITIALIZE DATA ====================
@@ -733,6 +713,13 @@
             ]));
         }
         
+        if (!localStorage.getItem('geotraverse_reports')) {
+            localStorage.setItem('geotraverse_reports', JSON.stringify([
+                { id: 1, department: "Management", type: "weekly", title: "Week 15 Progress Report", content: "All projects are on track.", status: "unread", created_at: "2024-04-18", submitted_at: "2024-04-18" },
+                { id: 2, department: "Finance", type: "monthly", title: "March Financial Summary", content: "Revenue: TZS 28.75M, Expenses: TZS 15.2M", status: "unread", created_at: "2024-04-01", submitted_at: "2024-04-01" }
+            ]));
+        }
+        
         if (!localStorage.getItem('geotraverse_activity_logs')) {
             localStorage.setItem('geotraverse_activity_logs', JSON.stringify([
                 { action: "Admin logged in", created_at: new Date().toISOString() }
@@ -750,11 +737,6 @@
                 sender_email: "noreply@geotraverse.com"
             }));
         }
-        
-        // Initialize central reports if not exists (already done in getCentralReports)
-        getCentralReports();
-        getCentralProjects();
-        getCentralMessages();
     }
     
     let revenueChart = null;
@@ -766,23 +748,24 @@
     
     // ==================== HELPER FUNCTIONS ====================
     function showToast(message, isError) {
-        let toast = document.createElement('div');
+        isError = isError || false;
+        var toast = document.createElement('div');
         toast.className = 'toast-notification' + (isError ? ' error' : '');
         toast.innerHTML = '<i class="fas ' + (isError ? 'fa-exclamation-circle' : 'fa-check-circle') + ' mr-2"></i>' + message;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        setTimeout(function() { toast.remove(); }, 3000);
     }
     
-    function escapeHtml(text) { if (!text) return ''; let div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    function escapeHtml(text) { if (!text) return ''; var div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
     
     function formatDate(dateStr) {
         if (!dateStr) return 'Just now';
-        let date = new Date(dateStr);
-        let now = new Date();
-        let diff = now - date;
-        let minutes = Math.floor(diff / 60000);
+        var date = new Date(dateStr);
+        var now = new Date();
+        var diff = now - date;
+        var minutes = Math.floor(diff / 60000);
         if (minutes < 60) return minutes + ' min ago';
-        let hours = Math.floor(diff / 3600000);
+        var hours = Math.floor(diff / 3600000);
         if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
         return Math.floor(hours / 24) + ' day(s) ago';
     }
@@ -790,15 +773,15 @@
     function formatDateYMD(dateStr) { if (!dateStr) return 'N/A'; return new Date(dateStr).toLocaleDateString('en-GB'); }
     
     function togglePasswordField(fieldId) {
-        let input = document.getElementById(fieldId);
+        var input = document.getElementById(fieldId);
         if (!input) return;
-        let icon = input.nextElementSibling;
-        if (input.type === 'password') { input.type = 'text'; if (icon) icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
-        else { input.type = 'password'; if (icon) icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+        var icon = input.nextElementSibling;
+        if (input.type === 'password') { input.type = 'text'; if (icon) icon.classList.remove('fa-eye'); if (icon) icon.classList.add('fa-eye-slash'); }
+        else { input.type = 'password'; if (icon) icon.classList.remove('fa-eye-slash'); if (icon) icon.classList.add('fa-eye'); }
     }
     
     function addActivityLog(action) {
-        let logs = JSON.parse(localStorage.getItem('geotraverse_activity_logs') || '[]');
+        var logs = JSON.parse(localStorage.getItem('geotraverse_activity_logs') || '[]');
         logs.unshift({ action: action, created_at: new Date().toISOString() });
         if (logs.length > 50) logs.pop();
         localStorage.setItem('geotraverse_activity_logs', JSON.stringify(logs));
@@ -822,7 +805,7 @@
     
     function goToMainWebsite() { window.location.href = "index.html"; }
     
-    // ==================== MESSAGES (Centralized) ====================
+    // ==================== MESSAGES (Centralized with conversations) ====================
     function getUnreadMessagesCountForAdmin() {
         let messages = getCentralMessages();
         return messages.filter(m => m.to === "Admin" && !m.read).length;
@@ -929,6 +912,7 @@
             </div>
         `;
         
+        // Attach send reply function
         window.sendReplyToChat = function() {
             let reply = document.getElementById('chatReplyInput').value.trim();
             if (!reply) return;
@@ -972,7 +956,7 @@
         if (badge) badge.innerText = getUnreadMessagesCountForAdmin();
     }
     
-    // ==================== PROJECT REQUESTS BADGE ====================
+    // ==================== PROJECT & REPORT BADGES ====================
     function updateProjectRequestBadge() {
         let requests = getCentralProjects().filter(r => r.status === 'pending');
         let count = requests.length;
@@ -980,90 +964,11 @@
         if (badge) badge.innerText = count;
     }
     
-    // ==================== REPORTS ====================
-    function getUnreadReportsCount() {
-        let reports = getCentralReports();
-        return reports.filter(r => r.status === 'unread').length;
-    }
-    
     function updateUnreadReportsBadge() {
+        let reports = JSON.parse(localStorage.getItem('geotraverse_reports') || '[]');
+        let unreadCount = reports.filter(r => r.status === 'unread').length;
         let badge = document.getElementById('unreadReportsBadge');
-        if (badge) badge.innerText = getUnreadReportsCount();
-    }
-    
-    function markReportRead(reportId) {
-        let reports = getCentralReports();
-        let report = reports.find(r => r.id === reportId);
-        if (report && report.status === 'unread') {
-            report.status = 'read';
-            saveCentralReports(reports);
-            renderReports();
-            updateUnreadReportsBadge();
-            showToast('Report marked as read');
-        }
-    }
-    
-    function viewReportDetail(reportId) {
-        let reports = getCentralReports();
-        let report = reports.find(r => r.id === reportId);
-        if (report) {
-            alert(`📄 ${report.title}\n\nFrom: ${report.department}\nType: ${report.type}\nDate: ${report.submitted_at || report.created_at}\n\nContent:\n${report.content}`);
-            if (report.status === 'unread') markReportRead(reportId);
-        }
-    }
-    
-    function exportAllReportsToExcel() {
-        let reports = getCentralReports();
-        let wsData = [['Department', 'Type', 'Title', 'Content', 'Date', 'Status']];
-        reports.forEach(r => wsData.push([r.department, r.type, r.title, r.content, r.submitted_at || r.created_at, r.status]));
-        let wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsData), 'Reports');
-        XLSX.writeFile(wb, `reports_${new Date().toISOString().slice(0,10)}.xlsx`);
-        showToast('All reports exported to Excel');
-    }
-    
-    function exportAllReportsToPDF() {
-        let reports = getCentralReports();
-        let element = document.createElement('div');
-        element.innerHTML = `<div style="padding:20px;font-family:Arial"><h1 style="color:#0f74ba">All Reports</h1><p>Generated: ${new Date().toLocaleString()}</p><hr>${reports.map(r => `<div style="margin-bottom:20px"><strong>${r.department}</strong> - ${r.type}<h3>${r.title}</h3><p>${r.content}</p><small>${r.submitted_at || r.created_at}</small></div>`).join('')}</div>`;
-        html2pdf().set({ margin: 0.5, filename: `all_reports_${new Date().toISOString().slice(0,10)}.pdf` }).from(element).save();
-        showToast('All reports exported to PDF');
-    }
-    
-    function renderReports() {
-        let reports = getCentralReports();
-        let html = `
-            <div class="bg-white rounded-xl shadow-sm p-5">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold"><i class="fas fa-chart-line mr-2 text-purple-500"></i>Reports from Departments (${reports.length})</h3>
-                    <div class="flex gap-2">
-                        <button onclick="exportAllReportsToExcel()" class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-excel mr-1"></i>Export Excel</button>
-                        <button onclick="exportAllReportsToPDF()" class="bg-red-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-pdf mr-1"></i>Export PDF</button>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr><th class="px-4 py-3 text-left text-sm font-semibold">Department</th><th class="px-4 py-3 text-left text-sm font-semibold">Type</th><th class="px-4 py-3 text-left text-sm font-semibold">Title</th><th class="px-4 py-3 text-left text-sm font-semibold">Submitted</th><th class="px-4 py-3 text-left text-sm font-semibold">Status</th><th class="px-4 py-3 text-left text-sm font-semibold">Actions</th></tr>
-                        </thead>
-                        <tbody id="reportsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-        document.getElementById('reportsSection').innerHTML = html;
-        
-        document.getElementById('reportsTableBody').innerHTML = reports.map(r => `
-            <tr class="border-b hover:bg-gray-50">
-                <td class="px-4 py-3 text-sm">${r.department}</td>
-                <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full bg-gray-100">${r.type}</span></td>
-                <td class="px-4 py-3 text-sm font-medium">${escapeHtml(r.title)}</td>
-                <td class="px-4 py-3 text-sm">${r.submitted_at || r.created_at}</td>
-                <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${r.status === 'read' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${r.status === 'read' ? 'Read' : 'Unread'}</span></td>
-                <td class="px-4 py-3 text-sm"><button onclick="viewReportDetail(${r.id})" class="text-blue-600 mr-2"><i class="fas fa-eye"></i></button><button onclick="markReportRead(${r.id})" class="text-green-600"><i class="fas fa-check-circle"></i></button></td>
-            </table>
-        `).join('');
-        updateUnreadReportsBadge();
+        if (badge) badge.innerText = unreadCount;
     }
     
     // ==================== GLOBAL SEARCH ====================
@@ -1072,41 +977,47 @@
         let dropdown = document.getElementById('searchResultsDropdown');
         if (searchTimeout) clearTimeout(searchTimeout);
         if (searchTerm === '') { dropdown.classList.remove('active'); dropdown.innerHTML = ''; return; }
-        searchTimeout = setTimeout(() => {
+        searchTimeout = setTimeout(function() {
             let employees = JSON.parse(localStorage.getItem('geotraverse_employees') || '[]');
             let projects = JSON.parse(localStorage.getItem('geotraverse_projects') || '[]');
             let tasks = JSON.parse(localStorage.getItem('geotraverse_tasks') || '[]');
             let messages = getCentralMessages();
-            let reports = getCentralReports();
             
             let empResults = employees.filter(e => e.name.toLowerCase().includes(searchTerm) || e.email.toLowerCase().includes(searchTerm));
             let projResults = projects.filter(p => p.name.toLowerCase().includes(searchTerm) || (p.client_name && p.client_name.toLowerCase().includes(searchTerm)));
             let taskResults = tasks.filter(t => t.title.toLowerCase().includes(searchTerm));
             let msgResults = messages.filter(m => m.message.toLowerCase().includes(searchTerm));
-            let reportResults = reports.filter(r => r.title.toLowerCase().includes(searchTerm) || r.content.toLowerCase().includes(searchTerm));
             
             let html = '';
             if (empResults.length) {
-                html += '<div class="p-2 bg-gray-50"><span class="text-xs font-semibold text-blue-600"><i class="fas fa-users mr-1"></i> Employees</span></div>';
-                empResults.slice(0,5).forEach(e => html += `<div class="search-result-item" onclick="goToSectionAndSearch('employees', '${e.name}')"><div class="font-medium">${escapeHtml(e.name)}</div><div class="text-xs text-gray-500">${escapeHtml(e.email)}</div></div>`);
+                html += '<div class="p-2 bg-gray-50"><span class="text-xs font-semibold text-blue-600"><i class="fas fa-users mr-1"></i> Employees (' + empResults.length + ')</span></div>';
+                for (let i=0; i<Math.min(empResults.length,5); i++) {
+                    let e = empResults[i];
+                    html += '<div class="search-result-item" onclick="goToSectionAndSearch(\'employees\', \'' + e.name + '\')"><div class="font-medium">' + escapeHtml(e.name) + '</div><div class="text-xs text-gray-500">' + escapeHtml(e.email) + '</div></div>';
+                }
             }
             if (projResults.length) {
-                html += '<div class="p-2 bg-gray-50"><span class="text-xs font-semibold text-green-600"><i class="fas fa-building mr-1"></i> Projects</span></div>';
-                projResults.slice(0,5).forEach(p => html += `<div class="search-result-item" onclick="goToSectionAndSearch('projects', '${p.name}')"><div class="font-medium">${escapeHtml(p.name)}</div><div class="text-xs text-gray-500">Client: ${escapeHtml(p.client_name || 'N/A')}</div></div>`);
+                html += '<div class="p-2 bg-gray-50"><span class="text-xs font-semibold text-green-600"><i class="fas fa-building mr-1"></i> Projects (' + projResults.length + ')</span></div>';
+                for (let j=0; j<Math.min(projResults.length,5); j++) {
+                    let p = projResults[j];
+                    html += '<div class="search-result-item" onclick="goToSectionAndSearch(\'projects\', \'' + p.name + '\')"><div class="font-medium">' + escapeHtml(p.name) + '</div><div class="text-xs text-gray-500">Client: ' + escapeHtml(p.client_name || 'N/A') + '</div></div>';
+                }
             }
             if (taskResults.length) {
-                html += '<div class="p-2 bg-gray-50"><span class="text-xs font-semibold text-orange-600"><i class="fas fa-tasks mr-1"></i> Tasks</span></div>';
-                taskResults.slice(0,5).forEach(t => html += `<div class="search-result-item" onclick="goToSectionAndSearch('tasks', '${t.title}')"><div class="font-medium">${escapeHtml(t.title)}</div><div class="text-xs text-gray-500">${t.department}</div></div>`);
+                html += '<div class="p-2 bg-gray-50"><span class="text-xs font-semibold text-orange-600"><i class="fas fa-tasks mr-1"></i> Tasks (' + taskResults.length + ')</span></div>';
+                for (let k=0; k<Math.min(taskResults.length,5); k++) {
+                    let t = taskResults[k];
+                    html += '<div class="search-result-item" onclick="goToSectionAndSearch(\'tasks\', \'' + t.title + '\')"><div class="font-medium">' + escapeHtml(t.title) + '</div><div class="text-xs text-gray-500">' + t.department + '</div></div>';
+                }
             }
             if (msgResults.length) {
-                html += '<div class="p-2 bg-gray-50"><span class="text-xs font-semibold text-blue-600"><i class="fas fa-envelope mr-1"></i> Messages</span></div>';
-                msgResults.slice(0,5).forEach(m => html += `<div class="search-result-item" onclick="goToSectionAndSearch('messages', '${m.message.substring(0,30)}')"><div class="font-medium">From: ${m.from}</div><div class="text-xs text-gray-500">${escapeHtml(m.message.substring(0,50))}</div></div>`);
+                html += '<div class="p-2 bg-gray-50"><span class="text-xs font-semibold text-blue-600"><i class="fas fa-envelope mr-1"></i> Messages (' + msgResults.length + ')</span></div>';
+                for (let l=0; l<Math.min(msgResults.length,5); l++) {
+                    let m = msgResults[l];
+                    html += '<div class="search-result-item" onclick="goToSectionAndSearch(\'messages\', \'' + m.message.substring(0,30) + '\')"><div class="font-medium">From: ' + m.from + '</div><div class="text-xs text-gray-500">' + escapeHtml(m.message.substring(0,50)) + '</div></div>';
+                }
             }
-            if (reportResults.length) {
-                html += '<div class="p-2 bg-gray-50"><span class="text-xs font-semibold text-purple-600"><i class="fas fa-chart-line mr-1"></i> Reports</span></div>';
-                reportResults.slice(0,5).forEach(r => html += `<div class="search-result-item" onclick="goToSectionAndSearch('reports', '${r.title}')"><div class="font-medium">${escapeHtml(r.title)}</div><div class="text-xs text-gray-500">${r.department}</div></div>`);
-            }
-            if (html === '') html = '<div class="p-4 text-center text-gray-400"><i class="fas fa-search text-2xl mb-2"></i><p>No results found</p></div>';
+            if (html === '') html = '<div class="p-4 text-center text-gray-400"><i class="fas fa-search text-2xl mb-2"></i><p>No results found for "' + escapeHtml(searchTerm) + '"</p></div>';
             dropdown.innerHTML = html;
             dropdown.classList.add('active');
         }, 300);
@@ -1122,12 +1033,11 @@
             else if (section === 'projects') renderProjects();
             else if (section === 'tasks') renderTasks();
             else if (section === 'messages') renderMessages();
-            else if (section === 'reports') renderReports();
         }, 100);
-        showToast(`Showing results for "${searchValue}"`);
+        showToast('Showing results for "' + searchValue + '"');
     }
     
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', function(e) {
         let searchInput = document.getElementById('globalSearchInput');
         let dropdown = document.getElementById('searchResultsDropdown');
         if (searchInput && dropdown && !searchInput.contains(e.target) && !dropdown.contains(e.target)) {
@@ -1147,50 +1057,92 @@
         let dashboardHtml = `
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
                 <div class="stat-card p-5 cursor-pointer" onclick="showSection('employees')">
-                    <div class="flex justify-between items-center"><div><p class="text-gray-500 text-sm">Total Employees</p><p class="text-3xl font-bold">${employees.length}</p><p class="text-xs text-green-600 mt-1"><i class="fas fa-arrow-up"></i> Active: ${employees.filter(e => e.status === 'Active').length}</p></div><div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center"><i class="fas fa-users text-blue-500 text-xl"></i></div></div>
+                    <div class="flex justify-between items-center">
+                        <div><p class="text-gray-500 text-sm">Total Employees</p><p class="text-3xl font-bold">${employees.length}</p><p class="text-xs text-green-600 mt-1"><i class="fas fa-arrow-up"></i> Active: ${employees.filter(e => e.status === 'Active').length}</p></div>
+                        <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center"><i class="fas fa-users text-blue-500 text-xl"></i></div>
+                    </div>
                 </div>
                 <div class="stat-card p-5 cursor-pointer" onclick="showSection('tasks')">
-                    <div class="flex justify-between items-center"><div><p class="text-gray-500 text-sm">Pending Tasks</p><p class="text-3xl font-bold text-orange-600">${pendingTasks}</p><p class="text-xs text-gray-400 mt-1">Total: ${tasks.length} tasks</p></div><div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center"><i class="fas fa-tasks text-orange-500 text-xl"></i></div></div>
+                    <div class="flex justify-between items-center">
+                        <div><p class="text-gray-500 text-sm">Pending Tasks</p><p class="text-3xl font-bold text-orange-600">${pendingTasks}</p><p class="text-xs text-gray-400 mt-1">Total: ${tasks.length} tasks</p></div>
+                        <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center"><i class="fas fa-tasks text-orange-500 text-xl"></i></div>
+                    </div>
                 </div>
                 <div class="stat-card p-5 cursor-pointer" onclick="showSection('messages')">
-                    <div class="flex justify-between items-center"><div><p class="text-gray-500 text-sm">Unread Messages</p><p class="text-3xl font-bold text-red-600">${unreadMessages}</p><p class="text-xs text-gray-400 mt-1">From departments</p></div><div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center"><i class="fas fa-envelope text-red-500 text-xl"></i></div></div>
+                    <div class="flex justify-between items-center">
+                        <div><p class="text-gray-500 text-sm">Unread Messages</p><p class="text-3xl font-bold text-red-600">${unreadMessages}</p><p class="text-xs text-gray-400 mt-1">From departments</p></div>
+                        <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center"><i class="fas fa-envelope text-red-500 text-xl"></i></div>
+                    </div>
                 </div>
                 <div class="stat-card p-5 cursor-pointer" onclick="showSection('projects')">
-                    <div class="flex justify-between items-center"><div><p class="text-gray-500 text-sm">Total Projects</p><p class="text-3xl font-bold text-green-600">${projects.length}</p><p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> ${projects.filter(p => p.status === 'completed').length} completed</p></div><div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center"><i class="fas fa-building text-green-500 text-xl"></i></div></div>
+                    <div class="flex justify-between items-center">
+                        <div><p class="text-gray-500 text-sm">Total Projects</p><p class="text-3xl font-bold text-green-600">${projects.length}</p><p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> ${projects.filter(p => p.status === 'completed').length} completed</p></div>
+                        <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center"><i class="fas fa-building text-green-500 text-xl"></i></div>
+                    </div>
                 </div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                <div class="bg-white rounded-xl shadow-sm p-5 lg:col-span-2"><h3 class="text-base font-semibold mb-4"><i class="fas fa-chart-line mr-2 text-blue-500"></i>Revenue Overview (TZS Million)</h3><canvas id="revenueChart" height="200"></canvas></div>
-                <div class="bg-white rounded-xl shadow-sm p-5"><h3 class="text-base font-semibold mb-4"><i class="fas fa-history mr-2 text-blue-500"></i>Recent Activity</h3><div id="activityFeed" class="space-y-3 max-h-64 overflow-y-auto">${logs.slice(0,5).map(log => `<div class="flex items-start gap-3 p-2 border-b"><i class="fas fa-circle text-blue-500 text-xs mt-1"></i><div><p class="text-sm">${escapeHtml(log.action)}</p><p class="text-xs text-gray-400">${formatDate(log.created_at)}</p></div></div>`).join('')}</div></div>
+                <div class="bg-white rounded-xl shadow-sm p-5 lg:col-span-2">
+                    <h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-chart-line mr-2 text-blue-500"></i>Revenue Overview (TZS Million)</h3>
+                    <canvas id="revenueChart" height="200"></canvas>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-5">
+                    <h3 class="text-base font-semibold text-gray-800 mb-4"><i class="fas fa-history mr-2 text-blue-500"></i>Recent Activity</h3>
+                    <div id="activityFeed" class="space-y-3 max-h-64 overflow-y-auto">
+                        ${logs.slice(0,5).map(log => '<div class="flex items-start gap-3 p-2 border-b"><i class="fas fa-circle text-blue-500 text-xs mt-1"></i><div><p class="text-sm">' + escapeHtml(log.action) + '</p><p class="text-xs text-gray-400">' + formatDate(log.created_at) + '</p></div></div>').join('')}
+                    </div>
+                </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
-                <div class="bg-white rounded-xl shadow-sm p-5"><h3 class="text-base font-semibold mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Project Status Distribution</h3><canvas id="statusChart" height="150"></canvas></div>
-                <div class="bg-white rounded-xl shadow-sm p-5"><h3 class="text-base font-semibold mb-3"><i class="fas fa-building mr-2 text-green-500"></i>Projects by Department</h3><canvas id="deptChart" height="150"></canvas></div>
+                <div class="bg-white rounded-xl shadow-sm p-5">
+                    <h3 class="text-base font-semibold mb-3"><i class="fas fa-chart-pie mr-2 text-purple-500"></i>Project Status Distribution</h3>
+                    <canvas id="statusChart" height="150"></canvas>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-5">
+                    <h3 class="text-base font-semibold mb-3"><i class="fas fa-building mr-2 text-green-500"></i>Projects by Department</h3>
+                    <canvas id="deptChart" height="150"></canvas>
+                </div>
             </div>
         `;
+        
         document.getElementById('dashboardSection').innerHTML = dashboardHtml;
         
         let ctx = document.getElementById('revenueChart')?.getContext('2d');
         if (ctx) {
             if (revenueChart) revenueChart.destroy();
-            revenueChart = new Chart(ctx, { type: 'line', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Revenue (TZS M)', data: [12, 19, 15, 22, 28, 32], borderColor: '#0f74ba', fill: true, tension: 0.4 }] }, options: { responsive: true } });
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Revenue (TZS M)', data: [12, 19, 15, 22, 28, 32], borderColor: '#0f74ba', backgroundColor: 'rgba(15, 116, 186, 0.1)', fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
         }
+        
         let statusCtx = document.getElementById('statusChart')?.getContext('2d');
         if (statusCtx) {
-            let pending = projects.filter(p => p.status === 'pending').length;
-            let progress = projects.filter(p => p.status === 'in_progress').length;
-            let completed = projects.filter(p => p.status === 'completed').length;
-            let approved = projects.filter(p => p.status === 'approved').length;
-            new Chart(statusCtx, { type: 'doughnut', data: { labels: ['Pending', 'In Progress', 'Completed', 'Approved'], datasets: [{ data: [pending, progress, completed, approved], backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'] }] }, options: { responsive: true } });
+            let pendingCount = projects.filter(p => p.status === 'pending').length;
+            let progressCount = projects.filter(p => p.status === 'in_progress').length;
+            let completedCount = projects.filter(p => p.status === 'completed').length;
+            let approvedCount = projects.filter(p => p.status === 'approved').length;
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: { labels: ['Pending', 'In Progress', 'Completed', 'Approved'], datasets: [{ data: [pendingCount, progressCount, completedCount, approvedCount], backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6'] }] },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
         }
+        
         let deptCtx = document.getElementById('deptChart')?.getContext('2d');
         if (deptCtx) {
-            let mgmt = projects.filter(p => p.department === 'Management').length;
-            let fin = projects.filter(p => p.department === 'Finance').length;
-            let sales = projects.filter(p => p.department === 'Sales & Marketing').length;
-            let admin = projects.filter(p => p.department === 'Administration').length;
-            new Chart(deptCtx, { type: 'bar', data: { labels: ['Management', 'Finance', 'Sales', 'Admin'], datasets: [{ label: 'Projects', data: [mgmt, fin, sales, admin], backgroundColor: '#0f74ba', borderRadius: 8 }] }, options: { responsive: true } });
+            let mgmtCount = projects.filter(p => p.department === 'Management').length;
+            let financeCount = projects.filter(p => p.department === 'Finance').length;
+            let salesCount = projects.filter(p => p.department === 'Sales & Marketing').length;
+            let adminCount = projects.filter(p => p.department === 'Administration').length;
+            new Chart(deptCtx, {
+                type: 'bar',
+                data: { labels: ['Management', 'Finance', 'Sales', 'Admin'], datasets: [{ label: 'Number of Projects', data: [mgmtCount, financeCount, salesCount, adminCount], backgroundColor: '#0f74ba', borderRadius: 8 }] },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
         }
+        
         document.getElementById('pendingTasksBadge').innerText = pendingTasks;
         updateUnreadMessagesBadge();
         updateProjectRequestBadge();
@@ -1204,12 +1156,33 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                 <div class="px-5 py-4 border-b flex flex-wrap justify-between items-center gap-3">
                     <h3 class="font-semibold"><i class="fas fa-users mr-2 text-blue-500"></i>Employee Management (${employees.length})</h3>
-                    <div class="flex gap-2"><button onclick="exportEmployeesToPDF()" class="bg-red-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-pdf mr-1"></i>PDF</button><button onclick="exportEmployeesToExcel()" class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-excel mr-1"></i>Excel</button><button onclick="openAddEmployeeModal()" class="btn-primary text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>Add Employee</button></div>
+                    <div class="flex gap-2">
+                        <button onclick="exportEmployeesToPDF()" class="bg-red-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-pdf mr-1"></i>PDF</button>
+                        <button onclick="exportEmployeesToExcel()" class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-excel mr-1"></i>Excel</button>
+                        <button onclick="openAddEmployeeModal()" class="btn-primary text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>Add Employee</button>
+                    </div>
                 </div>
-                <div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left text-xs">ID</th><th class="px-4 py-3 text-left text-xs">Name</th><th class="px-4 py-3 text-left text-xs">Email</th><th class="px-4 py-3 text-left text-xs">Phone</th><th class="px-4 py-3 text-left text-xs">Role</th><th class="px-4 py-3 text-left text-xs">Department</th><th class="px-4 py-3 text-left text-xs">Salary</th><th class="px-4 py-3 text-left text-xs">Status</th><th class="px-4 py-3 text-left text-xs">Actions</th></tr></thead><tbody id="empTableBody"></tbody></table></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left text-xs">ID</th><th class="px-4 py-3 text-left text-xs">Name</th><th class="px-4 py-3 text-left text-xs">Email</th><th class="px-4 py-3 text-left text-xs">Phone</th><th class="px-4 py-3 text-left text-xs">Role</th><th class="px-4 py-3 text-left text-xs">Department</th><th class="px-4 py-3 text-left text-xs">Salary</th><th class="px-4 py-3 text-left text-xs">Status</th><th class="px-4 py-3 text-left text-xs">Actions</th></tr></thead>
+                        <tbody id="empTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         `;
-        document.getElementById('empTableBody').innerHTML = employees.map(emp => `<tr class="border-b hover:bg-gray-50"><td class="px-4 py-3 text-sm">${emp.id}</td><td class="px-4 py-3 font-medium text-sm">${escapeHtml(emp.name)}</td><td class="px-4 py-3 text-sm">${escapeHtml(emp.email)}</td><td class="px-4 py-3 text-sm">${emp.phone || '-'}</td><td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700">${emp.role}</span></td><td class="px-4 py-3 text-sm">${emp.department}</td><td class="px-4 py-3 text-sm text-green-600 font-semibold">TZS ${parseFloat(emp.salary).toLocaleString()}</td><td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${emp.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${emp.status}</span></td><td class="px-4 py-3 text-sm"><button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 mr-2"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${emp.id})" class="text-red-600"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+        document.getElementById('empTableBody').innerHTML = employees.map(emp => `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm">${emp.id}</td>
+                <td class="px-4 py-3 font-medium text-sm">${escapeHtml(emp.name)}</td>
+                <td class="px-4 py-3 text-sm">${escapeHtml(emp.email)}</td>
+                <td class="px-4 py-3 text-sm">${emp.phone || '-'}</td>
+                <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-700">${emp.role}</span></td>
+                <td class="px-4 py-3 text-sm">${emp.department}</td>
+                <td class="px-4 py-3 text-sm text-green-600 font-semibold">TZS ${parseFloat(emp.salary).toLocaleString()}</td>
+                <td class="px-4 py-3 text-sm"><span class="px-2 py-1 text-xs rounded-full ${emp.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${emp.status}</span></td>
+                <td class="px-4 py-3 text-sm"><button onclick="openEditEmployeeModal(${emp.id})" class="text-blue-600 mr-2"><i class="fas fa-edit"></i></button><button onclick="deleteEmployee(${emp.id})" class="text-red-600"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `).join('');
     }
     
     function exportEmployeesToPDF() {
@@ -1217,7 +1190,7 @@
         let element = document.createElement('div');
         element.innerHTML = `<div style="padding:20px"><h1>Employees Report</h1><table border="1">${employees.map(e => `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.email}</td></tr>`).join('')}</table></div>`;
         html2pdf().set({ margin: 0.5, filename: 'employees.pdf' }).from(element).save();
-        showToast('Exported to PDF');
+        showToast('Employees exported to PDF');
     }
     
     function exportEmployeesToExcel() {
@@ -1227,7 +1200,7 @@
         let wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsData), 'Employees');
         XLSX.writeFile(wb, 'employees.xlsx');
-        showToast('Exported to Excel');
+        showToast('Employees exported to Excel');
     }
     
     function openAddEmployeeModal() {
@@ -1249,20 +1222,21 @@
     
     function saveNewEmployee() {
         let name = document.getElementById('newEmpName').value.trim();
-        if (!name) { showToast('Enter name', true); return; }
+        if (!name) { showToast('Please enter employee name', true); return; }
         let email = document.getElementById('newEmpEmail').value.trim();
-        if (!email) { showToast('Enter email', true); return; }
+        if (!email) { showToast('Please enter email', true); return; }
         let role = document.getElementById('newEmpRole').value;
-        if (!role) { showToast('Select role', true); return; }
+        if (!role) { showToast('Please select role', true); return; }
         let department = document.getElementById('newEmpDepartment').value;
-        if (!department) { showToast('Select department', true); return; }
+        if (!department) { showToast('Please select department', true); return; }
+        
         let employees = JSON.parse(localStorage.getItem('geotraverse_employees') || '[]');
         let newId = Date.now();
         let password = document.getElementById('newEmpPassword').value || '1234';
         employees.push({ id: newId, name, email, phone: document.getElementById('newEmpPhone').value || '', role, department, salary: document.getElementById('newEmpSalary').value || '0', password, status: 'Active', join_date: new Date().toISOString().split('T')[0] });
         localStorage.setItem('geotraverse_employees', JSON.stringify(employees));
-        addActivityLog(`Added employee: ${name}`);
-        showToast('Employee added');
+        addActivityLog('Added new employee: ' + name);
+        showToast('Employee added successfully');
         closeAddEmployeeModal();
         renderEmployees();
         renderDashboard();
@@ -1288,19 +1262,19 @@
     
     function updateEmployee() {
         let employees = JSON.parse(localStorage.getItem('geotraverse_employees') || '[]');
-        let idx = employees.findIndex(e => e.id === currentEditEmployeeId);
-        if (idx !== -1) {
-            employees[idx].name = document.getElementById('editEmpName').value;
-            employees[idx].email = document.getElementById('editEmpEmail').value;
-            employees[idx].phone = document.getElementById('editEmpPhone').value;
-            employees[idx].role = document.getElementById('editEmpRole').value;
-            employees[idx].department = document.getElementById('editEmpDepartment').value;
-            employees[idx].salary = document.getElementById('editEmpSalary').value;
-            let newPwd = document.getElementById('editEmpPassword').value;
-            if (newPwd) employees[idx].password = newPwd;
+        let index = employees.findIndex(e => e.id === currentEditEmployeeId);
+        if (index !== -1) {
+            employees[index].name = document.getElementById('editEmpName').value;
+            employees[index].email = document.getElementById('editEmpEmail').value;
+            employees[index].phone = document.getElementById('editEmpPhone').value;
+            employees[index].role = document.getElementById('editEmpRole').value;
+            employees[index].department = document.getElementById('editEmpDepartment').value;
+            employees[index].salary = document.getElementById('editEmpSalary').value;
+            let newPassword = document.getElementById('editEmpPassword').value;
+            if (newPassword) employees[index].password = newPassword;
             localStorage.setItem('geotraverse_employees', JSON.stringify(employees));
-            addActivityLog(`Updated employee: ${employees[idx].name}`);
-            showToast('Employee updated');
+            addActivityLog('Updated employee: ' + employees[index].name);
+            showToast('Employee updated successfully');
             closeEmployeeModal();
             renderEmployees();
             renderDashboard();
@@ -1318,14 +1292,14 @@
             let emp = employees.find(e => e.id === id);
             employees = employees.filter(e => e.id !== id);
             localStorage.setItem('geotraverse_employees', JSON.stringify(employees));
-            addActivityLog(`Deleted employee: ${emp ? emp.name : ''}`);
+            addActivityLog('Deleted employee: ' + (emp ? emp.name : 'Unknown'));
             showToast('Employee deleted');
             renderEmployees();
             renderDashboard();
         }
     }
     
-    // ==================== DEPARTMENTS ====================
+    // ==================== DEPARTMENTS (LINKS) ====================
     let departmentsList = [
         { name: "Management", display: "Management Department", color: "purple", icon: "fa-user-tie", file: "dashboard_managers.html" },
         { name: "Finance", display: "Finance Department", color: "green", icon: "fa-calculator", file: "dashboard_finance.html" },
@@ -1335,10 +1309,18 @@
     
     function renderDepartments() {
         document.getElementById('departmentsSection').innerHTML = `
-            <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Departments</h2><p class="text-gray-500 mt-1">Click to open dashboard</p></div>
+            <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Departments</h2><p class="text-gray-500 mt-1">Click on any department to open its dashboard</p></div>
             <div class="space-y-3" id="deptLinksList"></div>
         `;
-        document.getElementById('deptLinksList').innerHTML = departmentsList.map(d => `<a href="${d.file}" target="_blank" class="dept-link p-4 flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-10 h-10 bg-${d.color}-100 rounded-full flex items-center justify-center"><i class="fas ${d.icon} text-${d.color}-600"></i></div><div><p class="font-semibold">${d.display}</p><p class="text-sm text-gray-500">Open in new tab</p></div></div><i class="fas fa-external-link-alt text-gray-400"></i></a>`).join('');
+        document.getElementById('deptLinksList').innerHTML = departmentsList.map(d => `
+            <a href="${d.file}" target="_blank" class="dept-link p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-${d.color}-100 rounded-full flex items-center justify-center"><i class="fas ${d.icon} text-${d.color}-600"></i></div>
+                    <div><p class="font-semibold">${d.display}</p><p class="text-sm text-gray-500">Open dashboard in new tab</p></div>
+                </div>
+                <i class="fas fa-external-link-alt text-gray-400"></i>
+            </a>
+        `).join('');
     }
     
     // ==================== PROJECTS ====================
@@ -1348,7 +1330,13 @@
         
         let requestsHtml = '';
         if (projectRequests.length > 0) {
-            requestsHtml = `<div class="mb-6"><h3 class="font-semibold text-orange-600 mb-3"><i class="fas fa-inbox mr-2"></i>Project Requests from Manager (${projectRequests.length})</h3><div class="space-y-3">${projectRequests.map(req => `<div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded-lg shadow-sm"><div class="flex justify-between items-start"><div><h4 class="font-bold">${escapeHtml(req.projectData.name)}</h4><p class="text-sm">Client: ${escapeHtml(req.projectData.client_name)}</p><p class="text-sm">Amount: TZS ${parseFloat(req.projectData.amount).toLocaleString()}</p><p class="text-xs text-gray-500">Requested by: ${req.from} on ${new Date(req.createdAt).toLocaleString()}</p>${req.managerMessage ? `<p class="text-xs text-gray-500 mt-1">Message: ${escapeHtml(req.managerMessage)}</p>` : ''}</div><div class="flex gap-2"><button onclick="acceptProjectRequest(${req.id})" class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm"><i class="fas fa-check mr-1"></i>Accept</button><button onclick="rejectProjectRequest(${req.id})" class="bg-red-600 text-white px-3 py-1 rounded-lg text-sm"><i class="fas fa-times mr-1"></i>Reject</button></div></div></div>`).join('')}</div></div>`;
+            requestsHtml = `<div class="mb-6"><h3 class="font-semibold text-orange-600 mb-3"><i class="fas fa-inbox mr-2"></i>Project Requests from Manager (${projectRequests.length})</h3><div class="space-y-3">${projectRequests.map(req => `
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div><h4 class="font-bold">${escapeHtml(req.projectData.name)}</h4><p class="text-sm">Client: ${escapeHtml(req.projectData.client_name)}</p><p class="text-sm">Amount: TZS ${parseFloat(req.projectData.amount).toLocaleString()}</p><p class="text-xs text-gray-500">Requested by: ${req.from} on ${new Date(req.createdAt).toLocaleString()}</p>${req.managerMessage ? `<p class="text-xs text-gray-500 mt-1">Message: ${escapeHtml(req.managerMessage)}</p>` : ''}</div>
+                        <div class="flex gap-2"><button onclick="acceptProjectRequest(${req.id})" class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm"><i class="fas fa-check mr-1"></i>Accept</button><button onclick="rejectProjectRequest(${req.id})" class="bg-red-600 text-white px-3 py-1 rounded-lg text-sm"><i class="fas fa-times mr-1"></i>Reject</button></div>
+                    </div>
+                </div>`).join('')}</div></div>`;
         }
         
         let projectsHtml = `<div class="bg-white rounded-xl shadow-sm p-5"><div class="flex justify-between items-center mb-4"><h3 class="font-semibold"><i class="fas fa-building mr-2 text-green-500"></i>All Projects (${projects.length})</h3><div class="flex gap-2"><button onclick="exportProjectsToExcel()" class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-excel mr-1"></i>Export</button><button onclick="openAddProjectModal()" class="btn-primary text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-plus mr-1"></i>Add Project</button></div></div><div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="projectsGrid"></div></div>`;
@@ -1367,10 +1355,10 @@
         let projects = JSON.parse(localStorage.getItem('geotraverse_projects') || '[]');
         let project = projects.find(p => p.id === projectId);
         if (!project) return;
-        let message = `PROJECT_FROM_ADMIN: ${project.name}\nClient: ${project.client_name}\nAmount: TZS ${parseFloat(project.amount).toLocaleString()}\nStatus: ${project.status}\nProgress: ${project.progress}%`;
+        let message = `PROJECT_FROM_ADMIN: ${project.name}\nClient: ${project.client_name}\nAmount: TZS ${parseFloat(project.amount).toLocaleString()}\nStatus: ${project.status}\nProgress: ${project.progress}%\n\nAdmin has sent this project for your review.`;
         addCentralMessage('Admin', 'Management', message);
         addActivityLog(`Sent project "${project.name}" to Manager`);
-        showToast(`Project sent to Manager`);
+        showToast(`Project "${project.name}" sent to Manager`);
     }
     
     function acceptProjectRequest(requestId) {
@@ -1383,9 +1371,9 @@
             localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
             req.status = 'accepted';
             saveCentralProjects(requests);
-            addCentralMessage('Admin', 'Management', `Your project "${req.projectData.name}" has been ACCEPTED.`);
+            addCentralMessage('Admin', 'Management', `Your project "${req.projectData.name}" has been ACCEPTED and added.`);
             addActivityLog(`Accepted project: ${req.projectData.name}`);
-            showToast(`Project added`);
+            showToast(`Project "${req.projectData.name}" added`);
             renderProjects();
             renderDashboard();
             updateProjectRequestBadge();
@@ -1398,15 +1386,15 @@
         if (req && req.status === 'pending') {
             req.status = 'rejected';
             saveCentralProjects(requests);
-            addCentralMessage('Admin', 'Management', `Your project "${req.projectData.name}" has been REJECTED.`);
+            addCentralMessage('Admin', 'Management', `Your project "${req.projectData.name}" has been REJECTED. Please review and resubmit.`);
             addActivityLog(`Rejected project: ${req.projectData.name}`);
-            showToast(`Project rejected`);
+            showToast(`Project "${req.projectData.name}" rejected`);
             renderProjects();
             updateProjectRequestBadge();
         }
     }
     
-    // Project image functions
+    // Project image functions (unchanged)
     function previewProjectImage(input) {
         if (input.files && input.files[0]) {
             currentProjectImageFile = input.files[0];
@@ -1505,17 +1493,17 @@
             start_date: new Date().toISOString().split('T')[0]
         };
         if (currentEditProjectId) {
-            let idx = projects.findIndex(p => p.id === currentEditProjectId);
-            if (idx !== -1) {
-                if (!imageBase64 && projects[idx].image) projectData.image = projects[idx].image;
-                projects[idx] = { ...projects[idx], ...projectData };
-                addActivityLog(`Updated project: ${name}`);
+            let index = projects.findIndex(p => p.id === currentEditProjectId);
+            if (index !== -1) {
+                if (!imageBase64 && projects[index].image) projectData.image = projects[index].image;
+                projects[index] = { ...projects[index], ...projectData };
+                addActivityLog('Updated project: ' + name);
                 showToast('Project updated');
             }
         } else {
             projectData.id = Date.now();
             projects.unshift(projectData);
-            addActivityLog(`Added project: ${name}`);
+            addActivityLog('Added project: ' + name);
             showToast('Project added');
         }
         localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
@@ -1536,7 +1524,7 @@
             let proj = projects.find(p => p.id === id);
             projects = projects.filter(p => p.id !== id);
             localStorage.setItem('geotraverse_projects', JSON.stringify(projects));
-            addActivityLog(`Deleted project: ${proj ? proj.name : ''}`);
+            addActivityLog('Deleted project: ' + (proj ? proj.name : ''));
             showToast('Project deleted');
             renderProjects();
             renderDashboard();
@@ -1550,7 +1538,7 @@
         let wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsData), 'Projects');
         XLSX.writeFile(wb, 'projects.xlsx');
-        showToast('Exported to Excel');
+        showToast('Projects exported to Excel');
     }
     
     // ==================== TASKS ====================
@@ -1586,7 +1574,7 @@
         let tasks = JSON.parse(localStorage.getItem('geotraverse_tasks') || '[]');
         tasks.push({ id: Date.now(), title, description: document.getElementById('taskDesc').value, department: document.getElementById('taskDepartment').value, completed: false, due_date: document.getElementById('taskDueDate').value, created_at: new Date().toISOString().split('T')[0] });
         localStorage.setItem('geotraverse_tasks', JSON.stringify(tasks));
-        addActivityLog(`Added task: ${title}`);
+        addActivityLog('Added task: ' + title);
         showToast('Task added');
         closeTaskModal();
         renderTasks();
@@ -1605,19 +1593,73 @@
         }
     }
     
+    // ==================== REPORTS ====================
+    function renderReports() {
+        let reports = JSON.parse(localStorage.getItem('geotraverse_reports') || '[]');
+        document.getElementById('reportsSection').innerHTML = `
+            <div class="bg-white rounded-xl shadow-sm p-5">
+                <div class="flex justify-between items-center mb-4"><h3 class="font-semibold"><i class="fas fa-chart-line mr-2 text-purple-500"></i>Reports from Departments (${reports.length})</h3><div class="flex gap-2"><button onclick="exportAllReportsToExcel()" class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-excel mr-1"></i>Excel</button><button onclick="exportAllReportsToPDF()" class="bg-red-600 text-white px-3 py-2 rounded-lg text-sm"><i class="fas fa-file-pdf mr-1"></i>PDF</button></div></div>
+                <div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr><th class="px-4 py-3 text-left">Dept</th><th class="px-4 py-3 text-left">Type</th><th class="px-4 py-3 text-left">Title</th><th class="px-4 py-3 text-left">Date</th><th class="px-4 py-3 text-left">Status</th><th class="px-4 py-3 text-left">Actions</th></tr></thead><tbody id="reportsTableBody"></tbody></table></div>
+            </div>
+        `;
+        document.getElementById('reportsTableBody').innerHTML = reports.map(r => `
+            <tr class="border-b"><td class="px-4 py-3">${r.department}</td><td class="px-4 py-3">${r.type}</td><td class="px-4 py-3 font-medium">${escapeHtml(r.title)}</td><td class="px-4 py-3">${r.submitted_at || r.created_at}</td><td class="px-4 py-3"><span class="px-2 py-1 text-xs rounded-full ${r.status === 'read' ? 'bg-green-100' : 'bg-yellow-100'}">${r.status === 'read' ? 'Read' : 'Unread'}</span></td><td class="px-4 py-3"><button onclick="viewReportDetail(${r.id})" class="text-blue-500 mr-2"><i class="fas fa-eye"></i></button><button onclick="markReportRead(${r.id})" class="text-green-500 mr-2"><i class="fas fa-check"></i></button></td></tr>
+        `).join('');
+        updateUnreadReportsBadge();
+    }
+    
+    function viewReportDetail(id) {
+        let reports = JSON.parse(localStorage.getItem('geotraverse_reports') || '[]');
+        let report = reports.find(r => r.id === id);
+        if (report) {
+            alert(`📄 ${report.title}\n\nFrom: ${report.department}\nType: ${report.type}\nDate: ${report.submitted_at || report.created_at}\n\nContent:\n${report.content}`);
+            if (report.status !== 'read') markReportRead(id);
+        }
+    }
+    
+    function markReportRead(id) {
+        let reports = JSON.parse(localStorage.getItem('geotraverse_reports') || '[]');
+        let report = reports.find(r => r.id === id);
+        if (report && report.status !== 'read') {
+            report.status = 'read';
+            localStorage.setItem('geotraverse_reports', JSON.stringify(reports));
+            showToast('Report marked as read');
+            renderReports();
+            updateUnreadReportsBadge();
+        }
+    }
+    
+    function exportAllReportsToExcel() {
+        let reports = JSON.parse(localStorage.getItem('geotraverse_reports') || '[]');
+        let wsData = [['Dept','Type','Title','Content','Date','Status']];
+        reports.forEach(r => wsData.push([r.department, r.type, r.title, r.content, r.submitted_at || r.created_at, r.status]));
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(wsData), 'Reports');
+        XLSX.writeFile(wb, 'reports.xlsx');
+        showToast('Reports exported to Excel');
+    }
+    
+    function exportAllReportsToPDF() {
+        let reports = JSON.parse(localStorage.getItem('geotraverse_reports') || '[]');
+        let element = document.createElement('div');
+        element.innerHTML = `<div style="padding:20px"><h1>All Reports</h1>${reports.map(r => `<div><strong>${r.title}</strong><br>${r.content}</div><hr>`).join('')}</div>`;
+        html2pdf().set({ margin: 0.5, filename: 'reports.pdf' }).from(element).save();
+        showToast('Reports exported to PDF');
+    }
+    
     // ==================== SETTINGS ====================
     function renderSettings() {
         let settings = JSON.parse(localStorage.getItem('geotraverse_settings') || '{}');
         let logs = JSON.parse(localStorage.getItem('geotraverse_activity_logs') || '[]');
         document.getElementById('settingsSection').innerHTML = `
-            <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Settings</h2><p class="text-gray-500 mt-1">Manage preferences</p></div>
+            <div class="mb-6"><h2 class="text-2xl font-bold gradient-text">Settings</h2><p class="text-gray-500 mt-1">Manage your application preferences</p></div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-key text-2xl text-blue-600"></i><h3 class="font-bold">Reset Password</h3></div><div class="password-field relative"><input type="password" id="newAdminPwd" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePasswordField('newAdminPwd')"></i></div><div class="password-field relative mt-2"><input type="password" id="confirmAdminPwd" placeholder="Confirm" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePasswordField('confirmAdminPwd')"></i></div><button onclick="changeAdminPassword()" class="w-full btn-primary text-white py-2 rounded-lg mt-2">Change Password</button></div>
-                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-palette text-2xl text-purple-600"></i><h3 class="font-bold">Sidebar Color</h3></div><div class="flex flex-wrap gap-2"><div class="color-option" style="background:#0f74ba" onclick="changeSidebarColor('#0f74ba', this)"></div><div class="color-option" style="background:#1e3a5f" onclick="changeSidebarColor('#1e3a5f', this)"></div><div class="color-option" style="background:#7c3aed" onclick="changeSidebarColor('#7c3aed', this)"></div><div class="color-option" style="background:#059669" onclick="changeSidebarColor('#059669', this)"></div><div class="color-option" style="background:#dc2626" onclick="changeSidebarColor('#dc2626', this)"></div><div class="color-option" style="background:#d97706" onclick="changeSidebarColor('#d97706', this)"></div></div><p class="text-xs text-gray-400 mt-3">Click to change color</p></div>
-                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-database text-2xl text-green-600"></i><h3 class="font-bold">Backup & Restore</h3></div><button onclick="openBackupRestoreModal()" class="w-full bg-green-600 text-white py-2 rounded-lg">Backup / Restore</button><p class="text-xs text-gray-400 mt-2">Backup all data</p></div>
-                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-history text-2xl text-blue-600"></i><h3 class="font-bold">System Logs</h3></div><div class="max-h-32 overflow-y-auto text-sm" id="systemLogsList"></div><button onclick="clearAllLogsFixed()" class="w-full mt-3 bg-red-600 text-white py-2 rounded-lg">Clear Logs</button></div>
-                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-globe text-2xl text-blue-600"></i><h3 class="font-bold">General Settings</h3></div><button onclick="openGeneralSettingsModal()" class="w-full bg-blue-600 text-white py-2 rounded-lg">Configure</button><p class="text-xs text-gray-400 mt-2">Company info</p></div>
-                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-envelope text-2xl text-blue-600"></i><h3 class="font-bold">Email Config</h3></div><button onclick="openEmailConfigModal()" class="w-full bg-blue-600 text-white py-2 rounded-lg">Configure</button><p class="text-xs text-gray-400 mt-2">SMTP settings</p></div>
+                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-key text-2xl text-blue-600"></i><h3 class="font-bold">Reset Password</h3></div><div class="password-field relative"><input type="password" id="newAdminPwd" placeholder="New Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePasswordField('newAdminPwd')"></i></div><div class="password-field relative mt-2"><input type="password" id="confirmAdminPwd" placeholder="Confirm Password" class="w-full p-2 border rounded-lg pr-10"><i class="fas fa-eye password-toggle" onclick="togglePasswordField('confirmAdminPwd')"></i></div><button onclick="changeAdminPassword()" class="w-full btn-primary text-white py-2 rounded-lg mt-2">Change Password</button></div>
+                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-palette text-2xl text-purple-600"></i><h3 class="font-bold">Sidebar Color</h3></div><div class="flex flex-wrap gap-2"><div class="color-option" style="background:#0f74ba" onclick="changeSidebarColor('#0f74ba', this)"></div><div class="color-option" style="background:#1e3a5f" onclick="changeSidebarColor('#1e3a5f', this)"></div><div class="color-option" style="background:#7c3aed" onclick="changeSidebarColor('#7c3aed', this)"></div><div class="color-option" style="background:#059669" onclick="changeSidebarColor('#059669', this)"></div><div class="color-option" style="background:#dc2626" onclick="changeSidebarColor('#dc2626', this)"></div><div class="color-option" style="background:#d97706" onclick="changeSidebarColor('#d97706', this)"></div></div><p class="text-xs text-gray-400 mt-3">Click to change sidebar color</p></div>
+                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-database text-2xl text-green-600"></i><h3 class="font-bold">Backup & Restore</h3></div><button onclick="openBackupRestoreModal()" class="w-full bg-green-600 text-white py-2 rounded-lg">Backup / Restore</button><p class="text-xs text-gray-400 mt-2">Click to backup or restore all system data</p></div>
+                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-history text-2xl text-blue-600"></i><h3 class="font-bold">System Logs</h3></div><div class="max-h-32 overflow-y-auto text-sm" id="systemLogsList"></div><button onclick="clearAllLogsFixed()" class="w-full mt-3 bg-red-600 text-white py-2 rounded-lg">Clear All Logs</button></div>
+                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-globe text-2xl text-blue-600"></i><h3 class="font-bold">General Settings</h3></div><button onclick="openGeneralSettingsModal()" class="w-full bg-blue-600 text-white py-2 rounded-lg">Configure Settings</button><p class="text-xs text-gray-400 mt-2">Company Name, Address, Email, Phone</p></div>
+                <div class="setting-card p-5"><div class="flex items-center gap-3 mb-3"><i class="fas fa-envelope text-2xl text-blue-600"></i><h3 class="font-bold">Email Configuration</h3></div><button onclick="openEmailConfigModal()" class="w-full bg-blue-600 text-white py-2 rounded-lg">Configure Email</button><p class="text-xs text-gray-400 mt-2">SMTP Server, Port, Sender Email</p></div>
             </div>
         `;
         document.getElementById('systemLogsList').innerHTML = logs.slice(0,10).map(l => `<div class="text-xs border-b py-1">${escapeHtml(l.action)}<span class="float-right text-gray-400">${new Date(l.created_at).toLocaleString()}</span></div>`).join('');
@@ -1699,7 +1741,7 @@
             employees: localStorage.getItem('geotraverse_employees'),
             projects: localStorage.getItem('geotraverse_projects'),
             tasks: localStorage.getItem('geotraverse_tasks'),
-            reports: localStorage.getItem('geotraverse_central_reports'),
+            reports: localStorage.getItem('geotraverse_reports'),
             settings: localStorage.getItem('geotraverse_settings'),
             activity_logs: localStorage.getItem('geotraverse_activity_logs'),
             central_projects: localStorage.getItem('geotraverse_central_projects'),
@@ -1731,7 +1773,7 @@
                     if (data.employees) localStorage.setItem('geotraverse_employees', data.employees);
                     if (data.projects) localStorage.setItem('geotraverse_projects', data.projects);
                     if (data.tasks) localStorage.setItem('geotraverse_tasks', data.tasks);
-                    if (data.reports) localStorage.setItem('geotraverse_central_reports', data.reports);
+                    if (data.reports) localStorage.setItem('geotraverse_reports', data.reports);
                     if (data.settings) localStorage.setItem('geotraverse_settings', data.settings);
                     if (data.activity_logs) localStorage.setItem('geotraverse_activity_logs', data.activity_logs);
                     if (data.central_projects) localStorage.setItem('geotraverse_central_projects', data.central_projects);
@@ -1778,6 +1820,7 @@
         else if (sectionId === 'messages') renderMessages();
         else if (sectionId === 'reports') renderReports();
         else if (sectionId === 'settings') renderSettings();
+        // dashboard is already rendered initially
     }
     
     // ==================== LOGOUT ====================
@@ -1802,6 +1845,8 @@
         document.querySelectorAll('.nav-item').forEach(nav => nav.addEventListener('click', (e) => { e.preventDefault(); showSection(nav.dataset.section); }));
         document.getElementById('mobileMenuBtn')?.addEventListener('click', () => { document.getElementById('mainSidebar').classList.add('mobile-open'); document.getElementById('mobileMenuOverlay').classList.add('open'); });
         document.getElementById('logoutBtn')?.addEventListener('click', logout);
+        document.getElementById('profileBtn')?.addEventListener('click', () => document.getElementById('profileDropdown')?.classList.toggle('hidden'));
+        document.addEventListener('click', (e) => { if (!document.getElementById('profileBtn')?.contains(e.target)) document.getElementById('profileDropdown')?.classList.add('hidden'); });
         document.getElementById('globalSearchInput')?.addEventListener('input', performGlobalSearch);
         
         let savedDark = localStorage.getItem('dark_mode');
@@ -1820,14 +1865,13 @@
         document.getElementById('mobileMenuOverlay').classList.remove('open');
     }
     
-    // Global exposure
     window.showSection = showSection;
     window.openAddEmployeeModal = openAddEmployeeModal; window.closeAddEmployeeModal = closeAddEmployeeModal; window.saveNewEmployee = saveNewEmployee;
     window.openEditEmployeeModal = openEditEmployeeModal; window.closeEmployeeModal = closeEmployeeModal; window.updateEmployee = updateEmployee; window.deleteEmployee = deleteEmployee;
     window.exportEmployeesToPDF = exportEmployeesToPDF; window.exportEmployeesToExcel = exportEmployeesToExcel;
     window.openAddProjectModal = openAddProjectModal; window.openEditProjectModal = openEditProjectModal; window.closeProjectModal = closeProjectModal; window.saveProject = saveProject; window.deleteProject = deleteProject; window.exportProjectsToExcel = exportProjectsToExcel; window.sendProjectToManager = sendProjectToManager;
     window.openAddTaskModal = openAddTaskModal; window.closeTaskModal = closeTaskModal; window.saveTask = saveTask; window.toggleTask = toggleTask;
-    window.openStartChatModal = openStartChatModal; window.closeStartChatModal = closeStartChatModal; window.sendNewChatMessage = sendNewChatMessage; window.openChatWith = openChatWith; window.deleteMessageFromCentral = deleteMessageFromCentral; window.deleteConversation = deleteConversation; window.renderMessages = renderMessages;
+    window.renderMessages = renderMessages; window.openStartChatModal = openStartChatModal; window.closeStartChatModal = closeStartChatModal; window.sendNewChatMessage = sendNewChatMessage; window.openChatWith = openChatWith; window.deleteMessageFromCentral = deleteMessageFromCentral; window.deleteConversation = deleteConversation;
     window.viewReportDetail = viewReportDetail; window.markReportRead = markReportRead; window.exportAllReportsToExcel = exportAllReportsToExcel; window.exportAllReportsToPDF = exportAllReportsToPDF;
     window.changeAdminPassword = changeAdminPassword; window.changeSidebarColor = changeSidebarColor; window.openBackupRestoreModal = openBackupRestoreModal; window.closeBackupRestoreModal = closeBackupRestoreModal; window.createBackup = createBackup; window.restoreBackupFromFile = restoreBackupFromFile; window.clearAllLogsFixed = clearAllLogsFixed;
     window.openGeneralSettingsModal = openGeneralSettingsModal; window.closeGeneralSettingsModal = closeGeneralSettingsModal; window.saveGeneralSettingsModal = saveGeneralSettingsModal;
